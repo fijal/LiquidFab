@@ -20,15 +20,13 @@ def get_tile(v, ofs_x, ofs_y, size, out_size):
     # igrid = np.linspace(0, size, out_size)
     # v = rekd(igrid, igrid)
 
-    v = v[ofs_x:ofs_x + size, ofs_y:ofs_y + size]
-    
-    x = np.arange(out_size)
-    x, y = np.meshgrid(x, x)
+    v = v[ofs_x:ofs_x + size + (ofs_x < TILES - 1), ofs_y:ofs_y + size + (ofs_y < TILES - 1)]
     
     v = (v / max_h * 255).astype(np.uint8)
     return v
 
 TILE_SIZE = 32
+TILES = int(512 / TILE_SIZE)
 
 img = np.array(im_frame.get_flattened_data()).reshape((512, 512))
 grid = np.arange(0, 512, dtype=np.int32)
