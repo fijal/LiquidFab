@@ -20,8 +20,8 @@ def get_tile(v, ofs_x, ofs_y, size):
     # igrid = np.linspace(0, size, out_size)
     # v = rekd(igrid, igrid)
 
-    rofs_x = ofs_x * TILES
-    rofs_y = ofs_y * TILES
+    rofs_x = ofs_x * TILE_SIZE * SCALE
+    rofs_y = ofs_y * TILE_SIZE * SCALE
     if ofs_x < TILES - 1 and ofs_y < TILES - 1:
         v = v[rofs_x:rofs_x + size + 1, rofs_y:rofs_y + size + 1]
     if ofs_x == TILES - 1 and ofs_y < TILES - 1:
