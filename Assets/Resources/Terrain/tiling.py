@@ -10,6 +10,11 @@ from matplotlib.colors import LightSource
 from scipy.ndimage import zoom
 
 im_frame = Image.open('terrain.png')
+
+with open("terrain.bytes", "wb") as f:
+    for item in im_frame.get_flattened_data():
+        f.write(struct.pack("B", item))
+
 OUT_SIZE = 1024
 
 def get_tile(v, ofs_x, ofs_y, size):
