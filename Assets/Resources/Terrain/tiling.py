@@ -1,4 +1,5 @@
 from PIL import Image
+import struct
 import numpy as np
 from matplotlib import pylab as plt
 from scipy.interpolate import RectBivariateSpline
@@ -51,6 +52,10 @@ for x in range(int(512 / TILE_SIZE)):
     for y in range(int(512 / TILE_SIZE)):
         o = get_tile(v, x, y, TILE_SIZE * SCALE)
         Image.fromarray(o, mode='L').save('tile%d_%d.png' % (x, y))
+        with open("tile%d_%d.raw" % (x, y), "wb") as f:
+            for ix in range(o.shape[0]):
+                for iy in range(o.shape[1]):
+                    f.write(struct.pack("B", o[ix, iy]))
 
 #img = Image.fromarray(v.flatten().astype(np.float32))
 #img.save('foo.png')
