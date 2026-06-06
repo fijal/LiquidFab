@@ -21,8 +21,8 @@ public class Terrain : MonoBehaviour
             {
                 var tile = new GameObject($"tile{x}_{y}");
                 tile.transform.SetParent(transform);
-                tile.transform.position = new Vector3(TILE_SIZE_X * x * SCALE, 0, TILE_SIZE_Y * y * SCALE);
-                tile.transform.rotation = Quaternion.Euler(new Vector3(0, 270, 0));
+                tile.transform.position = new Vector3((TILE_SIZE_X - 1) * x * SCALE, 0, (TILE_SIZE_Y - 1) * y * SCALE);
+                //tile.transform.rotation = Quaternion.Euler(new Vector3(0, 270, 0));
                 var r = tile.AddComponent<MeshRenderer>();
                 r.material = terrainMat;
                 var filter = tile.AddComponent<MeshFilter>();
@@ -32,18 +32,17 @@ public class Terrain : MonoBehaviour
 
     Mesh createTile(int ofsX, int ofsY)
     {
-        Debug.Log($"{ofsX} {ofsY}");
         mesh = new Mesh();
-        var map = Resources.Load($"terrain/tile{ofsX}_{ofsY}") as Texture2D;
+        var map = Resources.Load<TextAsset>($"terrain/tile{ofsX}_{ofsY}");
         
         var vertices = new Vector3[(TILE_SIZE_X) * (TILE_SIZE_Y)];
         var triangles = new int[(TILE_SIZE_X - 1) * (TILE_SIZE_Y - 1) * 6];
-        var height = map.GetPixels();
+        var height = map.bytes;
         
         for (int x = 0; x < TILE_SIZE_X; ++x)
             for (int y = 0; y < TILE_SIZE_Y; ++y)
             {
-                var h = height[x + y * TILE_SIZE_X].r * HEIGHT_SCALE * SCALE;
+                var h = ((float)height[x + y * TILE_SIZE_X]) / 255 * HEIGHT_SCALE * SCALE;
                 vertices[x + y * (TILE_SIZE_X)] = new Vector3(x * SCALE, h, y * SCALE);
             }
         int vert = 0;
