@@ -52,9 +52,9 @@ for x in range(int(512 / TILE_SIZE)):
     for y in range(int(512 / TILE_SIZE)):
         o = get_tile(v, x, y, TILE_SIZE * SCALE)
         Image.fromarray(o, mode='L').save('tile%d_%d.png' % (x, y))
-        with open("tile%d_%d.raw" % (x, y), "wb") as f:
-            for ix in range(o.shape[0]):
-                for iy in range(o.shape[1]):
+        with open("tile%d_%d.bytes" % (x, y), "wb") as f:
+            for iy in range(o.shape[1]):
+                for ix in range(o.shape[0]):
                     f.write(struct.pack("B", o[ix, iy]))
 
 #img = Image.fromarray(v.flatten().astype(np.float32))
