@@ -11,7 +11,7 @@ from scipy.ndimage import zoom
 im_frame = Image.open('terrain.png')
 OUT_SIZE = 1024
 
-def get_tile(v, ofs_x, ofs_y, size, out_size):
+def get_tile(v, ofs_x, ofs_y, size):
     max_h = np.array(im_frame.get_flattened_data()).max()
     # img = np.array(im_frame.get_flattened_data()).reshape((512, 512))[ofs_x:ofs_x + size, ofs_y:size + ofs_y]
     
@@ -20,13 +20,26 @@ def get_tile(v, ofs_x, ofs_y, size, out_size):
     # igrid = np.linspace(0, size, out_size)
     # v = rekd(igrid, igrid)
 
-    v = v[ofs_x:ofs_x + size + (ofs_x < TILES - 1), ofs_y:ofs_y + size + (ofs_y < TILES - 1)]
-    
+    rofs_x = ofs_x * TILES
+    rofs_y = ofs_y * TILES
+    if ofs_x < TILES - 1 and ofs_y < TILES - 1:
+        v = v[rofs_x:rofs_x + size + 1, rofs_y:rofs_y + size + 1]
+    if ofs_x == TILES - 1 and ofs_y < TILES - 1:
+        v = v[rofs_x: rofs_x + size, rofs_y:rofs_y + size + 1]
+        v = np.concat([v, v[-1, :].reshape(1, size + 1)], axis=0)
+    if ofs_x < TILES - 1 and ofs_y == TILES - 1:
+        v = v[rofs_x: rofs_x + size + 1, rofs_y:rofs_y + size]
+        v = np.concat([v, v[:, -1].reshape(size + 1, 1)], axis=1)
+    if ofs_x == TILES - 1 and ofs_y == TILES - 1:
+        v = v[rofs_x:rofs_x + size, rofs_y:rofs_y + size]
+        v = np.concat([v, v[-1, :].reshape(1, size)], axis=0)
+        v = np.concat([v, v[:, -1].reshape(size + 1, 1)], axis=1)
     v = (v / max_h * 255).astype(np.uint8)
     return v
 
 TILE_SIZE = 32
 TILES = int(512 / TILE_SIZE)
+SCALE = 4
 
 img = np.array(im_frame.get_flattened_data()).reshape((512, 512))
 grid = np.arange(0, 512, dtype=np.int32)
@@ -36,7 +49,7 @@ v = rekd(igrid, igrid)
 
 for x in range(int(512 / TILE_SIZE)):
     for y in range(int(512 / TILE_SIZE)):
-        o = get_tile(v, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, 128)
+        o = get_tile(v, x, y, TILE_SIZE * SCALE)
         Image.fromarray(o, mode='L').save('tile%d_%d.png' % (x, y))
 
 #img = Image.fromarray(v.flatten().astype(np.float32))
