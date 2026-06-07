@@ -11,14 +11,11 @@ from scipy.ndimage import zoom
 
 im_frame = Image.open('terrain.png')
 
-with open("terrain.bytes", "wb") as f:
-    for item in im_frame.get_flattened_data():
-        f.write(struct.pack("B", item))
+max_h = np.array(im_frame.get_flattened_data()).max()
 
 OUT_SIZE = 1024
 
 def get_tile(v, ofs_x, ofs_y, size):
-    max_h = np.array(im_frame.get_flattened_data()).max()
     # img = np.array(im_frame.get_flattened_data()).reshape((512, 512))[ofs_x:ofs_x + size, ofs_y:size + ofs_y]
     
     # grid = np.arange(0, size, dtype=np.int32)
@@ -52,6 +49,9 @@ grid = np.arange(0, 512, dtype=np.int32)
 rekd = RectBivariateSpline(grid, grid, img)
 igrid = np.linspace(0, 512, int(512 * (128 / TILE_SIZE)))
 v = rekd(igrid, igrid)
+with open("terrain.bytes", "wb") as f:
+    for item in (v / max_h * 255).astype(np.uint8).flatten():
+        f.write(struct.pack("B", item))
 
 for x in range(int(512 / TILE_SIZE)):
     for y in range(int(512 / TILE_SIZE)):
