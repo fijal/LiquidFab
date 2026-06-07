@@ -146,39 +146,6 @@ public class Water : MonoBehaviour
         GetComponent<MeshFilter>().mesh = mesh;
 
         return;
-        
-        /*var triangles = new int[(WATER_SIZE_X - 1) * (WATER_SIZE_Y - 1) * 6];
-        var terrainHeight = terrainData.bytes;
-        int terrainSize = (int)Mathf.Sqrt((float)terrainHeight.Length);
-
-        var scale = Terrain.SCALE;
-        var heightScale = Terrain.HEIGHT_SCALE;
-
-        
-        for (int x = 0; x < WATER_SIZE_X; ++x)
-            for (int y = 0; y < WATER_SIZE_Y; ++y)
-                if (waterLevel[x + y * WATER_SIZE_X] > 0)
-                {
-
-                }
-        int vert = 0;
-        for (int tris = 0; tris < (WATER_SIZE_X - 1) * (WATER_SIZE_Y - 1); tris++)
-        {
-            var t = tris * 6;
-            triangles[t + 0] = vert + 0;
-            triangles[t + 1] = vert + WATER_SIZE_X;
-            triangles[t + 2] = vert + 1;
-            triangles[t + 3] = vert + 1;
-            triangles[t + 4] = vert + WATER_SIZE_X;
-            triangles[t + 5] = vert + WATER_SIZE_X + 1;
-            vert++;
-            if (tris % (WATER_SIZE_X - 1) == WATER_SIZE_X - 2)
-                vert++;
-        }
-        //mesh.vertices = vertices;
-        mesh.triangles = triangles;
-        mesh.RecalculateBounds();
-        mesh.RecalculateNormals();*/
     }
 
     private void FixedUpdate()
