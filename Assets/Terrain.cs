@@ -8,12 +8,12 @@ public class Terrain : MonoBehaviour
     int TILE_SIZE_X = 129;
     int TILE_SIZE_Y = 129;
     int TILES = 16;
-    const float SCALE = 0.5f;
-    const float HEIGHT_SCALE = 40f;
+    public const float SCALE = 0.5f;
+    public const float HEIGHT_SCALE = 40f;
+    public const int TERRAIN_SIZE = 2048;
 
     public Material terrainMat;
-    
-    // Start is called before the first frame update
+   
     void Start()
     {
         for (int x = 0; x < TILES; x++)
