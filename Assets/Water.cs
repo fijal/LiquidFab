@@ -5,22 +5,30 @@ using UnityEngine;
 public class Water : MonoBehaviour
 {
     float[] waterLevel;
+    float[] waterLevelStep;
     public TextAsset terrainData;
-
-    int foo = 0;
+    byte[] terrainDataBytes;
 
     const int WATER_SIZE_X = 200, WATER_SIZE_Y = 200;
     const int WATER_OFFSET_X = 150, WATER_OFFSET_Y = 150;
 
+    float lastUpdate;
+
     // Start is called before the first frame update
     void Start()
     {
+        var mesh = new Mesh();
+        GetComponent<MeshFilter>().mesh = mesh;
+        terrainDataBytes = terrainData.bytes;
+
         waterLevel = new float[WATER_SIZE_X * WATER_SIZE_Y];
+        waterLevelStep = new float[WATER_SIZE_X * WATER_SIZE_Y];
         
         for (int y = 0; y < WATER_SIZE_Y; y++)
             for (int x = 0; x < WATER_SIZE_X; x++)
             {
                 waterLevel[x + y * WATER_SIZE_X] = -1;
+                waterLevelStep[x + y * WATER_SIZE_X] = -1;
             }
         for (int x = 0; x < 10; x++)
         {
@@ -34,16 +42,25 @@ public class Water : MonoBehaviour
             swl(WATER_OFFSET_X - 1, y + WATER_OFFSET_Y, 0);
             swl(WATER_OFFSET_X + 10, y + WATER_OFFSET_Y, 0);
         }
+        lastUpdate = 0.0f;
     }
 
     public float terrainHeight(int x, int y)
     {
-        return ((float)terrainData.bytes[x + y * Terrain.TERRAIN_SIZE]) / 255 * Terrain.HEIGHT_SCALE * Terrain.SCALE;
+        return ((float)terrainDataBytes[x + y * Terrain.TERRAIN_SIZE]) / 255 * Terrain.HEIGHT_SCALE * Terrain.SCALE;
     }
 
     float wl(int x, int y)
     {
         return waterLevel[x + y * WATER_SIZE_X];
+    }
+
+    float wlT(int x, int y)
+    {
+        var c = wl(x, y);
+        if (c == -1)
+            c = 0;
+        return c + terrainHeight(x, y);
     }
 
     void swl(int x, int y, float val)
@@ -103,6 +120,39 @@ public class Water : MonoBehaviour
                     triangles[t + 4] = offsets[y + 1] + x - relOffsets[y + 1];
                     triangles[t + 5] = offsets[y + 1] + x + 1 - relOffsets[y + 1];
                     t += 6;
+                    continue;
+                }
+                if (wl(x, y) >= 0 && wl(x + 1, y) >= 0 && wl(x, y + 1) >= 0)
+                {
+                    triangles[t + 2] = offsets[y] + x - relOffsets[y];
+                    triangles[t + 1] = offsets[y] + x + 1 - relOffsets[y];
+                    triangles[t + 0] = offsets[y + 1] + x - relOffsets[y + 1];
+                    t += 3;
+                    continue;
+                }
+                if (wl(x + 1, y) >= 0 && wl(x + 1, y + 1) >= 0 && wl(x, y + 1) >= 0)
+                {
+                    triangles[t + 2] = offsets[y] + x + 1 - relOffsets[y];
+                    triangles[t + 1] = offsets[y + 1] + x + 1 - relOffsets[y + 1];
+                    triangles[t + 0] = offsets[y + 1] + x - relOffsets[y + 1];
+                    t += 3;
+                    continue;
+                }
+               if (wl(x, y) >= 0 && wl(x + 1, y) >= 0 && wl(x + 1, y + 1) >= 0)
+                {
+                    triangles[t + 2] = offsets[y] + x - relOffsets[y];
+                    triangles[t + 1] = offsets[y] + x + 1 - relOffsets[y];
+                    triangles[t + 0] = offsets[y + 1] + x + 1 - relOffsets[y + 1];
+                    t += 3;
+                    continue;
+                }
+                if (wl(x, y) >= 0 && wl(x, y + 1) >= 0 && wl(x + 1, y + 1) >= 0)
+                {
+                    triangles[t + 0] = offsets[y] + x - relOffsets[y];
+                    triangles[t + 1] = offsets[y + 1] + x - relOffsets[y + 1];
+                    triangles[t + 2] = offsets[y + 1] + x + 1 - relOffsets[y + 1];
+                    t += 3;
+                    continue;
                 }
             }
         }
@@ -121,16 +171,31 @@ public class Water : MonoBehaviour
                          ((wl(x + 1, y + 1) >= 0) ? 1 : 0));
                 if (v == 4)
                     tris += 2;
-                //else if (v == 3)
-                //    tris++;
+                else if (v == 3)
+                    tris++;
             }
         return tris;
     }
 
+    void moveWater()
+    {
+        for (int y = 1; y < WATER_SIZE_Y - 1; y++)
+            for (int x = 1; x < WATER_SIZE_X - 1; x++)
+            {
+                // detect the setup where there is no water
+                if (wl(x - 1, y) == -1 && wl(x + 1, y) == -1 && wl(x, y + 1) == -1 && wl(x, y - 1) == -1)
+                    continue;
+                var diff = (wlT(x - 1, y) + wlT(x + 1, y) + wlT(x, y - 1) + wlT(x, y + 1) - 4 * wlT(x, y));
+                waterLevelStep[x + y * WATER_SIZE_X] = wl(x, y) + diff * 0.01f;
+            }
+        float[] b = waterLevel;
+        waterLevel = waterLevelStep;
+        waterLevelStep = b;
+    }
+
     void updateWaterTexture()
     {
-        var mesh = new Mesh();
-
+        
         int[] offsets = new int[WATER_SIZE_Y];
         int[] relOffsets = new int[WATER_SIZE_Y];
         var vCount = calculateVertexCount(offsets, relOffsets);
@@ -138,27 +203,27 @@ public class Water : MonoBehaviour
         populateVertices(vertices);
         var tris = new int[calculateTriangleCount() * 6];
         populateTriangles(tris, offsets, relOffsets);
-        
+
+        var mesh = GetComponent<MeshFilter>().mesh;
         mesh.vertices = vertices;
         mesh.triangles = tris;
         mesh.RecalculateBounds();
         mesh.RecalculateNormals();
-        GetComponent<MeshFilter>().mesh = mesh;
-
+        
         return;
     }
 
-    private void FixedUpdate()
-    {
-        if (foo == 0)
-        {
-            updateWaterTexture();
-            foo = 1;
-        }
-    }
     // Update is called once per frame
     void Update()
     {
-        
+        if (lastUpdate <= 0)
+        {
+            moveWater();
+            updateWaterTexture();
+            lastUpdate = 0.1f;
+        } else
+        {
+            lastUpdate -= Time.deltaTime;
+        }
     }
 }
