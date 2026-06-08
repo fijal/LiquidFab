@@ -6,6 +6,7 @@ public class Water : MonoBehaviour
 {
     float[] waterLevel;
     float[] waterLevelStep;
+    float[] waterLevelPrevStep;
     public TextAsset terrainData;
     byte[] terrainDataBytes;
 
@@ -23,12 +24,14 @@ public class Water : MonoBehaviour
 
         waterLevel = new float[WATER_SIZE_X * WATER_SIZE_Y];
         waterLevelStep = new float[WATER_SIZE_X * WATER_SIZE_Y];
+        waterLevelPrevStep = new float[WATER_SIZE_X * WATER_SIZE_Y];
         
         for (int y = 0; y < WATER_SIZE_Y; y++)
             for (int x = 0; x < WATER_SIZE_X; x++)
             {
                 waterLevel[x + y * WATER_SIZE_X] = -1;
                 waterLevelStep[x + y * WATER_SIZE_X] = -1;
+                waterLevelPrevStep[x + y * WATER_SIZE_X] = -1;
             }
         for (int x = 0; x < 10; x++)
         {
@@ -42,6 +45,10 @@ public class Water : MonoBehaviour
             swl(WATER_OFFSET_X - 1, y + WATER_OFFSET_Y, 0);
             swl(WATER_OFFSET_X + 10, y + WATER_OFFSET_Y, 0);
         }
+
+        for (int y = 0; y < WATER_SIZE_Y; y++)
+            for (int x = 0; x < WATER_SIZE_X; x++)
+                waterLevelPrevStep[x + y * WATER_SIZE_X] = waterLevel[x + y * WATER_SIZE_X];
         lastUpdate = 0.0f;
     }
 
@@ -138,7 +145,7 @@ public class Water : MonoBehaviour
                     t += 3;
                     continue;
                 }
-               if (wl(x, y) >= 0 && wl(x + 1, y) >= 0 && wl(x + 1, y + 1) >= 0)
+                if (wl(x, y) >= 0 && wl(x + 1, y) >= 0 && wl(x + 1, y + 1) >= 0)
                 {
                     triangles[t + 2] = offsets[y] + x - relOffsets[y];
                     triangles[t + 1] = offsets[y] + x + 1 - relOffsets[y];
@@ -185,9 +192,14 @@ public class Water : MonoBehaviour
                 // detect the setup where there is no water
                 if (wl(x - 1, y) == -1 && wl(x + 1, y) == -1 && wl(x, y + 1) == -1 && wl(x, y - 1) == -1)
                     continue;
+                var alpha = 0.001f;
                 var diff = (wlT(x - 1, y) + wlT(x + 1, y) + wlT(x, y - 1) + wlT(x, y + 1) - 4 * wlT(x, y));
-                waterLevelStep[x + y * WATER_SIZE_X] = wl(x, y) + diff * 0.01f;
+                waterLevelStep[x + y * WATER_SIZE_X] = 2 * wl(x, y) + alpha * diff - waterLevelPrevStep[x + y * WATER_SIZE_X];
             }
+
+        for (int y = 1; y < WATER_SIZE_Y; y++)
+            for (int x = 1; x < WATER_SIZE_X; x++)
+                waterLevelPrevStep[x + y * WATER_SIZE_X] = waterLevel[x + y * WATER_SIZE_X];
         float[] b = waterLevel;
         waterLevel = waterLevelStep;
         waterLevelStep = b;
