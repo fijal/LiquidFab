@@ -27,17 +27,13 @@ public class Water : MonoBehaviour
         terrainDataBytes = terrainData.bytes;
 
         waterLevel = new float[WATER_SIZE_X * WATER_SIZE_Y];
-        flowX = new float[WATER_SIZE_X * WATER_SIZE_Y];
-        flowY = new float[WATER_SIZE_X * WATER_SIZE_Y];
-        waterLevelStep = new float[WATER_SIZE_X * WATER_SIZE_Y];
-        waterLevelPrevStep = new float[WATER_SIZE_X * WATER_SIZE_Y];
+        flowX = new float[(WATER_SIZE_X + 1) * WATER_SIZE_Y];
+        flowY = new float[WATER_SIZE_X * (WATER_SIZE_Y + 1)];
         
         for (int y = 0; y < WATER_SIZE_Y; y++)
             for (int x = 0; x < WATER_SIZE_X; x++)
             {
-                waterLevel[x + y * WATER_SIZE_X] = 0; // -1;
-                waterLevelStep[x + y * WATER_SIZE_X] = 0; // -1;
-                waterLevelPrevStep[x + y * WATER_SIZE_X] = 0; // -1;
+                waterLevel[x + y * WATER_SIZE_X] = 0;
             }
         for (int x = 0; x < 10; x++)
         {
@@ -52,9 +48,6 @@ public class Water : MonoBehaviour
             swl(WATER_OFFSET_X + 10, y + WATER_OFFSET_Y, 0);
         }
         
-        for (int y = 0; y < WATER_SIZE_Y; y++)
-            for (int x = 0; x < WATER_SIZE_X; x++)
-                waterLevelPrevStep[x + y * WATER_SIZE_X] = waterLevel[x + y * WATER_SIZE_X];
         lastUpdate = 0.0f;
     }
 
@@ -88,7 +81,7 @@ public class Water : MonoBehaviour
 
         float flowx(int x, int y)
         {
-            return flowX[x + y * WATER_SIZE_X];
+            return flowX[x + (y * (WATER_SIZE_X + 1))];
         }
 
         float flowy(int x, int y)
@@ -102,16 +95,25 @@ public class Water : MonoBehaviour
         }
 
         const float dt = 1f;
+        const float BOUNDARY_FLOW = 0f;
 
-        for (int y = 1; y < WATER_SIZE_Y - 1; y++)
-            for (int x = 1; x < WATER_SIZE_X - 1; x++)
-            {
-                flowX[x + y * WATER_SIZE_X] += FC * dt * (wlT(x - 1, y) - wlT(x, y));
+        for (int i = 0; i < WATER_SIZE_X; ++i)
+        {
+            flowX[i * (WATER_SIZE_X + 1)] = BOUNDARY_FLOW;
+            flowX[WATER_SIZE_X + i * (WATER_SIZE_X + 1)] = BOUNDARY_FLOW;
+            flowY[i] = BOUNDARY_FLOW;
+            flowY[i + WATER_SIZE_X * (WATER_SIZE_X - 1)] = BOUNDARY_FLOW;
+        }
+
+        for (int y = 0; y < WATER_SIZE_Y; y++)
+            for (int x = 1; x < WATER_SIZE_X; x++)
+                flowX[x + y * (WATER_SIZE_X + 1)] += FC * dt * (wlT(x - 1, y) - wlT(x, y));
+        for (int y = 1; y < WATER_SIZE_Y; y++)
+            for (int x = 0; x < WATER_SIZE_X; x++)
                 flowY[x + y * WATER_SIZE_X] += FC * dt * (wlT(x, y - 1) - wlT(x, y));
-            }
 
-        for (int y = 1; y < WATER_SIZE_Y - 1; y++)
-            for (int x = 1; x < WATER_SIZE_X - 1; x++)
+        for (int y = 0; y < WATER_SIZE_Y; y++)
+            for (int x = 0; x < WATER_SIZE_X; x++)
             {
                 float total = zeroclip(-flowx(x, y)) + zeroclip(-flowy(x, y)) + zeroclip(flowx(x + 1, y)) + zeroclip(flowy(x, y + 1));
                 float max_outflow = wl(x, y) / dt;
@@ -119,19 +121,19 @@ public class Water : MonoBehaviour
                 {
                     var scale = Mathf.Min(1f, max_outflow / total);
                     if (flowx(x, y) < 0)
-                        flowX[x + y * WATER_SIZE_X] *= scale;
+                        flowX[x + y * (WATER_SIZE_X + 1)] *= scale;
                     if (flowy(x, y) < 0)
                         flowY[x + y * WATER_SIZE_X] *= scale;
                     if (flowx(x + 1, y) > 0)
-                        flowX[x + 1 + y * WATER_SIZE_X] *= scale;
+                        flowX[x + 1 + y * (WATER_SIZE_X + 1)] *= scale;
                     if (flowy(x, y + 1) > 0)
                         flowY[x + (y + 1) * WATER_SIZE_X] *= scale;
 
                 }
             }
 
-        for (int y = 1; y < WATER_SIZE_Y - 1; y++)
-            for (int x = 1; x < WATER_SIZE_X - 1; x++)
+        for (int y = 0; y < WATER_SIZE_Y; y++)
+            for (int x = 0; x < WATER_SIZE_X; x++)
             {
                 waterLevel[x + y * WATER_SIZE_X] += (flowx(x, y) + flowy(x, y) - flowx(x + 1, y) - flowy(x, y + 1)) / dt;
             }
@@ -142,7 +144,7 @@ public class Water : MonoBehaviour
 
     void updateWaterTexture()
     {
-        int start = 1, end = 199;
+        int start = 0, end = 200;
         int size = end - start;
         var vertices = new Vector3[size * size];
         var tris = new List<int>();
@@ -153,7 +155,6 @@ public class Water : MonoBehaviour
             {
                 vertices[c] = new Vector3(x * Terrain.SCALE, wl(x, y) + terrainHeight(x, y) - 0.001f, y * Terrain.SCALE);
                 if (y < end - 1 && x < end - 1)
-                    //&& (visible(x, y) || visible(x, y + 1) || visible(x + 1, y) || visible(x + 1, y + 1)))
                 {
                     int ix = x - start;
                     int iy = y - start;
