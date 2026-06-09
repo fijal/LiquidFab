@@ -138,42 +138,6 @@ public class Water : MonoBehaviour
 
 
         return;
-        for (int y = 1; y < WATER_SIZE_Y - 1; y++)
-            for (int x = 1; x < WATER_SIZE_X - 1; x++)
-            {
-                // detect the setup where there is no water
-                if (wl(x - 1, y) == -1 && wl(x + 1, y) == -1 && wl(x, y + 1) == -1 && wl(x, y - 1) == -1)
-                    continue;
-                var alpha = 0.0002f;
-                var diff = (wlT(x - 1, y) + wlT(x + 1, y) + wlT(x, y - 1) + wlT(x, y + 1) - 4 * wlT(x, y));
-                float cur = wl(x, y);
-                if (cur == -1)
-                    cur = 0;
-                float prev = waterLevelPrevStep[x + y * WATER_SIZE_X];
-                if (prev == -1)
-                    prev = 0;
-                waterLevelStep[x + y * WATER_SIZE_X] = 2 * cur + alpha * diff - prev;
-            }
-
-        for (int y = 1; y < WATER_SIZE_Y - 1; y++)
-            for (int x = 1; x < WATER_SIZE_X - 1; x++)
-            {
-                var epsilon = 0.1f;
-                /*if ((waterLevelStep[(x + 1) + y * WATER_SIZE_X] <= epsilon) &&
-                    (waterLevelStep[(x) + (y + 1) * WATER_SIZE_X] <= epsilon) &&
-                    (waterLevelStep[(x - 1) + y * WATER_SIZE_X] <= epsilon) &&
-                    (waterLevelStep[(x) + (y - 1) * WATER_SIZE_X] <= epsilon))
-                    waterLevelStep[x + y * WATER_SIZE_X] = -1;*/
-            }
-
-
-        for (int y = 1; y < WATER_SIZE_Y; y++)
-            for (int x = 1; x < WATER_SIZE_X; x++)
-                waterLevelPrevStep[x + y * WATER_SIZE_X] = waterLevel[x + y * WATER_SIZE_X];
-
-        float[] b = waterLevel;
-        waterLevel = waterLevelStep;
-        waterLevelStep = b;
     }
 
     void updateWaterTexture()
@@ -182,11 +146,6 @@ public class Water : MonoBehaviour
         int size = end - start;
         var vertices = new Vector3[size * size];
         var tris = new List<int>();
-
-        bool visible(int x, int y)
-        {
-            return wl(x, y) > 0.01f;
-        }
 
         int c = 0;
         for (int y = start; y < end; y++)
