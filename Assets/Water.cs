@@ -139,6 +139,7 @@ public class Water : MonoBehaviour
         int start = 0, end = 200;
         int size = end - start;
         var vertices = new Vector3[size * size];
+        var uvs = new Vector2[size * size];
         var tris = new List<int>();
 
         int c = 0;
@@ -146,6 +147,7 @@ public class Water : MonoBehaviour
             for (int x = start; x < end; x++)
             {
                 vertices[c] = new Vector3(x * Terrain.SCALE, wl(x, y) + terrainHeight(x, y) - 0.001f, y * Terrain.SCALE);
+                uvs[c] = new Vector2(0, wl(x, y));
                 if (y < end - 1 && x < end - 1)
                 {
                     int ix = x - start;
@@ -162,6 +164,7 @@ public class Water : MonoBehaviour
 
         var mesh = GetComponent<MeshFilter>().mesh;
         mesh.vertices = vertices;
+        mesh.uv = uvs;
         mesh.SetTriangles(tris, 0);
         mesh.RecalculateBounds();
         mesh.RecalculateNormals();
