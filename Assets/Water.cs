@@ -160,8 +160,8 @@ public class Water : MonoBehaviour
                     int iy = y - start;
                     tris.Add(ix + iy * size);
                     tris.Add(ix + (iy + 1) * size);
-                    tris.Add((ix + 1) + (iy + 1) * size);
-                    tris.Add(ix + iy * size);
+                    tris.Add(ix + 1 + iy * size);
+                    tris.Add(ix + (iy + 1) * size);
                     tris.Add((ix + 1) + (iy + 1) * size);
                     tris.Add(ix + 1 + iy * size);
                 }
