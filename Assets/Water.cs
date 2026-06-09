@@ -5,9 +5,7 @@ using UnityEngine;
 public class Water : MonoBehaviour
 {
     float[] waterLevel;
-    float[] waterLevelStep;
-    float[] waterLevelPrevStep;
-
+    
     float[] flowX;
     float[] flowY;
 
@@ -35,18 +33,6 @@ public class Water : MonoBehaviour
             {
                 waterLevel[x + y * WATER_SIZE_X] = 0;
             }
-        for (int x = 0; x < 10; x++)
-        {
-            for (int y = 0; y < 10; y++)
-                swl(x + WATER_OFFSET_X, y + WATER_OFFSET_Y, 1.5f);
-            swl(x + WATER_OFFSET_X, (WATER_OFFSET_Y - 1), 0);
-            swl(x + WATER_OFFSET_X, WATER_OFFSET_Y + 10, 0);
-        }
-        for (int y = 0; y < 10; y++)
-        {
-            swl(WATER_OFFSET_X - 1, y + WATER_OFFSET_Y, 0);
-            swl(WATER_OFFSET_X + 10, y + WATER_OFFSET_Y, 0);
-        }
         
         lastUpdate = 0.0f;
     }
@@ -78,6 +64,12 @@ public class Water : MonoBehaviour
     void moveWater()
     {
         const float FC = 0.003f;
+
+        swl(130, 130, wl(130, 130) + 0.25f);
+        swl(130, 131, wl(130, 131) + 0.25f);
+        swl(131, 130, wl(131, 130) + 0.25f);
+        swl(131, 131, wl(131, 131) + 0.25f);
+
 
         float flowx(int x, int y)
         {
