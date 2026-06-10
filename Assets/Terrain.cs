@@ -4,11 +4,15 @@ using UnityEngine;
 
 public class Tile : MonoBehaviour
 {
+    public int indexX, indexY;
+
     public void tileHit(int triIndex)
     {
         var gridPosY = triIndex / 2 / 128;
         var gridPosX = (triIndex / 2) % 128;
-        Debug.Log($"{gridPosX} {gridPosY}");
+
+        var ter = transform.parent.GetComponent<Terrain>();
+        ter.terrainRaise(indexX, indexY, gridPosX, gridPosY);
     }
 }
 
@@ -37,6 +41,20 @@ public class Terrain : MonoBehaviour
         terrainHeight[x + y * TERRAIN_SIZE] = v;
     }
 
+    public void terrainRaise(int tileX, int tileY, int gridX, int gridY)
+    {
+        var x = gridX + tileX * (TILE_SIZE_X - 1);
+        var y = gridY + tileY * (TILE_SIZE_Y - 1);
+        setHeight(x, y, height(x, y) + 0.5f);
+        recalculateMesh(tileX, tileY);
+    }
+
+    void recalculateMesh(int tileX, int tileY)
+    {
+        var mesh = createTile(tileX, tileY);
+        transform.Find($"tile{tileX}_{tileY}").GetComponent<MeshFilter>().mesh = mesh;
+    }
+
     void Start()
     {
         var terrainDataBytes = terrainData.bytes;
@@ -56,7 +74,9 @@ public class Terrain : MonoBehaviour
                 r.material = terrainMat;
                 var filter = tile.AddComponent<MeshFilter>();
                 var collider = tile.AddComponent<MeshCollider>();
-                tile.AddComponent<Tile>();
+                var t = tile.AddComponent<Tile>();
+                t.indexX = x;
+                t.indexY = y;
                 filter.mesh = createTile(x, y);
                 collider.sharedMesh = filter.mesh;
             }
