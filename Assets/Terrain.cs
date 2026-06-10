@@ -6,13 +6,13 @@ public class Tile : MonoBehaviour
 {
     public int indexX, indexY;
 
-    public void tileHit(int triIndex)
+    public void tileHit(int triIndex, bool mod)
     {
         var gridPosY = triIndex / 2 / 128;
         var gridPosX = (triIndex / 2) % 128;
 
         var ter = transform.parent.GetComponent<Terrain>();
-        ter.terrainRaise(indexX, indexY, gridPosX, gridPosY);
+        ter.terrainMod(indexX, indexY, gridPosX, gridPosY, mod ? 0.5f : -0.5f);
     }
 }
 
@@ -41,11 +41,11 @@ public class Terrain : MonoBehaviour
         terrainHeight[x + y * TERRAIN_SIZE] = v;
     }
 
-    public void terrainRaise(int tileX, int tileY, int gridX, int gridY)
+    public void terrainMod(int tileX, int tileY, int gridX, int gridY, float val)
     {
         var x = gridX + tileX * (TILE_SIZE_X - 1);
         var y = gridY + tileY * (TILE_SIZE_Y - 1);
-        setHeight(x, y, height(x, y) + 0.5f);
+        setHeight(x, y, height(x, y) + val);
         recalculateMesh(tileX, tileY);
     }
 

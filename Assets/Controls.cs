@@ -46,13 +46,13 @@ public class Controls : MonoBehaviour
         camera.transform.Rotate(-v, 0, 0);
     }
 
-    void RaycastToTerrain()
+    void RaycastToTerrain(bool mod)
     {
         var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
         if (Physics.Raycast(ray, out hit, 100))
-            hit.transform.gameObject.GetComponent<Tile>().tileHit(hit.triangleIndex);
+            hit.transform.gameObject.GetComponent<Tile>().tileHit(hit.triangleIndex, mod);
     }
 
     void Update()
@@ -75,7 +75,9 @@ public class Controls : MonoBehaviour
         if (Input.GetMouseButton(1))
             RotateCam();
         if (Input.GetMouseButtonDown(0))
-            RaycastToTerrain();
+        {
+            RaycastToTerrain(Input.GetKey(KeyCode.LeftShift));
+        }
         if (Input.mouseScrollDelta.y != 0)
         {
             Move(false, new Vector3(0, Input.mouseScrollDelta.y * -HEIGHT_SCROLL_SPEED, 0));
