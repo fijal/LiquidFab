@@ -2,6 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public class Tile : MonoBehaviour
+{
+    public void tileHit(int triIndex)
+    {
+        var gridPosY = triIndex / 2 / 128;
+        var gridPosX = (triIndex / 2) % 128;
+        Debug.Log($"{gridPosX} {gridPosY}");
+    }
+}
+
 public class Terrain : MonoBehaviour
 {
     Mesh mesh;
@@ -13,9 +23,28 @@ public class Terrain : MonoBehaviour
     public const int TERRAIN_SIZE = 2048;
 
     public Material terrainMat;
-   
+    public TextAsset terrainData;
+
+    float[] terrainHeight;
+
+    public float height(int x, int y)
+    {
+        return terrainHeight[x + y * TERRAIN_SIZE];
+    }
+
+    public void setHeight(int x, int y, float v)
+    {
+        terrainHeight[x + y * TERRAIN_SIZE] = v;
+    }
+
     void Start()
     {
+        var terrainDataBytes = terrainData.bytes;
+        terrainHeight = new float[TERRAIN_SIZE * TERRAIN_SIZE];
+        for (int y = 0; y < TERRAIN_SIZE; y++)
+            for (int x = 0; x < TERRAIN_SIZE; x++)
+                terrainHeight[x + y * TERRAIN_SIZE] = ((float)terrainDataBytes[y + x * TERRAIN_SIZE]) / 255 * HEIGHT_SCALE * SCALE;
+
         for (int x = 0; x < TILES; x++)
             for (int y = 0; y < TILES; y++)
             {
@@ -26,23 +55,30 @@ public class Terrain : MonoBehaviour
                 var r = tile.AddComponent<MeshRenderer>();
                 r.material = terrainMat;
                 var filter = tile.AddComponent<MeshFilter>();
+                var collider = tile.AddComponent<MeshCollider>();
+                tile.AddComponent<Tile>();
                 filter.mesh = createTile(x, y);
+                collider.sharedMesh = filter.mesh;
             }
     }
 
     Mesh createTile(int ofsX, int ofsY)
     {
         mesh = new Mesh();
-        var map = Resources.Load<TextAsset>($"terrain/tile{ofsX}_{ofsY}");
         
         var vertices = new Vector3[(TILE_SIZE_X) * (TILE_SIZE_Y)];
         var triangles = new int[(TILE_SIZE_X - 1) * (TILE_SIZE_Y - 1) * 6];
-        var height = map.bytes;
         
         for (int x = 0; x < TILE_SIZE_X; ++x)
             for (int y = 0; y < TILE_SIZE_Y; ++y)
             {
-                var h = ((float)height[x + y * TILE_SIZE_X]) / 255 * HEIGHT_SCALE * SCALE;
+                var ix = x + ofsX * (TILE_SIZE_X - 1);
+                if (ix == TERRAIN_SIZE)
+                    ix = TERRAIN_SIZE - 1;
+                var iy = y + ofsY * (TILE_SIZE_Y - 1);
+                if (iy == TERRAIN_SIZE)
+                    iy = TERRAIN_SIZE - 1;
+                var h = height(ix, iy);
                 vertices[x + y * (TILE_SIZE_X)] = new Vector3(x * SCALE, h, y * SCALE);
             }
         int vert = 0;

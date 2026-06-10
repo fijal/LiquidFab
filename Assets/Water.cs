@@ -9,9 +9,6 @@ public class Water : MonoBehaviour
     float[] flowX;
     float[] flowY;
 
-    public TextAsset terrainData;
-    byte[] terrainDataBytes;
-
     const int WATER_SIZE_X = 200, WATER_SIZE_Y = 200;
     const int WATER_OFFSET_X = 130, WATER_OFFSET_Y = 130;
 
@@ -22,8 +19,7 @@ public class Water : MonoBehaviour
     {
         var mesh = new Mesh();
         GetComponent<MeshFilter>().mesh = mesh;
-        terrainDataBytes = terrainData.bytes;
-
+        
         waterLevel = new float[WATER_SIZE_X * WATER_SIZE_Y];
         flowX = new float[(WATER_SIZE_X + 1) * WATER_SIZE_Y];
         flowY = new float[WATER_SIZE_X * (WATER_SIZE_Y + 1)];
@@ -37,12 +33,6 @@ public class Water : MonoBehaviour
         lastUpdate = 0.0f;
     }
 
-    public float terrainHeight(int x, int y)
-    {
-        // XXX somehow the terrain data has flipped axis, let's not care for now
-        return ((float)terrainDataBytes[y + x * Terrain.TERRAIN_SIZE]) / 255 * Terrain.HEIGHT_SCALE * Terrain.SCALE;
-    }
-
     float wl(int x, int y)
     {
         return waterLevel[x + y * WATER_SIZE_X];
@@ -50,10 +40,7 @@ public class Water : MonoBehaviour
 
     float wlT(int x, int y)
     {
-        var c = wl(x, y);
-        //if (c == -1)
-        //    c = 0;
-        return c + terrainHeight(x, y);
+        return wl(x, y) + transform.parent.GetComponent<Terrain>().height(x, y);
     }
 
     void swl(int x, int y, float val)
@@ -146,7 +133,7 @@ public class Water : MonoBehaviour
         for (int y = start; y < end; y++)
             for (int x = start; x < end; x++)
             {
-                vertices[c] = new Vector3(x * Terrain.SCALE, wl(x, y) + terrainHeight(x, y) - 0.001f, y * Terrain.SCALE);
+                vertices[c] = new Vector3(x * Terrain.SCALE, wl(x, y) + transform.parent.GetComponent<Terrain>().height(x, y) - 0.001f, y * Terrain.SCALE);
                 uvs[c] = new Vector2(0, wl(x, y));
                 if (y < end - 1 && x < end - 1)
                 {
