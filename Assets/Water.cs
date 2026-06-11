@@ -22,6 +22,8 @@ public class Water : MonoBehaviour, ISimulation
         
         lastUpdate = 0.0f;
         s = new Simulation(WATER_SIZE_X, WATER_SIZE_Y, 1, this);
+        s.friction = 0.5f;
+        s.viscosity = 0.1f;
     }
 
     float wl(int x, int y)

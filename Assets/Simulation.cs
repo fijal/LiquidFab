@@ -14,16 +14,17 @@ public class Simulation
     float[] flowY;
     int sizeX, sizeY;
     ISimulation source;
-    float viscosity;
+    public float viscosity;
+    public float maxAngle;
+    public float friction; // 0 - 1
 
-    public Simulation(int sizeX, int sizeY, int tiles, ISimulation source, float viscosity=0)
+    public Simulation(int sizeX, int sizeY, int tiles, ISimulation source)
     {
         flowX = new float[(sizeX + 1) * sizeY];
         flowY = new float[sizeX * (sizeY + 1)];
         this.sizeX = sizeX;
         this.sizeY = sizeY;
         this.source = source;
-        this.viscosity = viscosity;
     }
 
     float flowXAt(int x, int y)
@@ -53,6 +54,7 @@ public class Simulation
 
         const float dt = 1f;
         const float BOUNDARY_FLOW = 0f;
+        var frictionFactor = Mathf.Pow(1 - friction, dt);
 
         for (int i = 0; i < sizeX; ++i)
         {
@@ -64,16 +66,43 @@ public class Simulation
 
         for (int y = 0; y < sizeY; y++)
             for (int x = 1; x < sizeX; x++)
-                flowX[x + y * (sizeX + 1)] += FC * dt * (source.readAtPos(x - 1, y) - source.readAtPos(x, y));
+            {
+                var v = (source.readAtPos(x - 1, y) - source.readAtPos(x, y)) * frictionFactor * FC * dt;
+                if (maxAngle > 0)
+                {
+                    if (v > 0 && v < maxAngle)
+                        v = 0;
+                    if (v > 0)
+                        v -= maxAngle;
+                    if (v < 0 && v > -maxAngle)
+                        v = 0;
+                    if (v < 0)
+                        v += maxAngle;
+                }
+                flowX[x + y * (sizeX + 1)] += v;
+            }
         for (int y = 1; y < sizeY; y++)
             for (int x = 0; x < sizeX; x++)
-                flowY[x + y * sizeX] += FC * dt * (source.readAtPos(x, y - 1) - source.readAtPos(x, y));
+            {
+                var v = (source.readAtPos(x, y - 1) - source.readAtPos(x, y)) * frictionFactor * FC * dt;
+                if (maxAngle > 0)
+                {
+                    if (v > 0 && v < maxAngle)
+                        v = 0;
+                    if (v > 0)
+                        v -= maxAngle;
+                    if (v < 0 && v > -maxAngle)
+                        v = 0;
+                    if (v < 0)
+                        v += maxAngle;
+                }
+                flowY[x + y * sizeX] += v;
+            }
 
         // viscosity
         if (viscosity > 0)
         {
             for (int y = 0; y < sizeY; ++y)
-            {
                 for (int x = 1; x < sizeX; ++x)
                 {
                     float H = (flowXAt(x, y) > 0f) ? source.readAtPos(x - 1, y) : source.readAtPos(x, y);
@@ -82,9 +111,7 @@ public class Simulation
                     if (H > 0f)
                         flowX[x + y * (sizeX + 1)] *= H / (H + 3 * dt * viscosity);
                 }
-            }
             for (int y = 1; y < sizeY; ++y)
-            {
                 for (int x = 0; x < sizeX; ++x)
                 {
                     float H = (flowYAt(x, y) > 0f) ? source.readAtPos(x, y - 1) : source.readAtPos(x, y);
@@ -93,7 +120,6 @@ public class Simulation
                     if (H > 0f)
                         flowY[x + y * sizeX] *= H / (H + 3 * dt * viscosity);
                 }
-            }
         }
 
         for (int y = 0; y < sizeY; y++)
