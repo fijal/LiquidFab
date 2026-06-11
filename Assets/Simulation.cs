@@ -14,14 +14,26 @@ public class Simulation
     float[] flowY;
     int sizeX, sizeY;
     ISimulation source;
+    float viscosity;
 
-    public Simulation(int sizeX, int sizeY, int tiles, ISimulation source)
+    public Simulation(int sizeX, int sizeY, int tiles, ISimulation source, float viscosity=0)
     {
         flowX = new float[(sizeX + 1) * sizeY];
         flowY = new float[sizeX * (sizeY + 1)];
         this.sizeX = sizeX;
         this.sizeY = sizeY;
         this.source = source;
+        this.viscosity = viscosity;
+    }
+
+    float flowXAt(int x, int y)
+    {
+        return flowX[x + y * (sizeX + 1)];
+    }
+
+    float flowYAt(int x, int y)
+    {
+        return flowY[x + y * sizeX];
     }
 
     public void Step()
@@ -56,6 +68,33 @@ public class Simulation
         for (int y = 1; y < sizeY; y++)
             for (int x = 0; x < sizeX; x++)
                 flowY[x + y * sizeX] += FC * dt * (source.readAtPos(x, y - 1) - source.readAtPos(x, y));
+
+        // viscosity
+        if (viscosity > 0)
+        {
+            for (int y = 0; y < sizeY; ++y)
+            {
+                for (int x = 1; x < sizeX; ++x)
+                {
+                    float H = (flowXAt(x, y) > 0f) ? source.readAtPos(x - 1, y) : source.readAtPos(x, y);
+                    H *= H;
+
+                    if (H > 0f)
+                        flowX[x + y * (sizeX + 1)] *= H / (H + 3 * dt * viscosity);
+                }
+            }
+            for (int y = 1; y < sizeY; ++y)
+            {
+                for (int x = 0; x < sizeX; ++x)
+                {
+                    float H = (flowYAt(x, y) > 0f) ? source.readAtPos(x, y - 1) : source.readAtPos(x, y);
+                    H *= H;
+
+                    if (H > 0f)
+                        flowY[x + y * sizeX] *= H / (H + 3 * dt * viscosity);
+                }
+            }
+        }
 
         for (int y = 0; y < sizeY; y++)
             for (int x = 0; x < sizeX; x++)
