@@ -19,7 +19,7 @@ public class Tile : MonoBehaviour
 
     public void Update()
     {
-        if (updateTerrain > 0)
+        /*if (updateTerrain > 0)
         {
             updateTerrain -= Time.deltaTime;
             if (updateTerrain <= 0)
@@ -30,11 +30,11 @@ public class Tile : MonoBehaviour
                 if (c > 0)
                     updateTerrain = 0.3f;
             }
-        }
+        }*/
     }
 }
 
-public class Terrain : MonoBehaviour
+public class Terrain : MonoBehaviour, ISimulation
 {
     Mesh mesh;
     int TILE_SIZE_X = 129;
@@ -47,12 +47,25 @@ public class Terrain : MonoBehaviour
     public Material terrainMat;
     public TextAsset terrainData;
 
+    Simulation s;
+
     float[] terrainHeight;
-    float[] terrainFlowX, terrainFlowY;
+
+    float lastUpdate;
 
     public float height(int x, int y)
     {
         return terrainHeight[x + y * TERRAIN_SIZE];
+    }
+
+    public float readAtPos(int x, int y)
+    {
+        return height(x, y);
+    }
+
+    public float[] getData()
+    {
+        return terrainHeight;
     }
 
     public void setHeight(int x, int y, float v)
@@ -66,55 +79,8 @@ public class Terrain : MonoBehaviour
         var y = gridY + tileY * (TILE_SIZE_Y - 1);
 
         setHeight(x, y, height(x, y) + val);
-        recalculateMesh(tileX, tileY);
-    }
-
-    public int propagateTerrainChanges()
-    {
-        return 0;
-
-        float clip(float v)
-        {
-            if (v < 0.3f && v > -0.3f)
-                return 0;
-            return v;
-        }
-
-        // deal with tiles and boundary conditions
-        for (int y = 0; y < TERRAIN_SIZE; y++)
-            for (int x = 0; x < TERRAIN_SIZE; x++) {
-                terrainFlowX[x + y * TERRAIN_SIZE] = 0;
-                terrainFlowY[x + y * TERRAIN_SIZE] = 0;
-            }
-        float C = 0.1f;
-
-        for (int y = 1; y < TERRAIN_SIZE; y++)
-            for (int x = 1; x < TERRAIN_SIZE; x++)
-            {
-                terrainFlowX[x + y * TERRAIN_SIZE] = clip(height(x - 1, y) - height(x, y)) * C;
-                terrainFlowY[x + y * TERRAIN_SIZE] = clip(height(x, y - 1) - height(x, y)) * C;
-                if (terrainFlowX[x + y * TERRAIN_SIZE] != 0)
-                    Debug.Log($"X {x} {y} {terrainFlowX[x + y * TERRAIN_SIZE]}");
-                if (terrainFlowY[x + y * TERRAIN_SIZE] != 0)
-                    Debug.Log($"Y {x} {y} {terrainFlowY[x + y * TERRAIN_SIZE]}");
-            }
-        var something_changed = 0;
-        for (int y = 0; y < TERRAIN_SIZE; y++)
-            for (int x = 0; x < TERRAIN_SIZE; x++)
-            {
-                //if (terrainFlowX[x + y * TERRAIN_SIZE] != 0 || terrainFlowY[x + y * TERRAIN_SIZE] != 0)
-                {
-                    setHeight(x, y, height(x, y) + terrainFlowX[x + y * TERRAIN_SIZE] + terrainFlowY[x + y * TERRAIN_SIZE]);
-                    something_changed = 1;
-                }
-            }
-
-        //for (int y = 0; y < TILES; y++)
-        //    for (int x = 0; x < TILES; x++)
-        //    {
-        recalculateMesh(0, 0);
-        //    }
-        return something_changed;
+        lastUpdate = 1.0f;
+        //recalculateMesh(tileX, tileY);
     }
 
     void recalculateMesh(int tileX, int tileY)
@@ -127,8 +93,6 @@ public class Terrain : MonoBehaviour
     {
         var terrainDataBytes = terrainData.bytes;
         terrainHeight = new float[TERRAIN_SIZE * TERRAIN_SIZE];
-        terrainFlowX = new float[TERRAIN_SIZE * TERRAIN_SIZE];
-        terrainFlowY = new float[TERRAIN_SIZE * TERRAIN_SIZE];
         for (int y = 0; y < TERRAIN_SIZE; y++)
             for (int x = 0; x < TERRAIN_SIZE; x++)
                 terrainHeight[x + y * TERRAIN_SIZE] = ((float)terrainDataBytes[y + x * TERRAIN_SIZE]) / 255 * HEIGHT_SCALE * SCALE;
@@ -148,8 +112,14 @@ public class Terrain : MonoBehaviour
                 t.indexX = x;
                 t.indexY = y;
                 filter.mesh = createTile(x, y);
-                collider.sharedMesh = filter.mesh;
+                collider.sharedMesh = filter.sharedMesh;
             }
+
+        s = new Simulation(TERRAIN_SIZE, TERRAIN_SIZE, TILES, this);
+        s.friction = 0.5f;
+        s.viscosity = 0.1f;
+        s.maxAngle = 0.2f;
+        s.mass = 1f;
     }
 
     Mesh createTile(int ofsX, int ofsY)
@@ -195,6 +165,15 @@ public class Terrain : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (lastUpdate > 0)
+        {
+            lastUpdate -= Time.deltaTime;
+            if (lastUpdate <= 0)
+            {
+                lastUpdate = 1.0f;
+                s.Step();
+                recalculateMesh(0, 0);
+            }
+        }
     }
 }

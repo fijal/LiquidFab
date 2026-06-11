@@ -9,7 +9,7 @@ public class Controls : MonoBehaviour
     const float MOVE_SPEED = 16f;
     const float SHIFT_SPEEDUP = 3f;
     const float MOUSE_ROTATE_SPEED = 1f;
-    const float HEIGHT_SCROLL_SPEED = 20f;
+    const float HEIGHT_SCROLL_SPEED = 5f;
 
     Vector3 lastMousePos;
 

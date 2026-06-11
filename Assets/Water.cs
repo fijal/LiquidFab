@@ -23,7 +23,7 @@ public class Water : MonoBehaviour, ISimulation
         
         lastUpdate = 0.0f;
         s = new Simulation(WATER_SIZE_X, WATER_SIZE_Y, 1, this);
-        s.friction = 0.5f;
+        s.friction = 0f;
         s.viscosity = 0.1f;
 
         terrain = transform.parent.GetComponent<Terrain>();
@@ -77,7 +77,7 @@ public class Water : MonoBehaviour, ISimulation
                 c++;
             }
 
-        var mesh = GetComponent<MeshFilter>().mesh;
+        var mesh = GetComponent<MeshFilter>().sharedMesh;
         mesh.vertices = vertices;
         mesh.uv = uvs;
         mesh.SetTriangles(tris, 0);

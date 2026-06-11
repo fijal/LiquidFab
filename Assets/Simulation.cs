@@ -16,9 +16,9 @@ public class Simulation
     ISimulation source;
     public float viscosity;
     public float maxAngle;
-    public float friction; // 0 - 1
+    public float friction = 0.05f; // 0 - 1
     public float mass = 1;
-    float gravity = 1f;
+    float gravity = 0.3f;
 
     public Simulation(int sizeX, int sizeY, int tiles, ISimulation source)
     {
@@ -63,6 +63,16 @@ public class Simulation
             flowX[sizeX + i * (sizeX + 1)] = BOUNDARY_FLOW;
             flowY[i] = BOUNDARY_FLOW;
             flowY[i + sizeX * (sizeX - 1)] = BOUNDARY_FLOW;
+        }
+
+        if (maxAngle > 0)
+        {
+            for (int y = 1; y < sizeY; y++)
+                for (int x = 1; x < sizeX + 1; x++)
+                    flowX[x + y * (sizeX + 1)] = 0;
+            for (int y = 1; y < sizeY + 1; y++)
+                for (int x = 1; x < sizeX; x++)
+                    flowY[x + y * sizeX] = 0;
         }
 
         for (int y = 0; y < sizeY; y++)
