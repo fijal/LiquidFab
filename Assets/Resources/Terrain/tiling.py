@@ -50,7 +50,7 @@ rekd = RectBivariateSpline(grid, grid, img)
 igrid = np.linspace(0, 512, int(512 * (128 / TILE_SIZE)))
 v = rekd(igrid, igrid)
 with open("terrain.bytes", "wb") as f:
-    for item in (v / max_h * 255).astype(np.uint8).flatten():
+    for item in (v / max_h * 255).astype(np.uint8)[1024+512:,1024+512:].flatten():
         f.write(struct.pack("B", item))
 
 for x in range(int(512 / TILE_SIZE)):
