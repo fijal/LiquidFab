@@ -52,7 +52,11 @@ public class Controls : MonoBehaviour
         RaycastHit hit;
 
         if (Physics.Raycast(ray, out hit, 100))
+        {
+            // XXX must check which object we hit against; reading hit.triangleIndex will
+            // return a random value if that's a triangle index in some unrelated mesh
             hit.transform.gameObject.GetComponent<Tile>().tileHit(hit.triangleIndex, mod);
+        }
     }
 
     void Update()

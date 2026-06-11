@@ -17,6 +17,7 @@ public class Water : MonoBehaviour, ISimulation
     void Start()
     {
         var mesh = new Mesh();
+        mesh.MarkDynamic();    // may help with meshes that are often updated
         GetComponent<MeshFilter>().mesh = mesh;
         
         waterLevel = new float[WATER_SIZE_X * WATER_SIZE_Y];
@@ -61,7 +62,7 @@ public class Water : MonoBehaviour, ISimulation
         for (int y = start; y < end; y++)
             for (int x = start; x < end; x++)
             {
-                vertices[c] = new Vector3(x * Terrain.SCALE, wl(x, y) + transform.parent.GetComponent<Terrain>().height(x, y) - 0.001f, y * Terrain.SCALE);
+                vertices[c] = new Vector3(x * Terrain.SCALE, wl(x, y) + terrain.height(x, y) - 0.001f, y * Terrain.SCALE);
                 uvs[c] = new Vector2(0, wl(x, y));
                 if (y < end - 1 && x < end - 1)
                 {
@@ -92,6 +93,7 @@ public class Water : MonoBehaviour, ISimulation
     {
         if (lastUpdate <= 0)
         {
+            terrain.synchronizedUpdate();
             swl(130, 130, wl(130, 130) + 1f);
             swl(130, 131, wl(130, 131) + 1f);
             swl(131, 130, wl(131, 130) + 1f);

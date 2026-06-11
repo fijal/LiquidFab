@@ -5,7 +5,7 @@ using UnityEngine;
 public class Tile : MonoBehaviour
 {
     public int indexX, indexY;
-    public float updateTerrain;
+    //public float updateTerrain;
 
     public void tileHit(int triIndex, bool mod)
     {
@@ -14,7 +14,7 @@ public class Tile : MonoBehaviour
 
         var ter = transform.parent.GetComponent<Terrain>();
         ter.terrainMod(indexX, indexY, gridPosX, gridPosY, mod ? -0.5f : 0.5f);
-        updateTerrain = 0.3f;
+        //updateTerrain = 0.3f;
     }
 
     public void Update()
@@ -39,10 +39,10 @@ public class Terrain : MonoBehaviour, ISimulation
     Mesh mesh;
     int TILE_SIZE_X = 129;
     int TILE_SIZE_Y = 129;
-    int TILES = 16;
+    int TILES = 4;
     public const float SCALE = 0.5f;
     public const float HEIGHT_SCALE = 40f;
-    public const int TERRAIN_SIZE = 2048;
+    public const int TERRAIN_SIZE = 512;
 
     public Material terrainMat;
     public TextAsset terrainData;
@@ -51,7 +51,7 @@ public class Terrain : MonoBehaviour, ISimulation
 
     float[] terrainHeight;
 
-    float lastUpdate;
+    int updatingCountdown;
 
     public float height(int x, int y)
     {
@@ -79,7 +79,7 @@ public class Terrain : MonoBehaviour, ISimulation
         var y = gridY + tileY * (TILE_SIZE_Y - 1);
 
         setHeight(x, y, height(x, y) + val);
-        lastUpdate = 1.0f;
+        updatingCountdown = 1;
         //recalculateMesh(tileX, tileY);
     }
 
@@ -87,6 +87,8 @@ public class Terrain : MonoBehaviour, ISimulation
     {
         var mesh = createTile(tileX, tileY);
         transform.Find($"tile{tileX}_{tileY}").GetComponent<MeshFilter>().mesh = mesh;
+        // NOTE: 'collider.sharedMesh = filter.sharedMesh' is missing so the collider
+        // keeps using the original mesh, is that expected?
     }
 
     void Start()
@@ -155,6 +157,7 @@ public class Terrain : MonoBehaviour, ISimulation
             if (tris % (TILE_SIZE_X - 1) == TILE_SIZE_X - 2)
                 vert++;
         }
+        // ======>   mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
         mesh.vertices = vertices;
         mesh.triangles = triangles;
         mesh.RecalculateBounds();
@@ -162,17 +165,16 @@ public class Terrain : MonoBehaviour, ISimulation
         return mesh;
     }
 
-    // Update is called once per frame
-    void Update()
+    public void synchronizedUpdate()
     {
-        if (lastUpdate > 0)
+        if (updatingCountdown > 0)
         {
-            lastUpdate -= Time.deltaTime;
-            if (lastUpdate <= 0)
+            updatingCountdown -= 1;
+            if (updatingCountdown == 0)
             {
-                lastUpdate = 1.0f;
                 s.Step();
                 recalculateMesh(0, 0);
+                updatingCountdown = 10;
             }
         }
     }
