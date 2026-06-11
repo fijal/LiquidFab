@@ -8,6 +8,7 @@ public class Water : MonoBehaviour, ISimulation
     
     const int WATER_SIZE_X = 200, WATER_SIZE_Y = 200;
     const int WATER_OFFSET_X = 130, WATER_OFFSET_Y = 130;
+    Terrain terrain;
 
     float lastUpdate;
     Simulation s;
@@ -24,6 +25,8 @@ public class Water : MonoBehaviour, ISimulation
         s = new Simulation(WATER_SIZE_X, WATER_SIZE_Y, 1, this);
         s.friction = 0.5f;
         s.viscosity = 0.1f;
+
+        terrain = transform.parent.GetComponent<Terrain>();
     }
 
     float wl(int x, int y)
@@ -33,7 +36,7 @@ public class Water : MonoBehaviour, ISimulation
 
     public float readAtPos(int x, int y)
     {
-        return wl(x, y) + transform.parent.GetComponent<Terrain>().height(x, y);
+        return wl(x, y) + terrain.height(x, y);
     }
 
     public float[] getData()
@@ -89,10 +92,10 @@ public class Water : MonoBehaviour, ISimulation
     {
         if (lastUpdate <= 0)
         {
-            swl(130, 130, wl(130, 130) + 0.25f);
-            swl(130, 131, wl(130, 131) + 0.25f);
-            swl(131, 130, wl(131, 130) + 0.25f);
-            swl(131, 131, wl(131, 131) + 0.25f);
+            swl(130, 130, wl(130, 130) + 1f);
+            swl(130, 131, wl(130, 131) + 1f);
+            swl(131, 130, wl(131, 130) + 1f);
+            swl(131, 131, wl(131, 131) + 1f);
             s.Step();
             updateWaterTexture();
             lastUpdate = 0.1f;

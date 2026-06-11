@@ -17,6 +17,8 @@ public class Simulation
     public float viscosity;
     public float maxAngle;
     public float friction; // 0 - 1
+    public float mass = 1;
+    float gravity = 1f;
 
     public Simulation(int sizeX, int sizeY, int tiles, ISimulation source)
     {
@@ -39,7 +41,6 @@ public class Simulation
 
     public void Step()
     {
-        const float FC = 0.003f;
         float[] data = source.getData();
 
         float flowx(int x, int y)
@@ -67,7 +68,7 @@ public class Simulation
         for (int y = 0; y < sizeY; y++)
             for (int x = 1; x < sizeX; x++)
             {
-                var v = (source.readAtPos(x - 1, y) - source.readAtPos(x, y)) * frictionFactor * FC * dt;
+                var v = (source.readAtPos(x - 1, y) - source.readAtPos(x, y)) * frictionFactor * mass * gravity * dt;
                 if (maxAngle > 0)
                 {
                     if (v > 0 && v < maxAngle)
@@ -81,10 +82,11 @@ public class Simulation
                 }
                 flowX[x + y * (sizeX + 1)] += v;
             }
+
         for (int y = 1; y < sizeY; y++)
             for (int x = 0; x < sizeX; x++)
             {
-                var v = (source.readAtPos(x, y - 1) - source.readAtPos(x, y)) * frictionFactor * FC * dt;
+                var v = (source.readAtPos(x, y - 1) - source.readAtPos(x, y)) * frictionFactor * mass * gravity * dt;
                 if (maxAngle > 0)
                 {
                     if (v > 0 && v < maxAngle)
