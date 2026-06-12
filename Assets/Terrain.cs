@@ -38,9 +38,6 @@ public class Tile : MonoBehaviour
 public class Terrain : MonoBehaviour
 {
     Mesh mesh;
-    int TILE_SIZE_X = 129;
-    int TILE_SIZE_Y = 129;
-    int TILES = 2;
     public const float SCALE = 0.5f;
     public const float HEIGHT_SCALE = 40f;
     public const int TERRAIN_SIZE = 256;
@@ -66,20 +63,19 @@ public class Terrain : MonoBehaviour
 
     public void terrainMod(int tileX, int tileY, int gridX, int gridY, float val)
     {
-        var x = gridX + tileX * (TILE_SIZE_X - 1);
-        var y = gridY + tileY * (TILE_SIZE_Y - 1);
+        var x = gridX + tileX * TERRAIN_SIZE;
+        var y = gridY + tileY * TERRAIN_SIZE;
 
         setHeight(x, y, height(x, y) + val);
         updatingCountdown = 1;
         //recalculateMesh(tileX, tileY);
     }
 
-    void recalculateMesh(int tileX, int tileY)
+    void recalculateMesh()
     {
-        var mesh = createTile(tileX, tileY);
-        transform.Find($"tile{tileX}_{tileY}").GetComponent<MeshFilter>().mesh = mesh;
-        // NOTE: 'collider.sharedMesh = filter.sharedMesh' is missing so the collider
-        // keeps using the original mesh, is that expected?
+        var mesh = createMesh();
+        GetComponent<MeshFilter>().mesh = mesh;
+        GetComponent<MeshCollider>().sharedMesh = mesh;
     }
 
     void Start()
@@ -88,28 +84,10 @@ public class Terrain : MonoBehaviour
         terrainHeight = new NativeArray<float>(TERRAIN_SIZE * TERRAIN_SIZE, Allocator.Persistent);
         for (int y = 0; y < TERRAIN_SIZE; y++)
             for (int x = 0; x < TERRAIN_SIZE; x++)
-                terrainHeight[x + y * TERRAIN_SIZE] = ((float)terrainDataBytes[y + x * 2 * TERRAIN_SIZE]) / 255 * HEIGHT_SCALE * SCALE;
+                terrainHeight[x + y * TERRAIN_SIZE] = ((float)terrainDataBytes[y + x * 512]) / 255 * HEIGHT_SCALE * SCALE;
 
-        for (int x = 0; x < TILES; x++)
-            for (int y = 0; y < TILES; y++)
-            {
-                var tile = new GameObject($"tile{x}_{y}");
-                tile.transform.SetParent(transform);
-                tile.transform.position = new Vector3((TILE_SIZE_X - 1) * x * SCALE, 0, (TILE_SIZE_Y - 1) * y * SCALE);
-                //tile.transform.rotation = Quaternion.Euler(new Vector3(0, 270, 0));
-                var r = tile.AddComponent<MeshRenderer>();
-                r.material = terrainMat;
-                var filter = tile.AddComponent<MeshFilter>();
-                var collider = tile.AddComponent<MeshCollider>();
-                var t = tile.AddComponent<Tile>();
-                t.indexX = x;
-                t.indexY = y;
-                filter.mesh = createTile(x, y);
-                collider.sharedMesh = filter.sharedMesh;
-            }
-
-        // XXX terrainHeight ends up in both s.terrain and s.source, and so for most of s.Step()
-        // these values are added to themselves in expressions like 'source[xxx] + terrain[xxx]'?
+        recalculateMesh();
+        
         s = new Simulation(this, SimulationType.Terrain, terrainHeight, TERRAIN_SIZE, TERRAIN_SIZE);
         s.friction = 0.5f;
         s.viscosity = 0.1f;
@@ -124,40 +102,34 @@ public class Terrain : MonoBehaviour
             terrainHeight.Dispose();
     }
 
-    Mesh createTile(int ofsX, int ofsY)
+    Mesh createMesh()
     {
         mesh = new Mesh();
         
-        var vertices = new Vector3[(TILE_SIZE_X) * (TILE_SIZE_Y)];
-        var triangles = new int[(TILE_SIZE_X - 1) * (TILE_SIZE_Y - 1) * 6];
+        var vertices = new Vector3[TERRAIN_SIZE * TERRAIN_SIZE];
+        var triangles = new int[(TERRAIN_SIZE - 1) * (TERRAIN_SIZE - 1) * 6];
         
-        for (int x = 0; x < TILE_SIZE_X; ++x)
-            for (int y = 0; y < TILE_SIZE_Y; ++y)
+        for (int x = 0; x < TERRAIN_SIZE; ++x)
+            for (int y = 0; y < TERRAIN_SIZE; ++y)
             {
-                var ix = x + ofsX * (TILE_SIZE_X - 1);
-                if (ix == TERRAIN_SIZE)
-                    ix = TERRAIN_SIZE - 1;
-                var iy = y + ofsY * (TILE_SIZE_Y - 1);
-                if (iy == TERRAIN_SIZE)
-                    iy = TERRAIN_SIZE - 1;
-                var h = height(ix, iy);
-                vertices[x + y * (TILE_SIZE_X)] = new Vector3(x * SCALE, h, y * SCALE);
+                var h = height(x, y);
+                vertices[x + y * TERRAIN_SIZE] = new Vector3(x * SCALE, h, y * SCALE);
             }
         int vert = 0;
-        for (int tris = 0; tris < (TILE_SIZE_X - 1) * (TILE_SIZE_Y - 1); tris++)
+        for (int tris = 0; tris < (TERRAIN_SIZE - 1) * (TERRAIN_SIZE - 1); tris++)
         {
             var t = tris * 6;
             triangles[t + 0] = vert + 0;
-            triangles[t + 1] = vert + TILE_SIZE_X;
+            triangles[t + 1] = vert + TERRAIN_SIZE;
             triangles[t + 2] = vert + 1;
             triangles[t + 3] = vert + 1;
-            triangles[t + 4] = vert + TILE_SIZE_X;
-            triangles[t + 5] = vert + TILE_SIZE_X + 1;
+            triangles[t + 4] = vert + TERRAIN_SIZE;
+            triangles[t + 5] = vert + TERRAIN_SIZE + 1;
             vert++;
-            if (tris % (TILE_SIZE_X - 1) == TILE_SIZE_X - 2)
+            if (tris % (TERRAIN_SIZE - 1) == TERRAIN_SIZE - 2)
                 vert++;
         }
-        // ======>   mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+        mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
         mesh.vertices = vertices;
         mesh.triangles = triangles;
         mesh.RecalculateBounds();
@@ -173,7 +145,7 @@ public class Terrain : MonoBehaviour
             if (updatingCountdown == 0)
             {
                 //s.Step();
-                recalculateMesh(0, 0);
+                recalculateMesh();
                 updatingCountdown = 10;
             }
         }
