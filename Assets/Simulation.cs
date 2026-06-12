@@ -63,6 +63,9 @@ public struct Simulation : IJob
             terrain.Dispose();
     }
 
+    public readonly NativeArray<float> GetFlowX() => waterFlowX;
+    public readonly NativeArray<float> GetFlowY() => waterFlowY;
+
     public void Execute()
     {
         // modify terrain first

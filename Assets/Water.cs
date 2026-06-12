@@ -52,15 +52,21 @@ public class Water : MonoBehaviour
         const float MIN_WATER = 0.001f;
 
         var vertices = new Vector3[WATER_SIZE_X * WATER_SIZE_Y];
-        var uvs = new Vector2[WATER_SIZE_X * WATER_SIZE_Y];
+        var uvs = new Vector3[WATER_SIZE_X * WATER_SIZE_Y];
         var tris = new List<int>();
+
+        var flowX = s.GetFlowX();
+        var flowY = s.GetFlowY();
 
         int c = 0;
         for (int y = 0; y < WATER_SIZE_Y; y++)
             for (int x = 0; x < WATER_SIZE_X; x++)
             {
+                float fx = flowX[x + y * (WATER_SIZE_X + 1)] + flowX[x + 1 + y * (WATER_SIZE_X + 1)];
+                float fy = flowY[x + y * WATER_SIZE_X] + flowX[x + (y + 1) * WATER_SIZE_X];
+
                 float h = waterLevel[x + y * WATER_SIZE_X];
-                uvs[c] = new Vector2(0, h);
+                uvs[c] = new Vector3(fx, h, fy);
                 if (h < MIN_WATER)
                     h = -0.2f;
 
@@ -112,7 +118,7 @@ public class Water : MonoBehaviour
         var mesh = GetComponent<MeshFilter>().sharedMesh;
         mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
         mesh.vertices = vertices;
-        mesh.uv = uvs;
+        mesh.SetUVs(0, uvs);
         mesh.SetTriangles(tris, 0);
         mesh.RecalculateBounds();
         mesh.RecalculateNormals();
