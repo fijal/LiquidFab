@@ -49,7 +49,7 @@ public class Water : MonoBehaviour
         waterLevel[x + y * WATER_SIZE_X] = val;
     }
 
-    void updateWaterTexture()
+    public void updateWaterTexture()
     {
         const float MIN_WATER = 0.001f;
 

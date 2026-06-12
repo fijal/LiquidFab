@@ -21,6 +21,7 @@ public class Terrain : MonoBehaviour
     public NativeArray<float> terrainHeight;
 
     int updatingCountdown;
+    float lastUpdate = 0.1f;
 
     public float height(int x, int y)
     {
@@ -126,16 +127,13 @@ public class Terrain : MonoBehaviour
         {
             sjobhandle.Value.Complete();
             sjobhandle = null;
-            updateWaterTexture();
+            recalculateMesh();
+            transform.Find("Water").GetComponent<Water>().updateWaterTexture();
         }
 
         if (lastUpdate <= 0 && sjobhandle == null)
         {
-            terrain.synchronizedUpdate();
-            swl(130, 130, wl(130, 130) + 1f);
-            swl(130, 131, wl(130, 131) + 1f);
-            swl(131, 130, wl(131, 130) + 1f);
-            swl(131, 131, wl(131, 131) + 1f);
+            //terrain.synchronizedUpdate();
             sjobhandle = s.Schedule();
             lastUpdate = 0.1f;
         }
