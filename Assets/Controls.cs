@@ -55,7 +55,9 @@ public class Controls : MonoBehaviour
         {
             // XXX must check which object we hit against; reading hit.triangleIndex will
             // return a random value if that's a triangle index in some unrelated mesh
-            hit.transform.gameObject.GetComponent<Tile>().tileHit(hit.triangleIndex, mod);
+
+            // XXX [fijal] sure, but right now only terrain has the collider
+            hit.transform.gameObject.GetComponent<Terrain>().terrainMod(hit.triangleIndex, mod);
         }
     }
 

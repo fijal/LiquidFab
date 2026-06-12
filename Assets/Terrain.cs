@@ -2,38 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
-
-public class Tile : MonoBehaviour
-{
-    public int indexX, indexY;
-    //public float updateTerrain;
-
-    public void tileHit(int triIndex, bool mod)
-    {
-        var gridPosY = triIndex / 2 / 128;
-        var gridPosX = (triIndex / 2) % 128;
-
-        var ter = transform.parent.GetComponent<Terrain>();
-        ter.terrainMod(indexX, indexY, gridPosX, gridPosY, mod ? -0.5f : 0.5f);
-        //updateTerrain = 0.3f;
-    }
-
-    public void Update()
-    {
-        /*if (updateTerrain > 0)
-        {
-            updateTerrain -= Time.deltaTime;
-            if (updateTerrain <= 0)
-            {
-                Debug.Log("updating terrain");
-                updateTerrain = 0;
-                var c = transform.parent.GetComponent<Terrain>().propagateTerrainChanges();
-                if (c > 0)
-                    updateTerrain = 0.3f;
-            }
-        }*/
-    }
-}
+using Unity.Jobs;
 
 public class Terrain : MonoBehaviour
 {
@@ -41,6 +10,8 @@ public class Terrain : MonoBehaviour
     public const float SCALE = 0.5f;
     public const float HEIGHT_SCALE = 40f;
     public const int TERRAIN_SIZE = 256;
+
+    JobHandle? sjobhandle;
 
     public Material terrainMat;
     public TextAsset terrainData;
@@ -61,14 +32,12 @@ public class Terrain : MonoBehaviour
         terrainHeight[x + y * TERRAIN_SIZE] = v;
     }
 
-    public void terrainMod(int tileX, int tileY, int gridX, int gridY, float val)
+    public void terrainMod(int tri, bool mod)
     {
-        var x = gridX + tileX * TERRAIN_SIZE;
-        var y = gridY + tileY * TERRAIN_SIZE;
-
-        setHeight(x, y, height(x, y) + val);
+        var x = (tri / 2) % TERRAIN_SIZE;
+        var y = (tri / 2) / TERRAIN_SIZE;
+        setHeight(x, y, height(x, y) + (mod ? -0.5f : 0.5f));
         updatingCountdown = 1;
-        //recalculateMesh(tileX, tileY);
     }
 
     void recalculateMesh()
@@ -90,7 +59,8 @@ public class Terrain : MonoBehaviour
         
         s = new Simulation(this, SimulationType.Terrain, terrainHeight, TERRAIN_SIZE, TERRAIN_SIZE);
         s.friction = 0.5f;
-        s.viscosity = 0.1f;
+        s.BOUNDARY_FLOW = 0;
+        //s.viscosity = 0.1f;
         s.maxAngle = 0.2f;
         s.mass = 1f;
     }
@@ -144,10 +114,34 @@ public class Terrain : MonoBehaviour
             updatingCountdown -= 1;
             if (updatingCountdown == 0)
             {
-                //s.Step();
                 recalculateMesh();
                 updatingCountdown = 10;
             }
         }
     }
+
+    /*void Update()
+    {
+        if (sjobhandle != null && sjobhandle.Value.IsCompleted)
+        {
+            sjobhandle.Value.Complete();
+            sjobhandle = null;
+            updateWaterTexture();
+        }
+
+        if (lastUpdate <= 0 && sjobhandle == null)
+        {
+            terrain.synchronizedUpdate();
+            swl(130, 130, wl(130, 130) + 1f);
+            swl(130, 131, wl(130, 131) + 1f);
+            swl(131, 130, wl(131, 130) + 1f);
+            swl(131, 131, wl(131, 131) + 1f);
+            sjobhandle = s.Schedule();
+            lastUpdate = 0.1f;
+        }
+        else
+        {
+            lastUpdate -= Time.deltaTime;
+        }
+    }*/
 }
