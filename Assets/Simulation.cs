@@ -23,10 +23,10 @@ public struct Simulation : IJob
     public float mass;
     const float gravity = 0.3f;
 
+    public float BOUNDARY_FLOW;
+
     SimulationType simulationType;
     NativeArray<float> terrain;
-
-    JobHandle? jobhandle;
 
     public Simulation(Terrain terrain, SimulationType tp, NativeArray<float> source, int sizeX, int sizeY)
     {
@@ -41,6 +41,7 @@ public struct Simulation : IJob
         viscosity = 0;
         maxAngle = 0;
         friction = 0.05f; // 0 - 1
+        BOUNDARY_FLOW = 0;
         mass = 1;
     }
 
@@ -80,15 +81,14 @@ public struct Simulation : IJob
     public void Execute()
     {
         const float dt = 1f;
-        const float BOUNDARY_FLOW = 0f;
         var frictionFactor = Mathf.Pow(1 - friction, dt);
 
         for (int i = 0; i < sizeX; ++i)
         {
             flowX[i * (sizeX + 1)] = BOUNDARY_FLOW;
-            flowX[sizeX + i * (sizeX + 1)] = BOUNDARY_FLOW;
+            flowX[sizeX + i * (sizeX + 1)] = -BOUNDARY_FLOW;
             flowY[i] = BOUNDARY_FLOW;
-            flowY[i + sizeX * (sizeX - 1)] = BOUNDARY_FLOW;
+            flowY[i + sizeX * (sizeX - 1)] = -BOUNDARY_FLOW;
         }
 
         if (maxAngle > 0)
@@ -105,7 +105,10 @@ public struct Simulation : IJob
             for (int x = 1; x < sizeX; x++)
             {
                 float v;
-                v = (source[x - 1 + y * sizeX] + terrain[x - 1 + y * sizeX]) - (source[x + y * sizeX] + terrain[x + y * sizeX]);
+                if (simulationType == SimulationType.Water)
+                    v = (source[x - 1 + y * sizeX] + terrain[x - 1 + y * sizeX]) - (source[x + y * sizeX] + terrain[x + y * sizeX]);
+                else
+                    v = source[x - 1 + y * sizeX] - source[x + y * sizeX];
                 // v = (readAtPos(x - 1, y) - readAtPos(x, y));
                 v *= frictionFactor * mass * gravity * dt;
                 if (maxAngle > 0)
@@ -126,7 +129,10 @@ public struct Simulation : IJob
             for (int x = 0; x < sizeX; x++)
             {
                 float v;
-                v = (source[x + (y - 1) * sizeX] + terrain[x + (y - 1) * sizeX]) - (source[x + y * sizeX] + terrain[x + y * sizeX]);
+                if (simulationType == SimulationType.Water)
+                    v = (source[x + (y - 1) * sizeX] + terrain[x + (y - 1) * sizeX]) - (source[x + y * sizeX] + terrain[x + y * sizeX]);
+                else
+                    v = (source[x + (y - 1) * sizeX]) - (source[x + y * sizeX]);
                 //v = (readAtPos(x, y - 1) - readAtPos(x, y));
                 v *= frictionFactor * mass * gravity * dt;
                 if (maxAngle > 0)
@@ -146,6 +152,7 @@ public struct Simulation : IJob
         // viscosity
         if (viscosity > 0)
         {
+            Debug.Assert(simulationType == SimulationType.Water);
             for (int y = 0; y < sizeY; ++y)
                 for (int x = 1; x < sizeX; ++x)
                 {

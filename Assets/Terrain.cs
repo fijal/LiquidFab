@@ -40,10 +40,10 @@ public class Terrain : MonoBehaviour
     Mesh mesh;
     int TILE_SIZE_X = 129;
     int TILE_SIZE_Y = 129;
-    int TILES = 4;
+    int TILES = 2;
     public const float SCALE = 0.5f;
     public const float HEIGHT_SCALE = 40f;
-    public const int TERRAIN_SIZE = 512;
+    public const int TERRAIN_SIZE = 256;
 
     public Material terrainMat;
     public TextAsset terrainData;
@@ -88,7 +88,7 @@ public class Terrain : MonoBehaviour
         terrainHeight = new NativeArray<float>(TERRAIN_SIZE * TERRAIN_SIZE, Allocator.Persistent);
         for (int y = 0; y < TERRAIN_SIZE; y++)
             for (int x = 0; x < TERRAIN_SIZE; x++)
-                terrainHeight[x + y * TERRAIN_SIZE] = ((float)terrainDataBytes[y + x * TERRAIN_SIZE]) / 255 * HEIGHT_SCALE * SCALE;
+                terrainHeight[x + y * TERRAIN_SIZE] = ((float)terrainDataBytes[y + x * 2 * TERRAIN_SIZE]) / 255 * HEIGHT_SCALE * SCALE;
 
         for (int x = 0; x < TILES; x++)
             for (int y = 0; y < TILES; y++)

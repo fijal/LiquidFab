@@ -8,7 +8,7 @@ public class Water : MonoBehaviour
 {
     NativeArray<float> waterLevel;
     
-    const int WATER_SIZE_X = 512, WATER_SIZE_Y = 512;
+    const int WATER_SIZE_X = 256, WATER_SIZE_Y = 256;
     Terrain terrain;
 
     float lastUpdate;
@@ -29,6 +29,7 @@ public class Water : MonoBehaviour
         s = new Simulation(terrain, SimulationType.Water, waterLevel, WATER_SIZE_X, WATER_SIZE_Y);
         s.friction = 0f;
         s.viscosity = 0.1f;
+        s.BOUNDARY_FLOW = -1;
     }
 
     private void OnDestroy()
