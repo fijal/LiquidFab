@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
@@ -12,30 +11,45 @@ public enum SimulationType
     Terrain = 2
 }
 
-public class Simulation
+public struct Simulation : IJob
 {
-    float[] flowX;
-    float[] flowY;
+    NativeArray<float> flowX;
+    NativeArray<float> flowY;
     int sizeX, sizeY;
-    float[] source;
+    NativeArray<float> source;
     public float viscosity;
     public float maxAngle;
-    public float friction = 0.05f; // 0 - 1
-    public float mass = 1;
-    float gravity = 0.3f;
+    public float friction;
+    public float mass;
+    const float gravity = 0.3f;
 
     SimulationType simulationType;
-    float[] terrain;
+    NativeArray<float> terrain;
 
-    public Simulation(Terrain terrain, SimulationType tp, float[] source, int sizeX, int sizeY)
+    JobHandle? jobhandle;
+
+    public Simulation(Terrain terrain, SimulationType tp, NativeArray<float> source, int sizeX, int sizeY)
     {
-        flowX = new float[(sizeX + 1) * sizeY];
-        flowY = new float[sizeX * (sizeY + 1)];
+        flowX = new NativeArray<float>((sizeX + 1) * sizeY, Allocator.Persistent);
+        flowY = new NativeArray<float>(sizeX * (sizeY + 1), Allocator.Persistent);
         this.sizeX = sizeX;
         this.sizeY = sizeY;
         this.source = source;
         this.simulationType = tp;
         this.terrain = terrain.terrainHeight;
+
+        viscosity = 0;
+        maxAngle = 0;
+        friction = 0.05f; // 0 - 1
+        mass = 1;
+    }
+
+    public void Dispose()
+    {
+        if (flowX != null)
+            flowX.Dispose();
+        if (flowY != null)
+            flowY.Dispose();
     }
 
     /*float flowx(int x, int y)
@@ -63,7 +77,7 @@ public class Simulation
     }*/
 
 
-    public void Step()
+    public void Execute()
     {
         const float dt = 1f;
         const float BOUNDARY_FLOW = 0f;

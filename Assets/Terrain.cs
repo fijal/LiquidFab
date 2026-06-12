@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
 
 public class Tile : MonoBehaviour
@@ -49,7 +50,7 @@ public class Terrain : MonoBehaviour
 
     Simulation s;
 
-    public float[] terrainHeight;
+    public NativeArray<float> terrainHeight;
 
     int updatingCountdown;
 
@@ -84,7 +85,7 @@ public class Terrain : MonoBehaviour
     void Start()
     {
         var terrainDataBytes = terrainData.bytes;
-        terrainHeight = new float[TERRAIN_SIZE * TERRAIN_SIZE];
+        terrainHeight = new NativeArray<float>(TERRAIN_SIZE * TERRAIN_SIZE, Allocator.Persistent);
         for (int y = 0; y < TERRAIN_SIZE; y++)
             for (int x = 0; x < TERRAIN_SIZE; x++)
                 terrainHeight[x + y * TERRAIN_SIZE] = ((float)terrainDataBytes[y + x * TERRAIN_SIZE]) / 255 * HEIGHT_SCALE * SCALE;
@@ -107,11 +108,20 @@ public class Terrain : MonoBehaviour
                 collider.sharedMesh = filter.sharedMesh;
             }
 
+        // XXX terrainHeight ends up in both s.terrain and s.source, and so for most of s.Step()
+        // these values are added to themselves in expressions like 'source[xxx] + terrain[xxx]'?
         s = new Simulation(this, SimulationType.Terrain, terrainHeight, TERRAIN_SIZE, TERRAIN_SIZE);
         s.friction = 0.5f;
         s.viscosity = 0.1f;
         s.maxAngle = 0.2f;
         s.mass = 1f;
+    }
+
+    private void OnDestroy()
+    {
+        s.Dispose();
+        if (terrainHeight != null)
+            terrainHeight.Dispose();
     }
 
     Mesh createTile(int ofsX, int ofsY)
@@ -162,7 +172,7 @@ public class Terrain : MonoBehaviour
             updatingCountdown -= 1;
             if (updatingCountdown == 0)
             {
-                s.Step();
+                //s.Step();
                 recalculateMesh(0, 0);
                 updatingCountdown = 10;
             }

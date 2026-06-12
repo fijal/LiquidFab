@@ -1,16 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections;
+using Unity.Jobs;
 using UnityEngine;
 
 public class Water : MonoBehaviour
 {
-    float[] waterLevel;
+    NativeArray<float> waterLevel;
     
     const int WATER_SIZE_X = 512, WATER_SIZE_Y = 512;
     Terrain terrain;
 
     float lastUpdate;
     Simulation s;
+    JobHandle? sjobhandle;
 
     // Start is called before the first frame update
     void Start()
@@ -18,15 +21,21 @@ public class Water : MonoBehaviour
         var mesh = new Mesh();
         mesh.MarkDynamic();    // may help with meshes that are often updated
         GetComponent<MeshFilter>().mesh = mesh;
-        
-        waterLevel = new float[WATER_SIZE_X * WATER_SIZE_Y];
+
+        waterLevel = new NativeArray<float>(WATER_SIZE_X * WATER_SIZE_Y, Allocator.Persistent);
         
         lastUpdate = 0.0f;
         terrain = transform.parent.GetComponent<Terrain>();
         s = new Simulation(terrain, SimulationType.Water, waterLevel, WATER_SIZE_X, WATER_SIZE_Y);
         s.friction = 0f;
         s.viscosity = 0.1f;
+    }
 
+    private void OnDestroy()
+    {
+        s.Dispose();
+        if (waterLevel != null)
+            waterLevel.Dispose();
     }
 
     float wl(int x, int y)
@@ -77,15 +86,21 @@ public class Water : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (lastUpdate <= 0)
+        if (sjobhandle != null && sjobhandle.Value.IsCompleted)
+        {
+            sjobhandle.Value.Complete();
+            sjobhandle = null;
+            updateWaterTexture();
+        }
+
+        if (lastUpdate <= 0 && sjobhandle == null)
         {
             terrain.synchronizedUpdate();
             swl(130, 130, wl(130, 130) + 1f);
             swl(130, 131, wl(130, 131) + 1f);
             swl(131, 130, wl(131, 130) + 1f);
             swl(131, 131, wl(131, 131) + 1f);
-            s.Step();
-            updateWaterTexture();
+            sjobhandle = s.Schedule();
             lastUpdate = 0.1f;
         } else
         {
