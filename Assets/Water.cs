@@ -51,6 +51,8 @@ public class Water : MonoBehaviour
 
     void updateWaterTexture()
     {
+        const float MIN_WATER = 0.001f;
+
         var vertices = new Vector3[WATER_SIZE_X * WATER_SIZE_Y];
         var uvs = new Vector2[WATER_SIZE_X * WATER_SIZE_Y];
         var tris = new List<int>();
@@ -59,18 +61,49 @@ public class Water : MonoBehaviour
         for (int y = 0; y < WATER_SIZE_Y; y++)
             for (int x = 0; x < WATER_SIZE_X; x++)
             {
-                vertices[c] = new Vector3(x * Terrain.SCALE, wl(x, y) + terrain.height(x, y) - 0.001f, y * Terrain.SCALE);
-                uvs[c] = new Vector2(0, wl(x, y));
-                if (y < WATER_SIZE_Y - 1 && x < WATER_SIZE_X - 1)
+                float h = waterLevel[x + y * WATER_SIZE_X];
+                uvs[c] = new Vector2(0, h);
+                if (h < MIN_WATER)
+                    h = -0.2f;
+                h += terrain.height(x, y);
+                vertices[c] = new Vector3(x * Terrain.SCALE, h, y * Terrain.SCALE);
+                c += 1;
+            }
+
+        for (int y = 0; y < WATER_SIZE_Y - 1; y++)
+            for (int x = 0; x < WATER_SIZE_X - 1; x++)
+            {
+                int b = x + y * WATER_SIZE_X;
+                bool corner00 = waterLevel[b] >= MIN_WATER;
+                bool corner10 = waterLevel[b + 1] >= MIN_WATER;
+                bool corner01 = waterLevel[b + WATER_SIZE_X] >= MIN_WATER;
+                bool corner11 = waterLevel[b + 1 + WATER_SIZE_X] >= MIN_WATER;
+                int total_corners =
+                    (corner00 ? 1 : 0) +
+                    (corner10 ? 1 : 0) +
+                    (corner01 ? 1 : 0) +
+                    (corner11 ? 1 : 0);
+
+                if (total_corners == 0)
+                    continue;
+                if (total_corners == 3 && (!corner01 || !corner10))
                 {
-                    tris.Add(x + y * WATER_SIZE_X);
-                    tris.Add(x + (y + 1) * WATER_SIZE_X);
-                    tris.Add(x + 1 + y * WATER_SIZE_X);
-                    tris.Add(x + (y + 1) * WATER_SIZE_X);
-                    tris.Add((x + 1) + (y + 1) * WATER_SIZE_X);
-                    tris.Add(x + 1 + y * WATER_SIZE_X);
+                    tris.Add(b);
+                    tris.Add(b + WATER_SIZE_X);
+                    tris.Add(b + 1 + WATER_SIZE_X);
+                    tris.Add(b + 1 + WATER_SIZE_X);
+                    tris.Add(b + 1);
+                    tris.Add(b);
                 }
-                c++;
+                else
+                {
+                    tris.Add(b);
+                    tris.Add(b + WATER_SIZE_X);
+                    tris.Add(b + 1);
+                    tris.Add(b + WATER_SIZE_X);
+                    tris.Add(b + 1 + WATER_SIZE_X);
+                    tris.Add(b + 1);
+                }
             }
 
         var mesh = GetComponent<MeshFilter>().sharedMesh;
