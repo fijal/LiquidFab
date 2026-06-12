@@ -32,6 +32,7 @@ public class Water : MonoBehaviour
 
     private void OnDestroy()
     {
+        sjobhandle?.Complete();
         s.Dispose();
         if (waterLevel != null)
             waterLevel.Dispose();
