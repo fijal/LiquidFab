@@ -88,6 +88,10 @@ public class Controls : MonoBehaviour
         {
             Move(false, new Vector3(0, Input.mouseScrollDelta.y * -HEIGHT_SCROLL_SPEED, 0));
         }
+        if (Input.GetKey(KeyCode.Q))
+            Move(false, new Vector3(0, 1, 0));
+        if (Input.GetKey(KeyCode.E))
+            Move(false, new Vector3(0, -1, 0));
         if (Input.GetKey(KeyCode.Escape))
             Application.Quit();
     
