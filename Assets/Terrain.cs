@@ -34,7 +34,7 @@ public class Tile : MonoBehaviour
     }
 }
 
-public class Terrain : MonoBehaviour, ISimulation
+public class Terrain : MonoBehaviour
 {
     Mesh mesh;
     int TILE_SIZE_X = 129;
@@ -49,23 +49,13 @@ public class Terrain : MonoBehaviour, ISimulation
 
     Simulation s;
 
-    float[] terrainHeight;
+    public float[] terrainHeight;
 
     int updatingCountdown;
 
     public float height(int x, int y)
     {
         return terrainHeight[x + y * TERRAIN_SIZE];
-    }
-
-    public float readAtPos(int x, int y)
-    {
-        return height(x, y);
-    }
-
-    public float[] getData()
-    {
-        return terrainHeight;
     }
 
     public void setHeight(int x, int y, float v)
@@ -117,7 +107,7 @@ public class Terrain : MonoBehaviour, ISimulation
                 collider.sharedMesh = filter.sharedMesh;
             }
 
-        s = new Simulation(TERRAIN_SIZE, TERRAIN_SIZE, TILES, this);
+        s = new Simulation(this, SimulationType.Terrain, terrainHeight, TERRAIN_SIZE, TERRAIN_SIZE);
         s.friction = 0.5f;
         s.viscosity = 0.1f;
         s.maxAngle = 0.2f;

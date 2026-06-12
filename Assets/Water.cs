@@ -2,12 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Water : MonoBehaviour, ISimulation
+public class Water : MonoBehaviour
 {
     float[] waterLevel;
     
-    const int WATER_SIZE_X = 200, WATER_SIZE_Y = 200;
-    const int WATER_OFFSET_X = 130, WATER_OFFSET_Y = 130;
+    const int WATER_SIZE_X = 512, WATER_SIZE_Y = 512;
     Terrain terrain;
 
     float lastUpdate;
@@ -23,26 +22,16 @@ public class Water : MonoBehaviour, ISimulation
         waterLevel = new float[WATER_SIZE_X * WATER_SIZE_Y];
         
         lastUpdate = 0.0f;
-        s = new Simulation(WATER_SIZE_X, WATER_SIZE_Y, 1, this);
+        terrain = transform.parent.GetComponent<Terrain>();
+        s = new Simulation(terrain, SimulationType.Water, waterLevel, WATER_SIZE_X, WATER_SIZE_Y);
         s.friction = 0f;
         s.viscosity = 0.1f;
 
-        terrain = transform.parent.GetComponent<Terrain>();
     }
 
     float wl(int x, int y)
     {
         return waterLevel[x + y * WATER_SIZE_X];
-    }
-
-    public float readAtPos(int x, int y)
-    {
-        return wl(x, y) + terrain.height(x, y);
-    }
-
-    public float[] getData()
-    {
-        return waterLevel;
     }
 
     void swl(int x, int y, float val)
@@ -52,33 +41,30 @@ public class Water : MonoBehaviour, ISimulation
 
     void updateWaterTexture()
     {
-        int start = 0, end = 200;
-        int size = end - start;
-        var vertices = new Vector3[size * size];
-        var uvs = new Vector2[size * size];
+        var vertices = new Vector3[WATER_SIZE_X * WATER_SIZE_Y];
+        var uvs = new Vector2[WATER_SIZE_X * WATER_SIZE_Y];
         var tris = new List<int>();
 
         int c = 0;
-        for (int y = start; y < end; y++)
-            for (int x = start; x < end; x++)
+        for (int y = 0; y < WATER_SIZE_Y; y++)
+            for (int x = 0; x < WATER_SIZE_X; x++)
             {
                 vertices[c] = new Vector3(x * Terrain.SCALE, wl(x, y) + terrain.height(x, y) - 0.001f, y * Terrain.SCALE);
                 uvs[c] = new Vector2(0, wl(x, y));
-                if (y < end - 1 && x < end - 1)
+                if (y < WATER_SIZE_Y - 1 && x < WATER_SIZE_X - 1)
                 {
-                    int ix = x - start;
-                    int iy = y - start;
-                    tris.Add(ix + iy * size);
-                    tris.Add(ix + (iy + 1) * size);
-                    tris.Add(ix + 1 + iy * size);
-                    tris.Add(ix + (iy + 1) * size);
-                    tris.Add((ix + 1) + (iy + 1) * size);
-                    tris.Add(ix + 1 + iy * size);
+                    tris.Add(x + y * WATER_SIZE_X);
+                    tris.Add(x + (y + 1) * WATER_SIZE_X);
+                    tris.Add(x + 1 + y * WATER_SIZE_X);
+                    tris.Add(x + (y + 1) * WATER_SIZE_X);
+                    tris.Add((x + 1) + (y + 1) * WATER_SIZE_X);
+                    tris.Add(x + 1 + y * WATER_SIZE_X);
                 }
                 c++;
             }
 
         var mesh = GetComponent<MeshFilter>().sharedMesh;
+        mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
         mesh.vertices = vertices;
         mesh.uv = uvs;
         mesh.SetTriangles(tris, 0);

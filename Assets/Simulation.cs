@@ -1,11 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using Unity.Burst;
+using Unity.Collections;
+using Unity.Jobs;
 using UnityEngine;
 
-public interface ISimulation
+public enum SimulationType
 {
-    public float readAtPos(int x, int y);
-    public float[] getData();
+    Water = 1,
+    Terrain = 2
 }
 
 public class Simulation
@@ -13,46 +17,54 @@ public class Simulation
     float[] flowX;
     float[] flowY;
     int sizeX, sizeY;
-    ISimulation source;
+    float[] source;
     public float viscosity;
     public float maxAngle;
     public float friction = 0.05f; // 0 - 1
     public float mass = 1;
     float gravity = 0.3f;
 
-    public Simulation(int sizeX, int sizeY, int tiles, ISimulation source)
+    SimulationType simulationType;
+    float[] terrain;
+
+    public Simulation(Terrain terrain, SimulationType tp, float[] source, int sizeX, int sizeY)
     {
         flowX = new float[(sizeX + 1) * sizeY];
         flowY = new float[sizeX * (sizeY + 1)];
         this.sizeX = sizeX;
         this.sizeY = sizeY;
         this.source = source;
+        this.simulationType = tp;
+        this.terrain = terrain.terrainHeight;
     }
 
-    float flowXAt(int x, int y)
+    /*float flowx(int x, int y)
     {
-        return flowX[x + y * (sizeX + 1)];
+        return flowX[x + (y * (sizeX + 1))];
     }
 
-    float flowYAt(int x, int y)
+    float flowy(int x, int y)
     {
         return flowY[x + y * sizeX];
-    }
+    }*/
+
+    /*float readAtPos(int x, int y)
+    {
+        //if (simulationType == SimulationType.Water)
+        //{
+        return source[x + y * sizeX] + terrain.terrainHeight[x + y * sizeX];
+        //} else if (simulationType == SimulationType.Terrain)
+        //{
+        //    return terrain.height(x, y);
+        //} else
+        //{
+        //    return 0;
+        //}
+    }*/
+
 
     public void Step()
     {
-        float[] data = source.getData();
-
-        float flowx(int x, int y)
-        {
-            return flowX[x + (y * (sizeX + 1))];
-        }
-
-        float flowy(int x, int y)
-        {
-            return flowY[x + y * sizeX];
-        }
-
         const float dt = 1f;
         const float BOUNDARY_FLOW = 0f;
         var frictionFactor = Mathf.Pow(1 - friction, dt);
@@ -78,7 +90,10 @@ public class Simulation
         for (int y = 0; y < sizeY; y++)
             for (int x = 1; x < sizeX; x++)
             {
-                var v = (source.readAtPos(x - 1, y) - source.readAtPos(x, y)) * frictionFactor * mass * gravity * dt;
+                float v;
+                v = (source[x - 1 + y * sizeX] + terrain[x - 1 + y * sizeX]) - (source[x + y * sizeX] + terrain[x + y * sizeX]);
+                // v = (readAtPos(x - 1, y) - readAtPos(x, y));
+                v *= frictionFactor * mass * gravity * dt;
                 if (maxAngle > 0)
                 {
                     if (v > 0 && v < maxAngle)
@@ -96,7 +111,10 @@ public class Simulation
         for (int y = 1; y < sizeY; y++)
             for (int x = 0; x < sizeX; x++)
             {
-                var v = (source.readAtPos(x, y - 1) - source.readAtPos(x, y)) * frictionFactor * mass * gravity * dt;
+                float v;
+                v = (source[x + (y - 1) * sizeX] + terrain[x + (y - 1) * sizeX]) - (source[x + y * sizeX] + terrain[x + y * sizeX]);
+                //v = (readAtPos(x, y - 1) - readAtPos(x, y));
+                v *= frictionFactor * mass * gravity * dt;
                 if (maxAngle > 0)
                 {
                     if (v > 0 && v < maxAngle)
@@ -117,7 +135,11 @@ public class Simulation
             for (int y = 0; y < sizeY; ++y)
                 for (int x = 1; x < sizeX; ++x)
                 {
-                    float H = (flowXAt(x, y) > 0f) ? source.readAtPos(x - 1, y) : source.readAtPos(x, y);
+                    float H;
+                    if (flowX[x + (y * (sizeX + 1))] > 0f)
+                        H = source[x - 1 + y * sizeX] + terrain[x - 1 + y * sizeX];
+                    else
+                        H = source[x + y * sizeX] + terrain[x + y * sizeX];
                     H *= H;
 
                     if (H > 0f)
@@ -126,7 +148,11 @@ public class Simulation
             for (int y = 1; y < sizeY; ++y)
                 for (int x = 0; x < sizeX; ++x)
                 {
-                    float H = (flowYAt(x, y) > 0f) ? source.readAtPos(x, y - 1) : source.readAtPos(x, y);
+                    float H;
+                    if (flowY[x + (y * sizeX)] > 0f)
+                        H = source[x + (y - 1) * sizeX] + terrain[x + (y - 1) * sizeX];
+                    else
+                        H = source[x + y * sizeX] + terrain[x + y * sizeX];
                     H *= H;
 
                     if (H > 0f)
@@ -137,18 +163,19 @@ public class Simulation
         for (int y = 0; y < sizeY; y++)
             for (int x = 0; x < sizeX; x++)
             {
-                float total = Mathf.Max(0, -flowx(x, y)) + Mathf.Max(0, -flowy(x, y)) + Mathf.Max(0, flowx(x + 1, y)) + Mathf.Max(0, flowy(x, y + 1));
-                float max_outflow = data[x + y * sizeX] / dt;
+                float total = Mathf.Max(0, -flowX[x + y * (sizeX + 1)]) + Mathf.Max(0, -flowY[x + y * sizeX]) +
+                    Mathf.Max(0, flowX[x + 1 + y * (sizeX + 1)]) + Mathf.Max(0, flowY[x + (y + 1) * sizeX]);
+                float max_outflow = source[x + y * sizeX] / dt;
                 if (total > 0)
                 {
                     var scale = Mathf.Min(1f, max_outflow / total);
-                    if (flowx(x, y) < 0)
+                    if (flowX[x + y * (sizeX + 1)] < 0)
                         flowX[x + y * (sizeX + 1)] *= scale;
-                    if (flowy(x, y) < 0)
+                    if (flowY[x + y * sizeX] < 0)
                         flowY[x + y * sizeX] *= scale;
-                    if (flowx(x + 1, y) > 0)
+                    if (flowX[x + 1 + y * (sizeX + 1)] > 0)
                         flowX[x + 1 + y * (sizeX + 1)] *= scale;
-                    if (flowy(x, y + 1) > 0)
+                    if (flowY[x + (y + 1) * sizeX] > 0)
                         flowY[x + (y + 1) * sizeX] *= scale;
 
                 }
@@ -157,11 +184,11 @@ public class Simulation
         for (int y = 0; y < sizeY; y++)
             for (int x = 0; x < sizeX; x++)
             {
-                data[x + y * sizeX] += (flowx(x, y) + flowy(x, y) - flowx(x + 1, y) - flowy(x, y + 1)) / dt;
+                source[x + y * sizeX] += (flowX[x + y * (sizeX + 1)] + flowY[x + y * sizeX] - flowX[x + 1 + y * (sizeX + 1)]
+                    - flowY[x + (y + 1) * sizeX]) / dt;
             }
 
 
         return;
     }
 }
-
