@@ -115,7 +115,12 @@ public class Controls : MonoBehaviour
             Move(false, new Vector3(0, -1, 0));
         if (Input.GetKey(KeyCode.Escape))
             Application.Quit();
-        
+        if (timer > 0)
+        {
+            timer -= Time.deltaTime;
+            if (timer <= 0)
+                helperUI.GetComponent<Text>().text = "";
+        }
     }
 
 }
