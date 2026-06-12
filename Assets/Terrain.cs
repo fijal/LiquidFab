@@ -11,6 +11,9 @@ public class Terrain : MonoBehaviour
     public const float HEIGHT_SCALE = 40f;
     public const int TERRAIN_SIZE = 256;
 
+    public List<int> terrainUpdatesX, terrainUpdatesY;
+    public List<float> terrainUpdatesVal;
+
     JobHandle? sjobhandle;
 
     public Material terrainMat;
@@ -18,7 +21,7 @@ public class Terrain : MonoBehaviour
 
     Simulation s;
 
-    public NativeArray<float> terrainHeight;
+    public float[] terrainHeight;
 
     int updatingCountdown;
     float lastUpdate = 0.1f;
@@ -33,11 +36,13 @@ public class Terrain : MonoBehaviour
         terrainHeight[x + y * TERRAIN_SIZE] = v;
     }
 
-    public void terrainMod(int tri, bool mod)
+    public void terrainMod(int tri, bool mod, float val)
     {
-        var x = (tri / 2) % TERRAIN_SIZE;
-        var y = (tri / 2) / TERRAIN_SIZE;
-        setHeight(x, y, height(x, y) + (mod ? -0.5f : 0.5f));
+        var x = (tri / 2) % (TERRAIN_SIZE - 1);
+        var y = (tri / 2) / (TERRAIN_SIZE - 1);
+        terrainUpdatesX.Add(x);
+        terrainUpdatesY.Add(y);
+        terrainUpdatesVal.Add(mod ? -5f * val : 5f * val);
         updatingCountdown = 1;
     }
 
@@ -51,26 +56,15 @@ public class Terrain : MonoBehaviour
     void Start()
     {
         var terrainDataBytes = terrainData.bytes;
-        terrainHeight = new NativeArray<float>(TERRAIN_SIZE * TERRAIN_SIZE, Allocator.Persistent);
+        terrainHeight = new float[TERRAIN_SIZE * TERRAIN_SIZE];
         for (int y = 0; y < TERRAIN_SIZE; y++)
             for (int x = 0; x < TERRAIN_SIZE; x++)
                 terrainHeight[x + y * TERRAIN_SIZE] = ((float)terrainDataBytes[y + x * 512]) / 255 * HEIGHT_SCALE * SCALE;
 
+        terrainUpdatesX = new List<int>();
+        terrainUpdatesY = new List<int>();
+        terrainUpdatesVal = new List<float>();
         recalculateMesh();
-        
-        s = new Simulation(this, SimulationType.Terrain, terrainHeight, TERRAIN_SIZE, TERRAIN_SIZE);
-        s.friction = 0.5f;
-        s.BOUNDARY_FLOW = 0;
-        //s.viscosity = 0.1f;
-        s.maxAngle = 0.2f;
-        s.mass = 1f;
-    }
-
-    private void OnDestroy()
-    {
-        s.Dispose();
-        if (terrainHeight != null)
-            terrainHeight.Dispose();
     }
 
     Mesh createMesh()
@@ -108,38 +102,29 @@ public class Terrain : MonoBehaviour
         return mesh;
     }
 
-    public void synchronizedUpdate()
+    public void runUpdates()
     {
-        if (updatingCountdown > 0)
+        for (int i = 0; i < terrainUpdatesX.Count; i++)
         {
-            updatingCountdown -= 1;
-            if (updatingCountdown == 0)
-            {
-                recalculateMesh();
-                updatingCountdown = 10;
-            }
+            var x = terrainUpdatesX[i];
+            var y = terrainUpdatesY[i];
+            setHeight(x, y, height(x, y) + terrainUpdatesVal[i]);
         }
+        terrainUpdatesX.Clear();
+        terrainUpdatesY.Clear();
+        terrainUpdatesVal.Clear();
     }
 
-    /*void Update()
+    public void synchronizedUpdate()
     {
-        if (sjobhandle != null && sjobhandle.Value.IsCompleted)
-        {
-            sjobhandle.Value.Complete();
-            sjobhandle = null;
-            recalculateMesh();
-            transform.Find("Water").GetComponent<Water>().updateWaterTexture();
-        }
-
-        if (lastUpdate <= 0 && sjobhandle == null)
-        {
-            //terrain.synchronizedUpdate();
-            sjobhandle = s.Schedule();
-            lastUpdate = 0.1f;
-        }
-        else
-        {
-            lastUpdate -= Time.deltaTime;
-        }
-    }*/
+        //if (updatingCountdown > 0)
+        //{
+        //    updatingCountdown -= 1;
+        //    if (updatingCountdown == 0)
+        //    {
+        recalculateMesh();
+        //        updatingCountdown = 10;
+        //    }
+        //}
+    }
 }

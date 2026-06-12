@@ -26,10 +26,8 @@ public class Water : MonoBehaviour
         
         lastUpdate = 0.0f;
         terrain = transform.parent.GetComponent<Terrain>();
-        s = new Simulation(terrain, SimulationType.Water, waterLevel, WATER_SIZE_X, WATER_SIZE_Y);
-        s.friction = 0f;
-        s.viscosity = 0.1f;
-        s.BOUNDARY_FLOW = -1;
+        s = new Simulation(waterLevel, WATER_SIZE_X, WATER_SIZE_Y);
+ 
     }
 
     private void OnDestroy()
@@ -129,11 +127,16 @@ public class Water : MonoBehaviour
         {
             sjobhandle.Value.Complete();
             sjobhandle = null;
+            for (int i = 0; i < Terrain.TERRAIN_SIZE * Terrain.TERRAIN_SIZE; i++)
+                terrain.terrainHeight[i] = s.terrain[i];
             updateWaterTexture();
         }
 
         if (lastUpdate <= 0 && sjobhandle == null)
         {
+            terrain.runUpdates();
+            for (int i = 0; i < Terrain.TERRAIN_SIZE * Terrain.TERRAIN_SIZE; i++)
+                s.terrain[i] = terrain.terrainHeight[i];
             terrain.synchronizedUpdate();
             swl(130, 130, wl(130, 130) + 1f);
             swl(130, 131, wl(130, 131) + 1f);

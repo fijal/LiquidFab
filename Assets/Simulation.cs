@@ -13,10 +13,12 @@ public enum SimulationType
 
 public struct Simulation : IJob
 {
-    NativeArray<float> flowX;
-    NativeArray<float> flowY;
+    NativeArray<float> waterFlowX;
+    NativeArray<float> waterFlowY;
+    NativeArray<float> terrainFlowX;
+    NativeArray<float> terrainFlowY;
     int sizeX, sizeY;
-    NativeArray<float> source;
+    NativeArray<float> water;
     public float viscosity;
     public float maxAngle;
     public float friction;
@@ -25,18 +27,19 @@ public struct Simulation : IJob
 
     public float BOUNDARY_FLOW;
 
-    SimulationType simulationType;
-    NativeArray<float> terrain;
+    public NativeArray<float> terrain;
 
-    public Simulation(Terrain terrain, SimulationType tp, NativeArray<float> source, int sizeX, int sizeY)
+    public Simulation(NativeArray<float> water, int sizeX, int sizeY)
     {
-        flowX = new NativeArray<float>((sizeX + 1) * sizeY, Allocator.Persistent);
-        flowY = new NativeArray<float>(sizeX * (sizeY + 1), Allocator.Persistent);
+        waterFlowX = new NativeArray<float>((sizeX + 1) * sizeY, Allocator.Persistent);
+        waterFlowY = new NativeArray<float>(sizeX * (sizeY + 1), Allocator.Persistent);
+        terrainFlowX = new NativeArray<float>((sizeX + 1) * sizeY, Allocator.Persistent);
+        terrainFlowY = new NativeArray<float>(sizeX * (sizeY + 1), Allocator.Persistent);
+
         this.sizeX = sizeX;
         this.sizeY = sizeY;
-        this.source = source;
-        this.simulationType = tp;
-        this.terrain = terrain.terrainHeight;
+        this.water = water;
+        this.terrain = new NativeArray<float>(sizeX * sizeY, Allocator.Persistent);
 
         viscosity = 0;
         maxAngle = 0;
@@ -47,38 +50,37 @@ public struct Simulation : IJob
 
     public void Dispose()
     {
-        if (flowX != null)
-            flowX.Dispose();
-        if (flowY != null)
-            flowY.Dispose();
+        if (waterFlowX != null)
+            waterFlowX.Dispose();
+        if (waterFlowY != null)
+            waterFlowY.Dispose();
+        if (terrainFlowX != null)
+            terrainFlowX.Dispose();
+        if (terrainFlowY != null)
+            terrainFlowY.Dispose();
+
+        if (terrain != null)
+            terrain.Dispose();
     }
-
-    /*float flowx(int x, int y)
-    {
-        return flowX[x + (y * (sizeX + 1))];
-    }
-
-    float flowy(int x, int y)
-    {
-        return flowY[x + y * sizeX];
-    }*/
-
-    /*float readAtPos(int x, int y)
-    {
-        //if (simulationType == SimulationType.Water)
-        //{
-        return source[x + y * sizeX] + terrain.terrainHeight[x + y * sizeX];
-        //} else if (simulationType == SimulationType.Terrain)
-        //{
-        //    return terrain.height(x, y);
-        //} else
-        //{
-        //    return 0;
-        //}
-    }*/
-
 
     public void Execute()
+    {
+        // modify terrain first
+        friction = 0.5f;
+        BOUNDARY_FLOW = 0;
+        //s.viscosity = 0.1f;
+        maxAngle = 0.1f;
+        mass = 1f;
+        subExecute(SimulationType.Terrain, this.terrain, terrainFlowX, terrainFlowY);
+        // then modify water
+        friction = 0.05f;
+        viscosity = 0.1f;
+        BOUNDARY_FLOW = -1;
+        maxAngle = 0f;
+        subExecute(SimulationType.Water, this.water, waterFlowX, waterFlowY);
+    }
+
+    void subExecute(SimulationType simulationType, NativeArray<float> source, NativeArray<float> flowX, NativeArray<float> flowY)
     {
         const float dt = 1f;
         var frictionFactor = Mathf.Pow(1 - friction, dt);

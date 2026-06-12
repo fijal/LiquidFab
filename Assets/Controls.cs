@@ -46,7 +46,7 @@ public class Controls : MonoBehaviour
         camera.transform.Rotate(-v, 0, 0);
     }
 
-    void RaycastToTerrain(bool mod)
+    void RaycastToTerrain(bool mod, float val)
     {
         var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
@@ -57,7 +57,7 @@ public class Controls : MonoBehaviour
             // return a random value if that's a triangle index in some unrelated mesh
 
             // XXX [fijal] sure, but right now only terrain has the collider
-            hit.transform.gameObject.GetComponent<Terrain>().terrainMod(hit.triangleIndex, mod);
+            hit.transform.gameObject.GetComponent<Terrain>().terrainMod(hit.triangleIndex, mod, val);
         }
     }
 
@@ -80,9 +80,9 @@ public class Controls : MonoBehaviour
             StopRotatingCam();
         if (Input.GetMouseButton(1))
             RotateCam();
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButton(0))
         {
-            RaycastToTerrain(Input.GetKey(KeyCode.LeftShift));
+            RaycastToTerrain(Input.GetKey(KeyCode.LeftShift), Time.deltaTime);
         }
         if (Input.mouseScrollDelta.y != 0)
         {
