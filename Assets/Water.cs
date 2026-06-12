@@ -65,6 +65,11 @@ public class Water : MonoBehaviour
                 uvs[c] = new Vector2(0, h);
                 if (h < MIN_WATER)
                     h = -0.2f;
+
+                /* XXX hack to prevent gaps between the terrain and the water at the border */
+                if (x == 0 || y == 0 || x == WATER_SIZE_X - 1 || y == WATER_SIZE_Y - 1)
+                    h = 0f;
+
                 h += terrain.height(x, y);
                 vertices[c] = new Vector3(x * Terrain.SCALE, h, y * Terrain.SCALE);
                 c += 1;
