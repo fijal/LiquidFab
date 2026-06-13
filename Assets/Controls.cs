@@ -73,7 +73,7 @@ public class Controls : MonoBehaviour
             // XXX must check which object we hit against; reading hit.triangleIndex will
             // return a random value if that's a triangle index in some unrelated mesh
 
-            // XXX [fijal] sure, but right now only terrain has the collider
+            // XXX [fijal] it'll click log sometimes, needs rework to make sure we hit terrain always
             var x = (hit.triangleIndex / 2) % (Terrain.TERRAIN_SIZE - 1);
             var y = (hit.triangleIndex / 2) / (Terrain.TERRAIN_SIZE - 1);
 
@@ -81,6 +81,8 @@ public class Controls : MonoBehaviour
                 hit.transform.gameObject.GetComponent<Terrain>().terrainMod(x, y, mod, val);
             else if (toolSelected == ToolSelected.Water)
                 hit.transform.Find("Water").GetComponent<Water>().modifyWaterSource(x, y, mod, val);
+            else if (toolSelected == ToolSelected.Log)
+                hit.transform.gameObject.GetComponent<Terrain>().spawnLog(x, y);
         }
     }
 
