@@ -63,8 +63,10 @@ public class Controls : MonoBehaviour
         camera.transform.Rotate(-v, 0, 0);
     }
 
-    void RaycastToTerrain(bool mod, float val)
+    void RaycastToTerrainCont(bool mod, float val)
     {
+        if (toolSelected != ToolSelected.Terrain && toolSelected != ToolSelected.Water)
+            return;
         var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
@@ -80,6 +82,24 @@ public class Controls : MonoBehaviour
             else if (toolSelected == ToolSelected.Log)
                 hit.transform.gameObject.GetComponent<Terrain>().spawnLog(x, y);
         }
+    }
+
+    void RaycastToTerrainClick()
+    {
+        if (toolSelected != ToolSelected.Log)
+            return;
+        var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit, 100, 1 << 3))
+        {
+            var x = (hit.triangleIndex / 2) % (Terrain.TERRAIN_SIZE - 1);
+            var y = (hit.triangleIndex / 2) / (Terrain.TERRAIN_SIZE - 1);
+            if (toolSelected == ToolSelected.Log)
+                hit.transform.gameObject.GetComponent<Terrain>().spawnLog(x, y);
+
+        }
+
     }
 
     void activateToolbarItem(int index)
@@ -127,9 +147,9 @@ public class Controls : MonoBehaviour
         if (Input.GetMouseButton(1))
             RotateCam();
         if (Input.GetMouseButton(0))
-        {
-            RaycastToTerrain(Input.GetKey(KeyCode.LeftShift), Time.deltaTime);
-        }
+            RaycastToTerrainCont(Input.GetKey(KeyCode.LeftShift), Time.deltaTime);
+        if (Input.GetMouseButtonDown(0))
+            RaycastToTerrainClick();
         if (Input.mouseScrollDelta.y != 0)
         {
             Move(false, new Vector3(0, Input.mouseScrollDelta.y * -HEIGHT_SCROLL_SPEED, 0));
