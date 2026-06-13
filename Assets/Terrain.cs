@@ -54,8 +54,11 @@ public class Terrain : MonoBehaviour
     void recalculateMesh()
     {
         var mesh = createMesh();
-        GetComponent<MeshFilter>().mesh = mesh;
+        var oldMesh = GetComponent<MeshFilter>().sharedMesh;
+        GetComponent<MeshFilter>().sharedMesh = mesh;
         GetComponent<MeshCollider>().sharedMesh = mesh;
+        if (oldMesh != null)
+            Destroy(oldMesh);
     }
 
     void Start()
