@@ -53,12 +53,17 @@ public class Terrain : MonoBehaviour
 
     void recalculateMesh()
     {
-        var mesh = createMesh();
         var oldMesh = GetComponent<MeshFilter>().sharedMesh;
-        GetComponent<MeshFilter>().sharedMesh = mesh;
-        GetComponent<MeshCollider>().sharedMesh = mesh;
-        if (oldMesh != null)
-            Destroy(oldMesh);
+        if (oldMesh == null)
+        {
+            Mesh mesh = createMesh();
+            GetComponent<MeshFilter>().sharedMesh = mesh;
+            GetComponent<MeshCollider>().sharedMesh = mesh;
+        }
+        else
+        {
+            updateMesh(oldMesh);
+        }
     }
 
     void Start()
@@ -92,16 +97,11 @@ public class Terrain : MonoBehaviour
     Mesh createMesh()
     {
         mesh = new Mesh();
+        mesh.MarkDynamic();
 
-        var vertices = new Vector3[TERRAIN_SIZE * TERRAIN_SIZE];
+        var vertices0 = new Vector3[TERRAIN_SIZE * TERRAIN_SIZE];
         var triangles = new int[(TERRAIN_SIZE - 1) * (TERRAIN_SIZE - 1) * 6];
 
-        for (int x = 0; x < TERRAIN_SIZE; ++x)
-            for (int y = 0; y < TERRAIN_SIZE; ++y)
-            {
-                var h = height(x, y);
-                vertices[x + y * TERRAIN_SIZE] = new Vector3(x * SCALE, h, y * SCALE);
-            }
         int vert = 0;
         for (int tris = 0; tris < (TERRAIN_SIZE - 1) * (TERRAIN_SIZE - 1); tris++)
         {
@@ -117,11 +117,24 @@ public class Terrain : MonoBehaviour
                 vert++;
         }
         mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
-        mesh.vertices = vertices;
+        mesh.vertices = vertices0;
         mesh.triangles = triangles;
+        updateMesh(mesh);
+        return mesh;
+    }
+
+    void updateMesh(Mesh mesh)
+    {
+        var vertices = new Vector3[TERRAIN_SIZE * TERRAIN_SIZE];
+        for (int x = 0; x < TERRAIN_SIZE; ++x)
+            for (int y = 0; y < TERRAIN_SIZE; ++y)
+            {
+                var h = height(x, y);
+                vertices[x + y * TERRAIN_SIZE] = new Vector3(x * SCALE, h, y * SCALE);
+            }
+        mesh.vertices = vertices;
         mesh.RecalculateBounds();
         mesh.RecalculateNormals();
-        return mesh;
     }
 
     public void runUpdates()
