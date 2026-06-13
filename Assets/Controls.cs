@@ -68,7 +68,7 @@ public class Controls : MonoBehaviour
         var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, 100))
+        if (Physics.Raycast(ray, out hit, 100, 1 << 3))
         {
             // XXX must check which object we hit against; reading hit.triangleIndex will
             // return a random value if that's a triangle index in some unrelated mesh
