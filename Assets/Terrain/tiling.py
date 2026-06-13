@@ -35,7 +35,7 @@ x, y = im_frame.size
 img = np.array(im_frame.get_flattened_data())[:,1].reshape((y, x))[:OUT_SIZE,:OUT_SIZE]
 grid = np.arange(0, 512, dtype=np.int32)
 rekd = RectBivariateSpline(grid, grid, img)
-igrid = np.linspace(0, 512, int(512))
+igrid = np.linspace(0, 512, int(256))
 v = rekd(igrid, igrid)
 with open(fname.replace('.png', '.bytes'), "wb") as f:
     for item in (v / max_h * 255).astype(np.uint8).flatten():
