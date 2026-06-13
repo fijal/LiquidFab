@@ -121,6 +121,7 @@ public class Controls : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha3))
         {
             activateToolbarItem(2);
+            helperUI.GetComponent<Text>().text = "";
             toolSelected = ToolSelected.Log;
         }
         if (Input.GetMouseButtonDown(1))
