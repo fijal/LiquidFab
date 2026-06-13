@@ -6,7 +6,8 @@ using UnityEngine.UI;
 public enum ToolSelected
 {
     Water = 1,
-    Terrain = 2
+    Terrain = 2,
+    Log = 3
 }
 
 public class Controls : MonoBehaviour
@@ -18,8 +19,11 @@ public class Controls : MonoBehaviour
     const float MOUSE_ROTATE_SPEED = 1f;
     const float HEIGHT_SCROLL_SPEED = 5f;
 
-    public Sprite waterGray, waterColor, terrainGray, terrainColor;
-    public GameObject waterUI, terrainUI, helperUI;
+    //public Sprite waterGray, waterColor, terrainGray, terrainColor;
+    public GameObject[] UIElements; // in order
+    public GameObject helperUI;
+
+    GameObject currentToolbarItem;
 
     ToolSelected toolSelected = ToolSelected.Water;
 
@@ -29,7 +33,7 @@ public class Controls : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        currentToolbarItem = UIElements[0];
     }
 
     void Move(bool speedUp, Vector3 direction)
@@ -80,6 +84,13 @@ public class Controls : MonoBehaviour
         }
     }
 
+    void activateToolbarItem(int index)
+    {
+        currentToolbarItem.GetComponent<ToolbarItem>().deactivate();
+        currentToolbarItem = UIElements[index];
+        currentToolbarItem.GetComponent<ToolbarItem>().activate();
+    }
+
     void Update()
     {
         bool speedUp = false;
@@ -95,17 +106,20 @@ public class Controls : MonoBehaviour
             Move(speedUp, new Vector3(1, 0, 0));
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            waterUI.GetComponent<Image>().sprite = waterColor;
-            terrainUI.GetComponent<Image>().sprite = terrainGray;
+            activateToolbarItem(0);
             helperUI.GetComponent<Text>().text = "SHIFT to remove";
             toolSelected = ToolSelected.Water;
         }
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            waterUI.GetComponent<Image>().sprite = waterGray;
-            terrainUI.GetComponent<Image>().sprite = terrainColor;
+            activateToolbarItem(1);
             helperUI.GetComponent<Text>().text = "SHIFT to remove";
             toolSelected = ToolSelected.Terrain;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            activateToolbarItem(2);
+            toolSelected = ToolSelected.Log;
         }
         if (Input.GetMouseButtonDown(1))
             StartRotatingCam();
