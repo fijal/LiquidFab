@@ -13,6 +13,7 @@ public enum ToolSelected
 public class Controls : MonoBehaviour
 {
     public GameObject camera;
+    public Terrain terrain;
 
     const float MOVE_SPEED = 16f;
     const float SHIFT_SPEEDUP = 3f;
@@ -109,6 +110,16 @@ public class Controls : MonoBehaviour
         currentToolbarItem.GetComponent<ToolbarItem>().activate();
     }
 
+    void SaveGame()
+    {
+
+    }
+
+    void LoadGame()
+    {
+        //terrain.gameToLoad = true;
+    }
+
     void Update()
     {
         bool speedUp = false;
@@ -160,6 +171,10 @@ public class Controls : MonoBehaviour
             Move(false, new Vector3(0, -1, 0));
         if (Input.GetKey(KeyCode.Escape))
             Application.Quit();
+        if (Input.GetKey(KeyCode.F3))
+            SaveGame();
+        if (Input.GetKey(KeyCode.F4))
+            LoadGame();
         if (timer > 0)
         {
             timer -= Time.deltaTime;

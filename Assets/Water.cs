@@ -6,14 +6,10 @@ using UnityEngine;
 
 public class Water : MonoBehaviour
 {
-    NativeArray<float> waterLevel;
+    public NativeArray<float> waterLevel;
     
     const int WATER_SIZE_X = 256, WATER_SIZE_Y = 256;
     Terrain terrain;
-
-    float lastUpdate;
-    Simulation s;
-    JobHandle? sjobhandle;
 
     // XXX change this into a dictionary
     Dictionary<int, float> waterSource;
@@ -27,17 +23,13 @@ public class Water : MonoBehaviour
 
         waterLevel = new NativeArray<float>(WATER_SIZE_X * WATER_SIZE_Y, Allocator.Persistent);
         
-        lastUpdate = 0.0f;
         terrain = transform.parent.GetComponent<Terrain>();
-        s = new Simulation(waterLevel, WATER_SIZE_X, WATER_SIZE_Y);
-
+    
         waterSource = new Dictionary<int, float>();
     }
 
     private void OnDestroy()
     {
-        sjobhandle?.Complete();
-        s.Dispose();
         if (waterLevel != null)
             waterLevel.Dispose();
     }
@@ -61,9 +53,15 @@ public class Water : MonoBehaviour
                     waterSource.Remove(index);
             }
         }
-    }    
+    }
 
-    public void updateWaterTexture()
+    public void updateWaterSources()
+    {
+        foreach (KeyValuePair<int, float> entry in waterSource)
+            waterLevel[entry.Key] += entry.Value;
+    }
+
+    public void updateWaterTexture(Simulation s)
     {
         const float MIN_WATER = 0.001f;
 
@@ -140,34 +138,5 @@ public class Water : MonoBehaviour
         mesh.RecalculateNormals();
 
         return;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        // XXX move all of this into Terrain, I think it belongs more there
-        if (sjobhandle != null && sjobhandle.Value.IsCompleted)
-        {
-            sjobhandle.Value.Complete();
-            sjobhandle = null;
-            for (int i = 0; i < Terrain.TERRAIN_SIZE * Terrain.TERRAIN_SIZE; i++)
-                terrain.terrainHeight[i] = s.terrain[i];
-            updateWaterTexture();
-        }
-
-        if (lastUpdate <= 0 && sjobhandle == null)
-        {
-            terrain.runUpdates();
-            for (int i = 0; i < Terrain.TERRAIN_SIZE * Terrain.TERRAIN_SIZE; i++)
-                s.terrain[i] = terrain.terrainHeight[i];
-            terrain.synchronizedUpdate();
-            foreach (KeyValuePair<int, float> entry in waterSource)
-                waterLevel[entry.Key] += entry.Value;
-            sjobhandle = s.Schedule();
-            lastUpdate = 0.1f;
-        } else
-        {
-            lastUpdate -= Time.deltaTime;
-        }
     }
 }

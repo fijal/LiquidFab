@@ -18,7 +18,7 @@ public struct Simulation : IJob
     NativeArray<float> terrainFlowX;
     NativeArray<float> terrainFlowY;
     int sizeX, sizeY;
-    NativeArray<float> water;
+    public NativeArray<float> water;
     public float viscosity;
     public float maxAngle;
     public float friction;

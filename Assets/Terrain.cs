@@ -21,10 +21,11 @@ public class Terrain : MonoBehaviour
     public GameObject logPrefab;
 
     Simulation s;
+    Water water;
 
     public float[] terrainHeight;
+    public bool gameToLoad = false;
 
-    int updatingCountdown;
     float lastUpdate = 0.1f;
 
     public float height(int x, int y)
@@ -42,7 +43,6 @@ public class Terrain : MonoBehaviour
         terrainUpdatesX.Add(x);
         terrainUpdatesY.Add(y);
         terrainUpdatesVal.Add(mod ? -5f * val : 5f * val);
-        updatingCountdown = 1;
     }
 
     public void spawnLog(int x, int y)
@@ -78,15 +78,24 @@ public class Terrain : MonoBehaviour
         terrainUpdatesY = new List<int>();
         terrainUpdatesVal = new List<float>();
         recalculateMesh();
+
+        water = transform.Find("Water").GetComponent<Water>();
+        s = new Simulation(water.waterLevel, TERRAIN_SIZE, TERRAIN_SIZE);
+    }
+
+    private void OnDestroy()
+    {
+        sjobhandle?.Complete();
+        s.Dispose();
     }
 
     Mesh createMesh()
     {
         mesh = new Mesh();
-        
+
         var vertices = new Vector3[TERRAIN_SIZE * TERRAIN_SIZE];
         var triangles = new int[(TERRAIN_SIZE - 1) * (TERRAIN_SIZE - 1) * 6];
-        
+
         for (int x = 0; x < TERRAIN_SIZE; ++x)
             for (int y = 0; y < TERRAIN_SIZE; ++y)
             {
@@ -128,16 +137,32 @@ public class Terrain : MonoBehaviour
         terrainUpdatesVal.Clear();
     }
 
-    public void synchronizedUpdate()
+    public void Update()
     {
-        //if (updatingCountdown > 0)
-        //{
-        //    updatingCountdown -= 1;
-        //    if (updatingCountdown == 0)
-        //    {
-        recalculateMesh();
-        //        updatingCountdown = 10;
-        //    }
-        //}
+
+        if (sjobhandle != null && sjobhandle.Value.IsCompleted)
+        {
+            sjobhandle.Value.Complete();
+            sjobhandle = null;
+            for (int i = 0; i < Terrain.TERRAIN_SIZE * Terrain.TERRAIN_SIZE; i++)
+                terrainHeight[i] = s.terrain[i];
+            water.updateWaterTexture(s);
+        }
+
+        if (lastUpdate <= 0 && sjobhandle == null)
+        {
+            runUpdates();
+            for (int i = 0; i < Terrain.TERRAIN_SIZE * Terrain.TERRAIN_SIZE; i++)
+                s.terrain[i] = terrainHeight[i];
+            recalculateMesh();
+            water.updateWaterSources();
+            s.water = water.waterLevel;
+            sjobhandle = s.Schedule();
+            lastUpdate = 0.1f;
+        }
+        else
+        {
+            lastUpdate -= Time.deltaTime;
+        }
     }
 }
