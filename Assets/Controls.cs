@@ -1,6 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+
+public enum ToolSelected
+{
+    Water = 1,
+    Terrain = 2
+}
 
 public class Controls : MonoBehaviour
 {
@@ -11,7 +18,11 @@ public class Controls : MonoBehaviour
     const float MOUSE_ROTATE_SPEED = 1f;
     const float HEIGHT_SCROLL_SPEED = 5f;
 
+    public Sprite waterGray, waterColor, terrainGray, terrainColor;
+    public GameObject waterUI, terrainUI, helperUI;
+
     Vector3 lastMousePos;
+    float timer = 10.0f;
 
     // Start is called before the first frame update
     void Start()
@@ -74,6 +85,16 @@ public class Controls : MonoBehaviour
             Move(speedUp, new Vector3(-1, 0, 0));
         if (Input.GetKey(KeyCode.D))
             Move(speedUp, new Vector3(1, 0, 0));
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            waterUI.GetComponent<Image>().sprite = waterColor;
+            terrainUI.GetComponent<Image>().sprite = terrainGray;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            waterUI.GetComponent<Image>().sprite = waterGray;
+            terrainUI.GetComponent<Image>().sprite = terrainColor;
+        }
         if (Input.GetMouseButtonDown(1))
             StartRotatingCam();
         if (Input.GetMouseButtonUp(1))
@@ -94,7 +115,12 @@ public class Controls : MonoBehaviour
             Move(false, new Vector3(0, -1, 0));
         if (Input.GetKey(KeyCode.Escape))
             Application.Quit();
-    
+        if (timer > 0)
+        {
+            timer -= Time.deltaTime;
+            if (timer <= 0)
+                helperUI.GetComponent<Text>().text = "";
+        }
     }
 
 }
