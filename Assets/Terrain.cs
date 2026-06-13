@@ -8,7 +8,7 @@ public class Terrain : MonoBehaviour
 {
     Mesh mesh;
     public const float SCALE = 0.5f;
-    public const float HEIGHT_SCALE = 40f;
+    public const float HEIGHT_SCALE = 85f;
     public const int TERRAIN_SIZE = 256;
 
     public List<int> terrainUpdatesX, terrainUpdatesY;
@@ -59,7 +59,7 @@ public class Terrain : MonoBehaviour
         terrainHeight = new float[TERRAIN_SIZE * TERRAIN_SIZE];
         for (int y = 0; y < TERRAIN_SIZE; y++)
             for (int x = 0; x < TERRAIN_SIZE; x++)
-                terrainHeight[x + y * TERRAIN_SIZE] = ((float)terrainDataBytes[y + x * 512]) / 255 * HEIGHT_SCALE * SCALE;
+                terrainHeight[x + y * TERRAIN_SIZE] = ((float)terrainDataBytes[y + x * TERRAIN_SIZE]) / 255 * HEIGHT_SCALE * SCALE;
 
         terrainUpdatesX = new List<int>();
         terrainUpdatesY = new List<int>();

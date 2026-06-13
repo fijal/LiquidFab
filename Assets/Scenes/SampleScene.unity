@@ -159,7 +159,7 @@ MonoBehaviour:
   terrainUpdatesY: 
   terrainUpdatesVal: []
   terrainMat: {fileID: 2100000, guid: ae2bb6b10227fe54b9ddeaccf69ad532, type: 2}
-  terrainData: {fileID: 4900000, guid: bdda722a33731ec4b8a5d889c01033fa, type: 3}
+  terrainData: {fileID: 4900000, guid: 489079a54da551c4d8d36636acb71de6, type: 3}
   terrainHeight: []
 --- !u!4 &200605879
 Transform:
@@ -1235,7 +1235,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2055568689}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 100, y: 20, z: 100}
+  m_LocalPosition: {x: 90, y: 40, z: 100}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
