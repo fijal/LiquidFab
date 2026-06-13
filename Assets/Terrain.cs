@@ -62,9 +62,14 @@ public class Terrain : MonoBehaviour
     {
         var terrainDataBytes = terrainData.bytes;
         terrainHeight = new float[TERRAIN_SIZE * TERRAIN_SIZE];
+        var index = 0;
         for (int y = 0; y < TERRAIN_SIZE; y++)
             for (int x = 0; x < TERRAIN_SIZE; x++)
-                terrainHeight[x + y * TERRAIN_SIZE] = ((float)terrainDataBytes[y + x * TERRAIN_SIZE]) / 255 * HEIGHT_SCALE * SCALE;
+            {
+                terrainHeight[x + y * TERRAIN_SIZE] = (
+                    (float)((terrainDataBytes[index + 1] << 8) | terrainDataBytes[index]) / (1 << 16) * HEIGHT_SCALE * SCALE);
+                index += 2;
+            }
 
         terrainUpdatesX = new List<int>();
         terrainUpdatesY = new List<int>();
