@@ -155,6 +155,9 @@ public class Terrain : MonoBehaviour
             for (int i = 0; i < Terrain.TERRAIN_SIZE * Terrain.TERRAIN_SIZE; i++)
                 s.terrain[i] = terrainHeight[i];
             recalculateMesh();
+            // XXX this is done 10 times per second only if the background thread can keep up;
+            // otherwise this is done less often.  We should probably do waterLevel[] +=
+            // some value computed from how long it really was since the last time we were here
             water.updateWaterSources();
             s.water = water.waterLevel;
             sjobhandle = s.Schedule();
