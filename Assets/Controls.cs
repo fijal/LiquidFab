@@ -6,7 +6,8 @@ using UnityEngine.UI;
 public enum ToolSelected
 {
     Water = 1,
-    Terrain = 2
+    Terrain = 2,
+    Log = 3
 }
 
 public class Controls : MonoBehaviour
@@ -18,8 +19,11 @@ public class Controls : MonoBehaviour
     const float MOUSE_ROTATE_SPEED = 1f;
     const float HEIGHT_SCROLL_SPEED = 5f;
 
-    public Sprite waterGray, waterColor, terrainGray, terrainColor;
-    public GameObject waterUI, terrainUI, helperUI;
+    //public Sprite waterGray, waterColor, terrainGray, terrainColor;
+    public GameObject[] UIElements; // in order
+    public GameObject helperUI;
+
+    GameObject currentToolbarItem;
 
     ToolSelected toolSelected = ToolSelected.Water;
 
@@ -29,7 +33,7 @@ public class Controls : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        currentToolbarItem = UIElements[0];
     }
 
     void Move(bool speedUp, Vector3 direction)
@@ -64,12 +68,12 @@ public class Controls : MonoBehaviour
         var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, 100))
+        if (Physics.Raycast(ray, out hit, 100, 1 << 3))
         {
             // XXX must check which object we hit against; reading hit.triangleIndex will
             // return a random value if that's a triangle index in some unrelated mesh
 
-            // XXX [fijal] sure, but right now only terrain has the collider
+            // XXX [fijal] it'll click log sometimes, needs rework to make sure we hit terrain always
             var x = (hit.triangleIndex / 2) % (Terrain.TERRAIN_SIZE - 1);
             var y = (hit.triangleIndex / 2) / (Terrain.TERRAIN_SIZE - 1);
 
@@ -77,7 +81,16 @@ public class Controls : MonoBehaviour
                 hit.transform.gameObject.GetComponent<Terrain>().terrainMod(x, y, mod, val);
             else if (toolSelected == ToolSelected.Water)
                 hit.transform.Find("Water").GetComponent<Water>().modifyWaterSource(x, y, mod, val);
+            else if (toolSelected == ToolSelected.Log)
+                hit.transform.gameObject.GetComponent<Terrain>().spawnLog(x, y);
         }
+    }
+
+    void activateToolbarItem(int index)
+    {
+        currentToolbarItem.GetComponent<ToolbarItem>().deactivate();
+        currentToolbarItem = UIElements[index];
+        currentToolbarItem.GetComponent<ToolbarItem>().activate();
     }
 
     void Update()
@@ -95,17 +108,21 @@ public class Controls : MonoBehaviour
             Move(speedUp, new Vector3(1, 0, 0));
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            waterUI.GetComponent<Image>().sprite = waterColor;
-            terrainUI.GetComponent<Image>().sprite = terrainGray;
+            activateToolbarItem(0);
             helperUI.GetComponent<Text>().text = "SHIFT to remove";
             toolSelected = ToolSelected.Water;
         }
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            waterUI.GetComponent<Image>().sprite = waterGray;
-            terrainUI.GetComponent<Image>().sprite = terrainColor;
+            activateToolbarItem(1);
             helperUI.GetComponent<Text>().text = "SHIFT to remove";
             toolSelected = ToolSelected.Terrain;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            activateToolbarItem(2);
+            helperUI.GetComponent<Text>().text = "";
+            toolSelected = ToolSelected.Log;
         }
         if (Input.GetMouseButtonDown(1))
             StartRotatingCam();

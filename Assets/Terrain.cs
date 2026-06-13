@@ -18,6 +18,7 @@ public class Terrain : MonoBehaviour
 
     public Material terrainMat;
     public TextAsset terrainData;
+    public GameObject logPrefab;
 
     Simulation s;
 
@@ -42,6 +43,12 @@ public class Terrain : MonoBehaviour
         terrainUpdatesY.Add(y);
         terrainUpdatesVal.Add(mod ? -5f * val : 5f * val);
         updatingCountdown = 1;
+    }
+
+    public void spawnLog(int x, int y)
+    {
+        var go = Instantiate(logPrefab, transform);
+        go.transform.position = new Vector3(x * SCALE, height(x, y) + 5, y * SCALE);
     }
 
     void recalculateMesh()
