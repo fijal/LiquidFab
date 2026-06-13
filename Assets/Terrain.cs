@@ -36,10 +36,8 @@ public class Terrain : MonoBehaviour
         terrainHeight[x + y * TERRAIN_SIZE] = v;
     }
 
-    public void terrainMod(int tri, bool mod, float val)
+    public void terrainMod(int x, int y, bool mod, float val)
     {
-        var x = (tri / 2) % (TERRAIN_SIZE - 1);
-        var y = (tri / 2) / (TERRAIN_SIZE - 1);
         terrainUpdatesX.Add(x);
         terrainUpdatesY.Add(y);
         terrainUpdatesVal.Add(mod ? -5f * val : 5f * val);

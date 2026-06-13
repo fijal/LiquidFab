@@ -21,6 +21,8 @@ public class Controls : MonoBehaviour
     public Sprite waterGray, waterColor, terrainGray, terrainColor;
     public GameObject waterUI, terrainUI, helperUI;
 
+    ToolSelected toolSelected = ToolSelected.Water;
+
     Vector3 lastMousePos;
     float timer = 10.0f;
 
@@ -68,7 +70,13 @@ public class Controls : MonoBehaviour
             // return a random value if that's a triangle index in some unrelated mesh
 
             // XXX [fijal] sure, but right now only terrain has the collider
-            hit.transform.gameObject.GetComponent<Terrain>().terrainMod(hit.triangleIndex, mod, val);
+            var x = (hit.triangleIndex / 2) % (Terrain.TERRAIN_SIZE - 1);
+            var y = (hit.triangleIndex / 2) / (Terrain.TERRAIN_SIZE - 1);
+
+            if (toolSelected == ToolSelected.Terrain)
+                hit.transform.gameObject.GetComponent<Terrain>().terrainMod(x, y, mod, val);
+            else if (toolSelected == ToolSelected.Water)
+                hit.transform.Find("Water").GetComponent<Water>().modifyWaterSource(x, y, mod, val);
         }
     }
 
@@ -89,11 +97,15 @@ public class Controls : MonoBehaviour
         {
             waterUI.GetComponent<Image>().sprite = waterColor;
             terrainUI.GetComponent<Image>().sprite = terrainGray;
+            helperUI.GetComponent<Text>().text = "SHIFT to remove";
+            toolSelected = ToolSelected.Water;
         }
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
             waterUI.GetComponent<Image>().sprite = waterGray;
             terrainUI.GetComponent<Image>().sprite = terrainColor;
+            helperUI.GetComponent<Text>().text = "SHIFT to remove";
+            toolSelected = ToolSelected.Terrain;
         }
         if (Input.GetMouseButtonDown(1))
             StartRotatingCam();
@@ -118,7 +130,7 @@ public class Controls : MonoBehaviour
         if (timer > 0)
         {
             timer -= Time.deltaTime;
-            if (timer <= 0)
+            if (timer <= 0 && helperUI.GetComponent<Text>().text.StartsWith("WSAD"))
                 helperUI.GetComponent<Text>().text = "";
         }
     }
