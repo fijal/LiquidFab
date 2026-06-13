@@ -70,10 +70,6 @@ public class Controls : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit, 100, 1 << 3))
         {
-            // XXX must check which object we hit against; reading hit.triangleIndex will
-            // return a random value if that's a triangle index in some unrelated mesh
-
-            // XXX [fijal] it'll click log sometimes, needs rework to make sure we hit terrain always
             var x = (hit.triangleIndex / 2) % (Terrain.TERRAIN_SIZE - 1);
             var y = (hit.triangleIndex / 2) / (Terrain.TERRAIN_SIZE - 1);
 
