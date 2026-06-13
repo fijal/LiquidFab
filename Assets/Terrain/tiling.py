@@ -38,8 +38,8 @@ rekd = RectBivariateSpline(grid, grid, img)
 igrid = np.linspace(0, 512, int(256))
 v = rekd(igrid, igrid)
 with open(fname.replace('.png', '.bytes'), "wb") as f:
-    for item in (v / max_h * 255).astype(np.uint8).flatten():
-        f.write(struct.pack("B", item))
+    for item in (v / max_h * 255 * 256).astype(np.uint16).flatten():
+        f.write(struct.pack("H", item))
 
 #img = Image.fromarray(v.flatten().astype(np.float32))
 #img.save('foo.png')
