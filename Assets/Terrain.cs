@@ -144,16 +144,14 @@ public class Terrain : MonoBehaviour
         {
             sjobhandle.Value.Complete();
             sjobhandle = null;
-            for (int i = 0; i < Terrain.TERRAIN_SIZE * Terrain.TERRAIN_SIZE; i++)
-                terrainHeight[i] = s.terrain[i];
+            s.terrain.CopyTo(terrainHeight);
             water.updateWaterTexture(s);
         }
 
         if (lastUpdate <= 0 && sjobhandle == null)
         {
             runUpdates();
-            for (int i = 0; i < Terrain.TERRAIN_SIZE * Terrain.TERRAIN_SIZE; i++)
-                s.terrain[i] = terrainHeight[i];
+            s.terrain.CopyFrom(terrainHeight);
             recalculateMesh();
             // XXX this is done 10 times per second only if the background thread can keep up;
             // otherwise this is done less often.  We should probably do waterLevel[] +=
