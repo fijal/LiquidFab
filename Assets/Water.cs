@@ -15,6 +15,9 @@ public class Water : MonoBehaviour
     Simulation s;
     JobHandle? sjobhandle;
 
+    // XXX change this into a dictionary
+    Dictionary<int, float> waterSource;
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -27,7 +30,8 @@ public class Water : MonoBehaviour
         lastUpdate = 0.0f;
         terrain = transform.parent.GetComponent<Terrain>();
         s = new Simulation(waterLevel, WATER_SIZE_X, WATER_SIZE_Y);
- 
+
+        waterSource = new Dictionary<int, float>();
     }
 
     private void OnDestroy()
@@ -38,15 +42,26 @@ public class Water : MonoBehaviour
             waterLevel.Dispose();
     }
 
-    float wl(int x, int y)
+    public void modifyWaterSource(int x, int y, bool mod, float val)
     {
-        return waterLevel[x + y * WATER_SIZE_X];
-    }
-
-    void swl(int x, int y, float val)
-    {
-        waterLevel[x + y * WATER_SIZE_X] = val;
-    }
+        val *= 0.3f;
+        var index = x + y * WATER_SIZE_X;
+        if (!mod)
+        {
+            if (waterSource.ContainsKey(index))
+                waterSource[index] += val;
+            else
+                waterSource[index] = val;
+        } else
+        {
+            if (waterSource.ContainsKey(index))
+            {
+                waterSource[index] -= val;
+                if (waterSource[index] <= 0)
+                    waterSource.Remove(index);
+            }
+        }
+    }    
 
     public void updateWaterTexture()
     {
@@ -130,6 +145,7 @@ public class Water : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // XXX move all of this into Terrain, I think it belongs more there
         if (sjobhandle != null && sjobhandle.Value.IsCompleted)
         {
             sjobhandle.Value.Complete();
@@ -145,10 +161,8 @@ public class Water : MonoBehaviour
             for (int i = 0; i < Terrain.TERRAIN_SIZE * Terrain.TERRAIN_SIZE; i++)
                 s.terrain[i] = terrain.terrainHeight[i];
             terrain.synchronizedUpdate();
-            swl(130, 130, wl(130, 130) + 1f);
-            swl(130, 131, wl(130, 131) + 1f);
-            swl(131, 130, wl(131, 130) + 1f);
-            swl(131, 131, wl(131, 131) + 1f);
+            foreach (KeyValuePair<int, float> entry in waterSource)
+                waterLevel[entry.Key] += entry.Value;
             sjobhandle = s.Schedule();
             lastUpdate = 0.1f;
         } else
