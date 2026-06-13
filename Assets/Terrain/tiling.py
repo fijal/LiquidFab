@@ -31,7 +31,8 @@ OUT_SIZE = 512
 
 SCALE = 4
 
-img = np.array(im_frame.get_flattened_data()).reshape(im_frame.size + (4,))[:OUT_SIZE,:OUT_SIZE,:1].reshape((OUT_SIZE, OUT_SIZE))
+x, y = im_frame.size
+img = np.array(im_frame.get_flattened_data())[:,1].reshape((y, x))[:OUT_SIZE,:OUT_SIZE]
 grid = np.arange(0, 512, dtype=np.int32)
 rekd = RectBivariateSpline(grid, grid, img)
 igrid = np.linspace(0, 512, int(512))
