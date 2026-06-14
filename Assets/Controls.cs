@@ -66,8 +66,8 @@ public class Controls : MonoBehaviour
 
     void RaycastToTerrainCont(bool mod, float val)
     {
-        if (toolSelected != ToolSelected.Terrain && toolSelected != ToolSelected.Water)
-            return;
+        //if (toolSelected != ToolSelected.Terrain && toolSelected != ToolSelected.Water)
+        //    return;
         var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
@@ -81,12 +81,13 @@ public class Controls : MonoBehaviour
             else if (toolSelected == ToolSelected.Water)
                 hit.transform.Find("Water").GetComponent<Water>().modifyWaterSource(x, y, mod, val);
             else if (toolSelected == ToolSelected.Log)
-                hit.transform.gameObject.GetComponent<Terrain>().spawnLog(x, y);
+                hit.transform.gameObject.GetComponent<Terrain>().spawnTree(x, y);
         }
     }
 
     void RaycastToTerrainClick()
     {
+        return;
         if (toolSelected != ToolSelected.Log)
             return;
         var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);

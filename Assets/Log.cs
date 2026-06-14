@@ -23,9 +23,10 @@ public class Log : MonoBehaviour
         {
             var rb = GetComponent<Rigidbody>();
             var frac = Mathf.Min(1, ((wl - height) + 0.5f) / logHeight);
-            // middle of the submerged part
-            //rb.AddForceAtPosition();
             rb.AddForce(new Vector3(0, 12 * frac, 0), ForceMode.Force);
+            // flow
+            rb.AddForce(new Vector3(terrain.s.waterFlowX[(int)x + ((int)y) * Terrain.TERRAIN_SIZE] * 0.3f, 0,
+                terrain.s.waterFlowY[(int)x + ((int)y) * Terrain.TERRAIN_SIZE] * 0.3f), ForceMode.Force);
             // friction
             rb.AddForce(-rb.velocity * 3 / 4 * frac, ForceMode.Force);
             rb.AddTorque(-rb.angularVelocity * 3 / 4 * frac, ForceMode.Force);

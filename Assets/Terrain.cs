@@ -13,14 +13,16 @@ public class Terrain : MonoBehaviour
 
     public List<int> terrainUpdatesX, terrainUpdatesY;
     public List<float> terrainUpdatesVal;
+    Dictionary<int, GameObject> trees;
 
     JobHandle? sjobhandle;
 
     public Material terrainMat;
     public TextAsset terrainData;
     public GameObject logPrefab;
+    public GameObject[] treePrefabs;
 
-    Simulation s;
+    public Simulation s;
     public Water water;
 
     public float[] terrainHeight;
@@ -54,11 +56,23 @@ public class Terrain : MonoBehaviour
         terrainUpdatesVal.Add(mod ? -5f * val : 5f * val);
     }
 
+    public void spawnTree(int x, int y)
+    {
+        if (trees.ContainsKey(x + y * TERRAIN_SIZE))
+            return;
+        var go = Instantiate(treePrefabs[Random.Range(0, 3)], transform);
+        //go.GetComponent<Log>().terrain = this;
+        go.transform.position = new Vector3(x * SCALE, height(x, y), y * SCALE);
+        //go.transform.rotation = Quaternion.Euler(90, 0, 0);
+        go.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+        trees[x + y * TERRAIN_SIZE] = go;
+    }
+
     public void spawnLog(int x, int y)
     {
         var go = Instantiate(logPrefab, transform);
         go.GetComponent<Log>().terrain = this;
-        go.transform.position = new Vector3(x * SCALE, height(x, y) + 5, y * SCALE);
+        go.transform.position = new Vector3(x * SCALE, height(x, y), y * SCALE);
         go.transform.rotation = Quaternion.Euler(90, 0, 0);
     }
 
@@ -94,17 +108,32 @@ public class Terrain : MonoBehaviour
         terrainUpdatesY = new List<int>();
         terrainUpdatesVal = new List<float>();
         recalculateMesh();
+        populateTrees();
 
-        recenterLogMesh();
+        recenterMesh(logPrefab.GetComponent<MeshFilter>().sharedMesh);
+        for (int i = 0; i < treePrefabs.Length; ++i)
+            recenterMesh(treePrefabs[i].GetComponent<MeshFilter>().sharedMesh);
         
         water = transform.Find("Water").GetComponent<Water>();
+        trees = new Dictionary<int, GameObject>();
         s = new Simulation(water.waterLevel, TERRAIN_SIZE, TERRAIN_SIZE);
     }
 
-    void recenterLogMesh()
+    void populateTrees()
+    {
+        /*for (int i = 0; i < 3000; i++)
+        {
+            var tree = Instantiate(treePrefabs[Random.Range(0, 3)], transform);
+            var x = Random.Range(0.5f, TERRAIN_SIZE * SCALE - 0.5f);
+            var y = Random.Range(0.5f, TERRAIN_SIZE * SCALE - 0.5f);
+            tree.transform.position = new Vector3(x, heightFloat(x / SCALE, y / SCALE), y);
+            tree.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+        }*/
+    }
+
+    void recenterMesh(Mesh mesh)
     {
         // [fijal] eh, should be done somehow differently, but I don't know how
-        var mesh = logPrefab.GetComponent<MeshFilter>().sharedMesh;
         var offset = mesh.bounds.center;
         var v = mesh.vertices;
         for (int i = 0; i < v.Length; i++)
@@ -176,6 +205,22 @@ public class Terrain : MonoBehaviour
         terrainUpdatesX.Clear();
         terrainUpdatesY.Clear();
         terrainUpdatesVal.Clear();
+
+        List<int> treesToRemove = new List<int>();
+
+        foreach (var entry in trees)
+        {
+            var x = entry.Key % TERRAIN_SIZE;
+            var y = entry.Key / TERRAIN_SIZE;
+            if (water.waterLevel[entry.Key] > 0.15f)
+            {
+                Destroy(entry.Value);
+                spawnLog(x, y);
+                treesToRemove.Add(entry.Key);
+            }
+        }
+        for (int i = 0; i < treesToRemove.Count; i++)
+            trees.Remove(treesToRemove[i]);
     }
 
     public void Update()

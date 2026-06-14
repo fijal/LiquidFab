@@ -14,8 +14,10 @@ public enum SimulationType
 
 public struct Simulation : IJob
 {
-    NativeArray<float> waterFlowX;
-    NativeArray<float> waterFlowY;
+    [NativeDisableContainerSafetyRestriction]
+    public NativeArray<float> waterFlowX;
+    [NativeDisableContainerSafetyRestriction]
+    public NativeArray<float> waterFlowY;
     NativeArray<float> terrainFlowX;
     NativeArray<float> terrainFlowY;
     int sizeX, sizeY;
