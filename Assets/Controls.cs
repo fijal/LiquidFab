@@ -7,7 +7,9 @@ public enum ToolSelected
 {
     Water = 1,
     Terrain = 2,
-    Log = 3
+    Log = 3,
+    Magnet = 4,
+    Miner = 5
 }
 
 public class Controls : MonoBehaviour
@@ -66,8 +68,8 @@ public class Controls : MonoBehaviour
 
     void RaycastToTerrainCont(bool mod, float val)
     {
-        //if (toolSelected != ToolSelected.Terrain && toolSelected != ToolSelected.Water)
-        //    return;
+        if (toolSelected != ToolSelected.Terrain && toolSelected != ToolSelected.Water && toolSelected != ToolSelected.Log)
+            return;
         var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
@@ -87,8 +89,7 @@ public class Controls : MonoBehaviour
 
     void RaycastToTerrainClick()
     {
-        return;
-        if (toolSelected != ToolSelected.Log)
+        if (toolSelected != ToolSelected.Miner && toolSelected != ToolSelected.Magnet)
             return;
         var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
@@ -97,9 +98,10 @@ public class Controls : MonoBehaviour
         {
             var x = (hit.triangleIndex / 2) % (Terrain.TERRAIN_SIZE - 1);
             var y = (hit.triangleIndex / 2) / (Terrain.TERRAIN_SIZE - 1);
-            if (toolSelected == ToolSelected.Log)
-                hit.transform.gameObject.GetComponent<Terrain>().spawnLog(x, y);
-
+            if (toolSelected == ToolSelected.Miner)
+                hit.transform.gameObject.GetComponent<Terrain>().spawnMiner(x, y);
+            else if (toolSelected == ToolSelected.Magnet)
+                hit.transform.gameObject.GetComponent<Terrain>().spawnMagnet(x, y);
         }
 
     }
@@ -108,7 +110,10 @@ public class Controls : MonoBehaviour
     {
         currentToolbarItem.GetComponent<ToolbarItem>().deactivate();
         currentToolbarItem = UIElements[index];
-        currentToolbarItem.GetComponent<ToolbarItem>().activate();
+        var item = currentToolbarItem.GetComponent<ToolbarItem>();
+        item.activate();
+        helperUI.GetComponent<Text>().text = item.helperText;
+        toolSelected = item.tool;
     }
 
     void SaveGame()
@@ -135,23 +140,15 @@ public class Controls : MonoBehaviour
         if (Input.GetKey(KeyCode.D))
             Move(speedUp, new Vector3(1, 0, 0));
         if (Input.GetKeyDown(KeyCode.Alpha1))
-        {
             activateToolbarItem(0);
-            helperUI.GetComponent<Text>().text = "SHIFT to remove";
-            toolSelected = ToolSelected.Water;
-        }
         if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
             activateToolbarItem(1);
-            helperUI.GetComponent<Text>().text = "SHIFT to remove";
-            toolSelected = ToolSelected.Terrain;
-        }
         if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
             activateToolbarItem(2);
-            helperUI.GetComponent<Text>().text = "";
-            toolSelected = ToolSelected.Log;
-        }
+        if (Input.GetKeyDown(KeyCode.Alpha4))
+            activateToolbarItem(3);
+        if (Input.GetKeyDown(KeyCode.Alpha5))
+            activateToolbarItem(4);
         if (Input.GetMouseButtonDown(1))
             StartRotatingCam();
         if (Input.GetMouseButtonUp(1))

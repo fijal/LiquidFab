@@ -17,9 +17,8 @@ public class Terrain : MonoBehaviour
 
     JobHandle? sjobhandle;
 
-    public Material terrainMat;
     public TextAsset terrainData;
-    public GameObject logPrefab;
+    public GameObject logPrefab, minerPrefab, magnetPrefab;
     public GameObject[] treePrefabs;
 
     public Simulation s;
@@ -61,9 +60,7 @@ public class Terrain : MonoBehaviour
         if (trees.ContainsKey(x + y * TERRAIN_SIZE))
             return;
         var go = Instantiate(treePrefabs[Random.Range(0, 3)], transform);
-        //go.GetComponent<Log>().terrain = this;
         go.transform.position = new Vector3(x * SCALE, height(x, y), y * SCALE);
-        //go.transform.rotation = Quaternion.Euler(90, 0, 0);
         go.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
         trees[x + y * TERRAIN_SIZE] = go;
     }
@@ -74,6 +71,20 @@ public class Terrain : MonoBehaviour
         go.GetComponent<Log>().terrain = this;
         go.transform.position = new Vector3(x * SCALE, height(x, y), y * SCALE);
         go.transform.rotation = Quaternion.Euler(90, 0, 0);
+    }
+
+    public void spawnMagnet(int x, int y)
+    {
+        var go = Instantiate(magnetPrefab, transform);
+        go.transform.position = new Vector3(x * SCALE, height(x, y), y * SCALE);
+        go.transform.rotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
+    }
+
+    public void spawnMiner(int x, int y)
+    {
+        var go = Instantiate(minerPrefab, transform);
+        go.transform.position = new Vector3(x * SCALE, height(x, y), y * SCALE);
+        go.transform.rotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
     }
 
     void recalculateMesh()
@@ -140,6 +151,7 @@ public class Terrain : MonoBehaviour
 
         var vertices0 = new Vector3[TERRAIN_SIZE * TERRAIN_SIZE];
         var triangles = new int[(TERRAIN_SIZE - 1) * (TERRAIN_SIZE - 1) * 6];
+        var uvs = new Vector2[TERRAIN_SIZE * TERRAIN_SIZE];
 
         int vert = 0;
         for (int tris = 0; tris < (TERRAIN_SIZE - 1) * (TERRAIN_SIZE - 1); tris++)
@@ -155,9 +167,14 @@ public class Terrain : MonoBehaviour
             if (tris % (TERRAIN_SIZE - 1) == TERRAIN_SIZE - 2)
                 vert++;
         }
+        for (int y = 0; y < TERRAIN_SIZE; y++)
+            for (int x = 0; x < TERRAIN_SIZE; x++)
+                uvs[x + y * TERRAIN_SIZE] = new Vector2(x, y);
+
         mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
         mesh.vertices = vertices0;
         mesh.triangles = triangles;
+        mesh.uv = uvs;
         updateMesh(mesh);
         return mesh;
     }

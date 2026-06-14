@@ -6,6 +6,8 @@ using UnityEngine.UI;
 public class ToolbarItem : MonoBehaviour
 {
     public Sprite gray, color;
+    public string helperText;
+    public ToolSelected tool;
 
     public void activate()
     {
