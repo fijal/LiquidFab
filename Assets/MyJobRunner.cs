@@ -21,6 +21,7 @@ public class MyJobRunner
         callback_when_complete = callback;
         coro_mono = mono;
         coro = mono.StartCoroutine(CheckComplete());
+        JobHandle.ScheduleBatchedJobs();
     }
 
     IEnumerator CheckComplete()
