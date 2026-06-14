@@ -21,7 +21,7 @@ public class Terrain : MonoBehaviour
     public GameObject logPrefab;
 
     Simulation s;
-    Water water;
+    public Water water;
 
     public float[] terrainHeight;
     public bool gameToLoad = false;
@@ -31,6 +31,15 @@ public class Terrain : MonoBehaviour
     public float height(int x, int y)
     {
         return terrainHeight[x + y * TERRAIN_SIZE];
+    }
+
+    public float heightFloat(float x, float y)
+    {
+        int ix = (int)x;
+        float xrem = x - (float)ix;
+        int iy = (int)y;
+        float yrem = y - (float)iy;
+        return ((1 - xrem) * height(ix + 1, iy) + (1 - yrem) * height(ix, iy + 1) + (xrem + yrem) * height(ix, iy)) / 2;
     }
 
     public void setHeight(int x, int y, float v)
@@ -48,7 +57,9 @@ public class Terrain : MonoBehaviour
     public void spawnLog(int x, int y)
     {
         var go = Instantiate(logPrefab, transform);
+        go.GetComponent<Log>().terrain = this;
         go.transform.position = new Vector3(x * SCALE, height(x, y) + 5, y * SCALE);
+        go.transform.rotation = Quaternion.Euler(90, 0, 0);
     }
 
     void recalculateMesh()
@@ -84,8 +95,22 @@ public class Terrain : MonoBehaviour
         terrainUpdatesVal = new List<float>();
         recalculateMesh();
 
+        recenterLogMesh();
+        
         water = transform.Find("Water").GetComponent<Water>();
         s = new Simulation(water.waterLevel, TERRAIN_SIZE, TERRAIN_SIZE);
+    }
+
+    void recenterLogMesh()
+    {
+        // [fijal] eh, should be done somehow differently, but I don't know how
+        var mesh = logPrefab.GetComponent<MeshFilter>().sharedMesh;
+        var offset = mesh.bounds.center;
+        var v = mesh.vertices;
+        for (int i = 0; i < v.Length; i++)
+            v[i] = v[i] - offset;
+        mesh.RecalculateBounds();
+        mesh.RecalculateNormals();
     }
 
     private void OnDestroy()
@@ -144,6 +169,9 @@ public class Terrain : MonoBehaviour
             var x = terrainUpdatesX[i];
             var y = terrainUpdatesY[i];
             setHeight(x, y, height(x, y) + terrainUpdatesVal[i]);
+            setHeight(x, y + 1, height(x, y + 1) + terrainUpdatesVal[i]);
+            setHeight(x + 1, y, height(x + 1, y) + terrainUpdatesVal[i]);
+            setHeight(x + 1, y + 1, height(x + 1, y + 1) + terrainUpdatesVal[i]);
         }
         terrainUpdatesX.Clear();
         terrainUpdatesY.Clear();

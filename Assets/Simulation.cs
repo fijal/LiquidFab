@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using UnityEngine;
 
@@ -18,7 +19,10 @@ public struct Simulation : IJob
     NativeArray<float> terrainFlowX;
     NativeArray<float> terrainFlowY;
     int sizeX, sizeY;
+
+    [NativeDisableContainerSafetyRestriction]
     public NativeArray<float> water;
+    
     public float viscosity;
     public float maxAngle;
     public float friction;

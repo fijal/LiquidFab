@@ -162,6 +162,7 @@ MonoBehaviour:
   terrainData: {fileID: 4900000, guid: 489079a54da551c4d8d36636acb71de6, type: 3}
   logPrefab: {fileID: 9201883984330220474, guid: 5f94c19dfbd1e024383a26d55abb9767, type: 3}
   terrainHeight: []
+  gameToLoad: 0
 --- !u!4 &200605879
 Transform:
   m_ObjectHideFlags: 0
@@ -927,6 +928,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   camera: {fileID: 963194225}
+  terrain: {fileID: 200605878}
   UIElements:
   - {fileID: 235452408}
   - {fileID: 1908283752}

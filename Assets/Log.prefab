@@ -98,6 +98,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5dc82e5efd7a664fa067d866e909ed9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  terrain: {fileID: 0}
 --- !u!54 &9201883984330219584
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -121,10 +122,10 @@ CapsuleCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9201883984330220474}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 79495d338aa83cf4cb66481850740af1, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   m_Radius: 0.25000003
   m_Height: 3.4499998
   m_Direction: 1
-  m_Center: {x: -0.40344498, y: 1.8288498, z: -0.21282494}
+  m_Center: {x: 0, y: 0, z: 0}

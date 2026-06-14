@@ -1,11 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using UnityEngine;
 
 public class Water : MonoBehaviour
 {
+    [NativeDisableContainerSafetyRestriction]
     public NativeArray<float> waterLevel;
     
     const int WATER_SIZE_X = 256, WATER_SIZE_Y = 256;
@@ -32,6 +34,17 @@ public class Water : MonoBehaviour
     {
         if (waterLevel != null)
             waterLevel.Dispose();
+    }
+
+    public float waterLevelFloat(float x, float y)
+    {
+        int ix = (int)x;
+        float xrem = x - (float)ix;
+        int iy = (int)y;
+        float yrem = y - (float)iy;
+        return ((1 - xrem) * waterLevel[ix + 1 + iy * WATER_SIZE_X] +
+                (1 - yrem) * waterLevel[ix + (iy + 1) * WATER_SIZE_X] +
+                (xrem + yrem) * waterLevel[ix + iy * WATER_SIZE_X]) / 2;
     }
 
     public void modifyWaterSource(int x, int y, bool mod, float val)
