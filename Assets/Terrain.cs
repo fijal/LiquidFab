@@ -15,7 +15,7 @@ public class Terrain : MonoBehaviour
     public List<float> terrainUpdatesVal;
     Dictionary<int, GameObject> trees;
 
-    JobHandle? sjobhandle;
+    readonly MyJobRunner s_runner = new();
 
     public TextAsset terrainData;
     public GameObject logPrefab, minerPrefab, magnetPrefab;
@@ -87,6 +87,18 @@ public class Terrain : MonoBehaviour
         go.transform.rotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
     }
 
+    struct MeshBaker : IJob
+    {
+        public int mesh_id;
+
+        public void Execute()
+        {
+            Physics.BakeMesh(mesh_id, convex: false);
+        }
+    }
+    MeshBaker meshbaker;
+    readonly MyJobRunner meshbaker_runner = new();
+
     void recalculateMesh()
     {
         var oldMesh = GetComponent<MeshFilter>().sharedMesh;
@@ -98,7 +110,13 @@ public class Terrain : MonoBehaviour
         }
         else
         {
+            meshbaker_runner.Complete();
             updateMesh(oldMesh);
+            meshbaker.mesh_id = oldMesh.GetInstanceID();
+            meshbaker_runner.Start(this, ref meshbaker, () =>
+            {
+                GetComponent<MeshCollider>().sharedMesh = oldMesh;
+            });
         }
     }
 
@@ -140,7 +158,8 @@ public class Terrain : MonoBehaviour
 
     private void OnDestroy()
     {
-        sjobhandle?.Complete();
+        meshbaker_runner.Dispose();
+        s_runner.Dispose();
         s.Dispose();
     }
 
@@ -227,16 +246,7 @@ public class Terrain : MonoBehaviour
 
     public void Update()
     {
-
-        if (sjobhandle != null && sjobhandle.Value.IsCompleted)
-        {
-            sjobhandle.Value.Complete();
-            sjobhandle = null;
-            s.terrain.CopyTo(terrainHeight);
-            water.updateWaterTexture(s);
-        }
-
-        if (lastUpdate <= 0 && sjobhandle == null)
+        if (lastUpdate <= 0 && !s_runner.Running)
         {
             runUpdates();
             s.terrain.CopyFrom(terrainHeight);
@@ -246,7 +256,11 @@ public class Terrain : MonoBehaviour
             // some value computed from how long it really was since the last time we were here
             water.updateWaterSources();
             s.water = water.waterLevel;
-            sjobhandle = s.Schedule();
+            s_runner.Start(this, ref s, () =>
+            {
+                s.terrain.CopyTo(terrainHeight);
+                water.updateWaterTexture(s);
+            });
             lastUpdate = 0.1f;
         }
         else
