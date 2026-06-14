@@ -161,6 +161,12 @@ MonoBehaviour:
   terrainMat: {fileID: 2100000, guid: ae2bb6b10227fe54b9ddeaccf69ad532, type: 2}
   terrainData: {fileID: 4900000, guid: 489079a54da551c4d8d36636acb71de6, type: 3}
   logPrefab: {fileID: 9201883984330220474, guid: 5f94c19dfbd1e024383a26d55abb9767, type: 3}
+  treePrefabs:
+  - {fileID: 7519813975544404550, guid: 05ea3cfde14450645ab00fa2671e783b, type: 3}
+  - {fileID: 1481673226186282464, guid: d4b1707da7080554bb3db9338bb5ae66, type: 3}
+  - {fileID: 321735410901635458, guid: 8bcf7d324d7bf3d408efd85c3f387606, type: 3}
+  - {fileID: 8676952158559593809, guid: 418119bc089da594caa33bd03ea445f2, type: 3}
+  water: {fileID: 0}
   terrainHeight: []
   gameToLoad: 0
 --- !u!4 &200605879
