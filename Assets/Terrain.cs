@@ -76,6 +76,19 @@ public class Terrain : MonoBehaviour
         go.transform.rotation = Quaternion.Euler(90, 0, 0);
     }
 
+    struct MeshBaker : IJob
+    {
+        public int mesh_id;
+
+        public void Execute()
+        {
+            Physics.BakeMesh(mesh_id, convex: false);
+        }
+    }
+    MeshBaker s_meshbaker;
+    JobHandle? s_meshbaker_handle;
+    Mesh s_meshbaker_mesh;
+
     void recalculateMesh()
     {
         var oldMesh = GetComponent<MeshFilter>().sharedMesh;
@@ -87,7 +100,21 @@ public class Terrain : MonoBehaviour
         }
         else
         {
+            FinishBakingMesh();
             updateMesh(oldMesh);
+            s_meshbaker_mesh = oldMesh;
+            s_meshbaker.mesh_id = oldMesh.GetInstanceID();
+            s_meshbaker_handle = s_meshbaker.Schedule();
+        }
+    }
+
+    void FinishBakingMesh()
+    {
+        if (s_meshbaker_handle != null)
+        {
+            s_meshbaker_handle.Value.Complete();
+            s_meshbaker_handle = null;
+            GetComponent<MeshCollider>().sharedMesh = s_meshbaker_mesh;
         }
     }
 
@@ -129,6 +156,7 @@ public class Terrain : MonoBehaviour
 
     private void OnDestroy()
     {
+        FinishBakingMesh();
         sjobhandle?.Complete();
         s.Dispose();
     }
@@ -236,5 +264,8 @@ public class Terrain : MonoBehaviour
         {
             lastUpdate -= Time.deltaTime;
         }
+
+        if (s_meshbaker_handle != null && s_meshbaker_handle.Value.IsCompleted)
+            FinishBakingMesh();
     }
 }
