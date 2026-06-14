@@ -29,7 +29,7 @@ public struct Simulation : IJob
     public float maxAngle;
     public float friction;
     public float mass;
-    const float gravity = 0.3f;
+    const float gravity = 0.15f;
 
     public float BOUNDARY_FLOW;
 
@@ -216,8 +216,11 @@ public struct Simulation : IJob
         for (int y = 0; y < sizeY; y++)
             for (int x = 0; x < sizeX; x++)
             {
-                source[x + y * sizeX] += (flowX[x + y * (sizeX + 1)] + flowY[x + y * sizeX] - flowX[x + 1 + y * (sizeX + 1)]
-                    - flowY[x + (y + 1) * sizeX]) / dt;
+                var seepage = 0f;
+                if (simulationType == SimulationType.Water)
+                    seepage = 0.00005f;
+                source[x + y * sizeX] += ((flowX[x + y * (sizeX + 1)] + flowY[x + y * sizeX] - flowX[x + 1 + y * (sizeX + 1)]
+                    - flowY[x + (y + 1) * sizeX]) - seepage) / dt;
             }
 
 
