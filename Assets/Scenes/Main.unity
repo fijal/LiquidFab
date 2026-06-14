@@ -640,7 +640,7 @@ MonoBehaviour:
   gray: {fileID: 21300000, guid: 6315459d1ac57ed48b984f5dc86a7975, type: 3}
   color: {fileID: 21300000, guid: 28f225c9d9cefb049b3509502e03d716, type: 3}
   helperText: 
-  tool: 4
+  tool: 5
 --- !u!114 &477985579
 MonoBehaviour:
   m_ObjectHideFlags: 0
