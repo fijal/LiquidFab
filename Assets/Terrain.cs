@@ -110,10 +110,6 @@ public class Terrain : MonoBehaviour
         recalculateMesh();
         populateTrees();
 
-        recenterMesh(logPrefab.GetComponent<MeshFilter>().sharedMesh);
-        for (int i = 0; i < treePrefabs.Length; ++i)
-            recenterMesh(treePrefabs[i].GetComponent<MeshFilter>().sharedMesh);
-        
         water = transform.Find("Water").GetComponent<Water>();
         trees = new Dictionary<int, GameObject>();
         s = new Simulation(water.waterLevel, TERRAIN_SIZE, TERRAIN_SIZE);
@@ -129,17 +125,6 @@ public class Terrain : MonoBehaviour
             tree.transform.position = new Vector3(x, heightFloat(x / SCALE, y / SCALE), y);
             tree.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
         }*/
-    }
-
-    void recenterMesh(Mesh mesh)
-    {
-        // [fijal] eh, should be done somehow differently, but I don't know how
-        var offset = mesh.bounds.center;
-        var v = mesh.vertices;
-        for (int i = 0; i < v.Length; i++)
-            v[i] = v[i] - offset;
-        mesh.RecalculateBounds();
-        mesh.RecalculateNormals();
     }
 
     private void OnDestroy()
