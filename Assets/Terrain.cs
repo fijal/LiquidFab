@@ -8,7 +8,7 @@ public class Terrain : MonoBehaviour
 {
     Mesh mesh;
     public const float SCALE = 0.5f;
-    public const float HEIGHT_SCALE = 85f;
+    public const float HEIGHT_SCALE = 45f;
     public const int TERRAIN_SIZE = 256;
 
     public List<int> terrainUpdatesX, terrainUpdatesY;
