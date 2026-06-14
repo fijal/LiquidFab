@@ -12,7 +12,7 @@ public enum ToolSelected
 
 public class Controls : MonoBehaviour
 {
-    public GameObject camera;
+    public new GameObject camera;
     public Terrain terrain;
 
     const float MOVE_SPEED = 16f;
