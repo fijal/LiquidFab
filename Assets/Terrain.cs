@@ -15,7 +15,7 @@ public class Terrain : MonoBehaviour
     public List<float> terrainUpdatesVal;
     Dictionary<int, GameObject> trees;
 
-    JobHandle? sjobhandle;
+    readonly MyJobRunner s_runner = new();
 
     public Material terrainMat;
     public TextAsset terrainData;
@@ -85,9 +85,8 @@ public class Terrain : MonoBehaviour
             Physics.BakeMesh(mesh_id, convex: false);
         }
     }
-    MeshBaker s_meshbaker;
-    JobHandle? s_meshbaker_handle;
-    Mesh s_meshbaker_mesh;
+    MeshBaker meshbaker;
+    readonly MyJobRunner meshbaker_runner = new();
 
     void recalculateMesh()
     {
@@ -100,21 +99,13 @@ public class Terrain : MonoBehaviour
         }
         else
         {
-            FinishBakingMesh();
+            meshbaker_runner.Complete();
             updateMesh(oldMesh);
-            s_meshbaker_mesh = oldMesh;
-            s_meshbaker.mesh_id = oldMesh.GetInstanceID();
-            s_meshbaker_handle = s_meshbaker.Schedule();
-        }
-    }
-
-    void FinishBakingMesh()
-    {
-        if (s_meshbaker_handle != null)
-        {
-            s_meshbaker_handle.Value.Complete();
-            s_meshbaker_handle = null;
-            GetComponent<MeshCollider>().sharedMesh = s_meshbaker_mesh;
+            meshbaker.mesh_id = oldMesh.GetInstanceID();
+            meshbaker_runner.Start(this, ref meshbaker, () =>
+            {
+                GetComponent<MeshCollider>().sharedMesh = oldMesh;
+            });
         }
     }
 
@@ -156,8 +147,8 @@ public class Terrain : MonoBehaviour
 
     private void OnDestroy()
     {
-        FinishBakingMesh();
-        sjobhandle?.Complete();
+        meshbaker_runner.Dispose();
+        s_runner.Dispose();
         s.Dispose();
     }
 
@@ -238,16 +229,7 @@ public class Terrain : MonoBehaviour
 
     public void Update()
     {
-
-        if (sjobhandle != null && sjobhandle.Value.IsCompleted)
-        {
-            sjobhandle.Value.Complete();
-            sjobhandle = null;
-            s.terrain.CopyTo(terrainHeight);
-            water.updateWaterTexture(s);
-        }
-
-        if (lastUpdate <= 0 && sjobhandle == null)
+        if (lastUpdate <= 0 && !s_runner.Running)
         {
             runUpdates();
             s.terrain.CopyFrom(terrainHeight);
@@ -257,15 +239,16 @@ public class Terrain : MonoBehaviour
             // some value computed from how long it really was since the last time we were here
             water.updateWaterSources();
             s.water = water.waterLevel;
-            sjobhandle = s.Schedule();
+            s_runner.Start(this, ref s, () =>
+            {
+                s.terrain.CopyTo(terrainHeight);
+                water.updateWaterTexture(s);
+            });
             lastUpdate = 0.1f;
         }
         else
         {
             lastUpdate -= Time.deltaTime;
         }
-
-        if (s_meshbaker_handle != null && s_meshbaker_handle.Value.IsCompleted)
-            FinishBakingMesh();
     }
 }
