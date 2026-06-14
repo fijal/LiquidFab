@@ -25,10 +25,10 @@ public class Log : MonoBehaviour
             var frac = Mathf.Min(1, ((wl - height) + 0.5f) / logHeight);
             rb.AddForce(new Vector3(0, 12 * frac, 0), ForceMode.Force);
             // flow
-            rb.AddForce(new Vector3(terrain.s.waterFlowX[(int)x + ((int)y) * Terrain.TERRAIN_SIZE] * 0.3f, 0,
-                terrain.s.waterFlowY[(int)x + ((int)y) * Terrain.TERRAIN_SIZE] * 0.3f), ForceMode.Force);
+            var flowForce = new Vector3(terrain.s.waterFlowX[(int)x + ((int)y) * Terrain.TERRAIN_SIZE], 0,
+                terrain.s.waterFlowY[(int)x + ((int)y) * Terrain.TERRAIN_SIZE]) * 3;
             // friction
-            rb.AddForce(-rb.velocity * 3 / 4 * frac, ForceMode.Force);
+            rb.AddForce((flowForce-rb.velocity) * 3 / 4 * frac, ForceMode.Force);
             rb.AddTorque(-rb.angularVelocity * 3 / 4 * frac, ForceMode.Force);
         }
     }
