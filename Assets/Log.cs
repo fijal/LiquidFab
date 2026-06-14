@@ -24,7 +24,7 @@ public class Log : MonoBehaviour
             var rb = GetComponent<Rigidbody>();
             var frac = Mathf.Clamp01((wl - height) / logHeight);    // 0: water up to the middle; 1: water up to the top
             frac = 0.5f + 0.5f * frac;    // remap to the interval from 0.5 to 1
-            var buoyancy = 11f;           // slightly bigger than g=9.81
+            var buoyancy = 10f;
             var bottom_direction = transform.up;
             if (bottom_direction.y > 0)
                 bottom_direction = -bottom_direction;
