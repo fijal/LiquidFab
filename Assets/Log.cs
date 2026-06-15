@@ -30,10 +30,14 @@ public class Log : MonoBehaviour
                 bottom_direction = -bottom_direction;
             // flow
             var flowForce = new Vector3(terrain.s.waterFlowX[(int)x + ((int)y) * Terrain.TERRAIN_SIZE], buoyancy,
-                terrain.s.waterFlowY[(int)x + ((int)y) * Terrain.TERRAIN_SIZE]) * 3;
+                terrain.s.waterFlowY[(int)x + ((int)y) * Terrain.TERRAIN_SIZE]) * 30;
             rb.AddForceAtPosition((flowForce - rb.velocity) * frac * 3f/4,
                 transform.position + bottom_direction * Mathf.Lerp(logHeight, 0f, frac),
                 ForceMode.Force);
         }
+
+        /* when in free fall below the terrain or off to the sides */
+        if (transform.position.y < -1000)
+            Destroy(gameObject);
     }
 }

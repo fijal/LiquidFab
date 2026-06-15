@@ -55,7 +55,7 @@ public class Terrain : MonoBehaviour
     {
         terrainUpdatesX.Add(x);
         terrainUpdatesY.Add(y);
-        terrainUpdatesVal.Add(mod ? -5f * val : 5f * val);
+        terrainUpdatesVal.Add(mod ? -2.5f * val : 2.5f * val);
     }
 
     public void spawnTree(int x, int y)
@@ -124,8 +124,8 @@ public class Terrain : MonoBehaviour
             meshbaker_runner.Complete();
             updateMesh(oldMesh);
             updateSecondaryMesh(1, grass.GetComponent<MeshFilter>().sharedMesh);
-            updateSecondaryMesh(2, sand.GetComponent<MeshFilter>().sharedMesh);
-            updateSecondaryMesh(3, iron.GetComponent<MeshFilter>().sharedMesh);
+            //updateSecondaryMesh(2, sand.GetComponent<MeshFilter>().sharedMesh);
+            //updateSecondaryMesh(3, iron.GetComponent<MeshFilter>().sharedMesh);
             meshbaker.mesh_id = oldMesh.GetInstanceID();
             meshbaker_runner.Start(this, ref meshbaker, () =>
             {

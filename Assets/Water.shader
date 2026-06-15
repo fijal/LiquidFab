@@ -24,14 +24,14 @@ Shader "Unlit/Water"
             {
                 float4 vertex : POSITION;
                 float3 normal : NORMAL;
-                float3 uv : TEXCOORD0;
+                float3 uv3 : TEXCOORD0;     // .xz: water flow;  .y: water depth
             };
 
             struct v2f
             {
                 UNITY_FOG_COORDS(1)
                 float4 vertex : SV_POSITION;
-                float4 light_and_depth : TEXCOORD0;
+                float4 uv3_and_light : TEXCOORD0;
                 float2 src_vertex_xz : TEXCOORD2;
             };
 
@@ -41,9 +41,15 @@ Shader "Unlit/Water"
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 float3 normal = normalize(mul((float3x3)unity_ObjectToWorld, v.normal));
                 float3 light = _WorldSpaceLightPos0.xyz;
-                o.light_and_depth.x = dot(normal, light);
-                o.light_and_depth.yzw = v.uv;
-                o.src_vertex_xz = v.vertex.xz * 5;
+
+                float2 flow = v.uv3.xz * 12;
+                float sqr_mag = dot(flow, flow);
+                if (sqr_mag > 1)
+                    flow *= rsqrt(sqr_mag);
+                o.uv3_and_light.xz = flow * 0.75;
+                o.uv3_and_light.y = v.uv3.y;
+                o.uv3_and_light.w = dot(normal, light);
+                o.src_vertex_xz = v.vertex.xz;
                 UNITY_TRANSFER_FOG(o,o.vertex);
                 return o;
             }
@@ -53,13 +59,20 @@ Shader "Unlit/Water"
             fixed4 frag (v2f i) : SV_Target
             {
                 float4 col = 1;
-                float3 uv3 = i.light_and_depth.yzw;
-                col.xyz = lerp(_ColorShallow, _Color, saturate(uv3.y));
-                col.xyz *= saturate(i.light_and_depth.x);
+                col.xyz = lerp(_ColorShallow, _Color, saturate(i.uv3_and_light.y));
+                col.xyz *= saturate(i.uv3_and_light.w);
 
-                float2 s2 = sin(i.src_vertex_xz - _Time.w * uv3.xz);
-                float s1 = s2.x + s2.y;
-                col.xyz += saturate(s1) * 0.025;
+                float2 pos = i.src_vertex_xz;
+                float2 flow = i.uv3_and_light.xz;
+
+                float2 dot_pos = floor(pos) + 0.5;
+                float t = frac(_Time.w + dot(dot_pos, float2(1.3298139, 2.6010221)));
+                dot_pos += (t - 0.5) * flow;
+                float dot_strength = t * (1 - t) + 0.0001;
+
+                float2 dot_delta = (dot_pos - pos) / dot_strength;
+                float s1 = dot(dot_delta, dot_delta);
+                col.xyz += (1 - saturate(s1)) * 0.025;
 
                 // apply fog
                 UNITY_APPLY_FOG(i.fogCoord, col);
