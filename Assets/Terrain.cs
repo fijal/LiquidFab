@@ -275,7 +275,7 @@ public class Terrain : MonoBehaviour
                 float h = 0;
                 if (terrainKind[x + y * TERRAIN_SIZE] == kind)
                 {
-                    h = height(x, y) + 0.0001f;
+                    h = height(x, y) + 0.001f;
                 } else
                 {
                     h = height(x, y) - 0.5f;

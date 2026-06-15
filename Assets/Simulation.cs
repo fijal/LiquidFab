@@ -9,7 +9,8 @@ using UnityEngine;
 public enum SimulationType
 {
     Water = 1,
-    Terrain = 2
+    Terrain = 2,
+    SubWater = 3
 }
 
 public struct Simulation : IJob
@@ -21,6 +22,9 @@ public struct Simulation : IJob
     NativeArray<float> terrainFlowX;
     NativeArray<float> terrainFlowY;
     int sizeX, sizeY;
+
+    NativeArray<float> subFlowX, subFlowY;
+    public NativeArray<float> subLevel;
 
     [NativeDisableContainerSafetyRestriction]
     public NativeArray<float> water;
@@ -41,11 +45,14 @@ public struct Simulation : IJob
         waterFlowY = new NativeArray<float>(sizeX * (sizeY + 1), Allocator.Persistent);
         terrainFlowX = new NativeArray<float>((sizeX + 1) * sizeY, Allocator.Persistent);
         terrainFlowY = new NativeArray<float>(sizeX * (sizeY + 1), Allocator.Persistent);
+        subFlowX = new NativeArray<float>((sizeX + 1) * sizeY, Allocator.Persistent);
+        subFlowY = new NativeArray<float>(sizeX * (sizeY + 1), Allocator.Persistent);
 
         this.sizeX = sizeX;
         this.sizeY = sizeY;
         this.water = water;
         this.terrain = new NativeArray<float>(sizeX * sizeY, Allocator.Persistent);
+        subLevel = new NativeArray<float>(sizeX * sizeY, Allocator.Persistent);
 
         viscosity = 0;
         maxAngle = 0;
@@ -67,6 +74,12 @@ public struct Simulation : IJob
 
         if (terrain != null)
             terrain.Dispose();
+        if (subFlowX != null)
+            subFlowX.Dispose();
+        if (subFlowY != null)
+            subFlowY.Dispose();
+        if (subLevel != null)
+            subLevel.Dispose();
     }
 
     public readonly NativeArray<float> GetFlowX() => waterFlowX;
@@ -80,6 +93,7 @@ public struct Simulation : IJob
         //s.viscosity = 0.1f;
         maxAngle = 0.1f;
         mass = 1f;
+        viscosity = 0;
         subExecute(SimulationType.Terrain, this.terrain, terrainFlowX, terrainFlowY);
         // then modify water
         friction = 0.05f;
@@ -87,6 +101,9 @@ public struct Simulation : IJob
         BOUNDARY_FLOW = -1;
         maxAngle = 0f;
         subExecute(SimulationType.Water, this.water, waterFlowX, waterFlowY);
+        friction = 0.5f;
+        viscosity = 2f;
+        subExecute(SimulationType.SubWater, subLevel, subFlowX, subFlowY);
     }
 
     void subExecute(SimulationType simulationType, NativeArray<float> source, NativeArray<float> flowX, NativeArray<float> flowY)
@@ -163,7 +180,7 @@ public struct Simulation : IJob
         // viscosity
         if (viscosity > 0)
         {
-            Debug.Assert(simulationType == SimulationType.Water);
+            Debug.Assert(simulationType == SimulationType.Water || simulationType == SimulationType.SubWater);
             for (int y = 0; y < sizeY; ++y)
                 for (int x = 1; x < sizeX; ++x)
                 {
@@ -219,8 +236,17 @@ public struct Simulation : IJob
                 var seepage = 0f;
                 if (simulationType == SimulationType.Water)
                     seepage = 0.00005f;
-                source[x + y * sizeX] += ((flowX[x + y * (sizeX + 1)] + flowY[x + y * sizeX] - flowX[x + 1 + y * (sizeX + 1)]
-                    - flowY[x + (y + 1) * sizeX]) - seepage) / dt;
+                if (simulationType == SimulationType.SubWater)
+                    seepage = 0.00001f;
+                //source[x + y * sizeX] += ((flowX[x + y * (sizeX + 1)] + flowY[x + y * sizeX] - flowX[x + 1 + y * (sizeX + 1)]
+                //    - flowY[x + (y + 1) * sizeX]) - seepage) / dt;
+                var cur = (flowX[x + y * (sizeX + 1)] + flowY[x + y * sizeX] - flowX[x + 1 + y * (sizeX + 1)]
+                    - flowY[x + (y + 1) * sizeX]);
+                if (seepage > source[x + y * sizeX]) // XXX this needs rethinking, so we don't seep more than we have
+                    seepage = source[x + y * sizeX];
+                source[x + y * sizeX] += (cur - seepage) / dt;
+                if (simulationType == SimulationType.Water)
+                    subLevel[x + y * sizeX] += seepage;
             }
 
 
