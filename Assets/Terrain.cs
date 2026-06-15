@@ -25,7 +25,10 @@ public class Terrain : MonoBehaviour
     public Water water;
 
     public float[] terrainHeight;
+    public float[] terrainKind;
     public bool gameToLoad = false;
+
+    GameObject grass;
 
     float lastUpdate = 0.1f;
 
@@ -87,6 +90,19 @@ public class Terrain : MonoBehaviour
         go.transform.rotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
     }
 
+    public void changeToGrass(int x, int y, bool mod)
+    {
+        int kind;
+        if (mod)
+            kind = 0;
+        else
+            kind = 1;
+        terrainKind[x + y * TERRAIN_SIZE] = kind;
+        terrainKind[x + 1 + y * TERRAIN_SIZE] = kind;
+        terrainKind[x + (y + 1) * TERRAIN_SIZE] = kind;
+        terrainKind[x + 1 + (y + 1) * TERRAIN_SIZE] = kind;
+    }
+
     struct MeshBaker : IJob
     {
         public int mesh_id;
@@ -112,6 +128,7 @@ public class Terrain : MonoBehaviour
         {
             meshbaker_runner.Complete();
             updateMesh(oldMesh);
+            updateGrassMesh(grass.GetComponent<MeshFilter>().sharedMesh);
             meshbaker.mesh_id = oldMesh.GetInstanceID();
             meshbaker_runner.Start(this, ref meshbaker, () =>
             {
@@ -124,6 +141,7 @@ public class Terrain : MonoBehaviour
     {
         var terrainDataBytes = terrainData.bytes;
         terrainHeight = new float[TERRAIN_SIZE * TERRAIN_SIZE];
+        terrainKind = new float[TERRAIN_SIZE * TERRAIN_SIZE];
         var index = 0;
         for (int y = 0; y < TERRAIN_SIZE; y++)
             for (int x = 0; x < TERRAIN_SIZE; x++)
@@ -138,6 +156,8 @@ public class Terrain : MonoBehaviour
         terrainUpdatesVal = new List<float>();
         recalculateMesh();
         populateTrees();
+        grass = transform.Find("Grass").gameObject;
+        createGrassMesh();
 
         water = transform.Find("Water").GetComponent<Water>();
         trees = new Dictionary<int, GameObject>();
@@ -161,6 +181,39 @@ public class Terrain : MonoBehaviour
         meshbaker_runner.Dispose();
         s_runner.Dispose();
         s.Dispose();
+    }
+
+    void createGrassMesh()
+    {
+        mesh = new Mesh();
+        mesh.MarkDynamic();
+        var uvs = new Vector2[TERRAIN_SIZE * TERRAIN_SIZE];
+
+        var vertices0 = new Vector3[TERRAIN_SIZE * TERRAIN_SIZE];
+        var triangles = new int[(TERRAIN_SIZE - 1) * (TERRAIN_SIZE - 1) * 6];
+        int vert = 0;
+        for (int tris = 0; tris < (TERRAIN_SIZE - 1) * (TERRAIN_SIZE - 1); tris++)
+        {
+            var t = tris * 6;
+            triangles[t + 0] = vert + 0;
+            triangles[t + 1] = vert + TERRAIN_SIZE;
+            triangles[t + 2] = vert + 1;
+            triangles[t + 3] = vert + 1;
+            triangles[t + 4] = vert + TERRAIN_SIZE;
+            triangles[t + 5] = vert + TERRAIN_SIZE + 1;
+            vert++;
+            if (tris % (TERRAIN_SIZE - 1) == TERRAIN_SIZE - 2)
+                vert++;
+        }
+        for (int y = 0; y < TERRAIN_SIZE; y++)
+            for (int x = 0; x < TERRAIN_SIZE; x++)
+                uvs[x + y * TERRAIN_SIZE] = new Vector2(x, y);
+
+        mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+        mesh.vertices = vertices0;
+        mesh.triangles = triangles;
+        mesh.uv = uvs;
+        grass.GetComponent<MeshFilter>().mesh = mesh;
     }
 
     Mesh createMesh()
@@ -205,6 +258,27 @@ public class Terrain : MonoBehaviour
             for (int y = 0; y < TERRAIN_SIZE; ++y)
             {
                 var h = height(x, y);
+                vertices[x + y * TERRAIN_SIZE] = new Vector3(x * SCALE, h, y * SCALE);
+            }
+        mesh.vertices = vertices;
+        mesh.RecalculateBounds();
+        mesh.RecalculateNormals();
+    }
+
+    void updateGrassMesh(Mesh mesh)
+    {
+        var vertices = new Vector3[TERRAIN_SIZE * TERRAIN_SIZE];
+        for (int x = 0; x < TERRAIN_SIZE; ++x)
+            for (int y = 0; y < TERRAIN_SIZE; ++y)
+            {
+                float h = 0;
+                if (terrainKind[x + y * TERRAIN_SIZE] == 1)
+                {
+                    h = height(x, y) + 0.0001f;
+                } else
+                {
+                    h = height(x, y) - 0.5f;
+                }
                 vertices[x + y * TERRAIN_SIZE] = new Vector3(x * SCALE, h, y * SCALE);
             }
         mesh.vertices = vertices;
