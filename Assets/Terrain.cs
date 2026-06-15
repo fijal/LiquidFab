@@ -28,7 +28,7 @@ public class Terrain : MonoBehaviour
     public float[] terrainKind;
     public bool gameToLoad = false;
 
-    GameObject grass, sand, iron;
+    Texture2D terrainKindTexture;
 
     float lastUpdate = 0.1f;
 
@@ -123,9 +123,11 @@ public class Terrain : MonoBehaviour
         {
             meshbaker_runner.Complete();
             updateMesh(oldMesh);
-            updateSecondaryMesh(1, grass.GetComponent<MeshFilter>().sharedMesh);
+            updateTerrainKind();
+            /*updateSecondaryMesh(1, grass.GetComponent<MeshFilter>().sharedMesh);
             //updateSecondaryMesh(2, sand.GetComponent<MeshFilter>().sharedMesh);
             //updateSecondaryMesh(3, iron.GetComponent<MeshFilter>().sharedMesh);
+            */
             meshbaker.mesh_id = oldMesh.GetInstanceID();
             meshbaker_runner.Start(this, ref meshbaker, () =>
             {
@@ -153,12 +155,13 @@ public class Terrain : MonoBehaviour
         terrainUpdatesVal = new List<float>();
         recalculateMesh();
         populateTrees();
-        grass = transform.Find("Grass").gameObject;
+        /*grass = transform.Find("Grass").gameObject;
         sand = transform.Find("Sand").gameObject;
         iron = transform.Find("Iron").gameObject;
         grass.GetComponent<MeshFilter>().mesh = createSecondaryMesh();
         sand.GetComponent<MeshFilter>().mesh = createSecondaryMesh();
-        iron.GetComponent<MeshFilter>().mesh = createSecondaryMesh();
+        iron.GetComponent<MeshFilter>().mesh = createSecondaryMesh();*/
+        createTerrainKindTexture();
 
         water = transform.Find("Water").GetComponent<Water>();
         trees = new Dictionary<int, GameObject>();
@@ -184,7 +187,7 @@ public class Terrain : MonoBehaviour
         s.Dispose();
     }
 
-    Mesh createSecondaryMesh()
+    /*Mesh createSecondaryMesh()
     {
         mesh = new Mesh();
         mesh.MarkDynamic();
@@ -215,7 +218,7 @@ public class Terrain : MonoBehaviour
         mesh.triangles = triangles;
         mesh.uv = uvs;
         return mesh;
-    }
+    }*/
 
     Mesh createMesh()
     {
@@ -266,7 +269,7 @@ public class Terrain : MonoBehaviour
         mesh.RecalculateNormals();
     }
 
-    void updateSecondaryMesh(int kind, Mesh mesh)
+    /*void updateSecondaryMesh(int kind, Mesh mesh)
     {
         var vertices = new Vector3[TERRAIN_SIZE * TERRAIN_SIZE];
         for (int x = 0; x < TERRAIN_SIZE; ++x)
@@ -285,6 +288,18 @@ public class Terrain : MonoBehaviour
         mesh.vertices = vertices;
         mesh.RecalculateBounds();
         mesh.RecalculateNormals();
+    }*/
+
+    void createTerrainKindTexture()
+    {
+        terrainKindTexture = new Texture2D(TERRAIN_SIZE, TERRAIN_SIZE, TextureFormat.RFloat, false, true);
+        Shader.SetGlobalTexture("MTerrainKind", terrainKindTexture);
+    }
+
+    void updateTerrainKind()
+    {
+        terrainKindTexture.SetPixelData(terrainKind, 0);
+        terrainKindTexture.Apply();
     }
 
     public void runUpdates()
