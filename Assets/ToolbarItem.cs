@@ -8,6 +8,7 @@ public class ToolbarItem : MonoBehaviour
     public Sprite gray, color, frame, frameActive;
     public string helperText;
     public ToolSelected tool;
+    public bool isClick = false; // whether it's a click or contiguous
 
     public void activate()
     {

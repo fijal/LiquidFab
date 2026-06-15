@@ -9,7 +9,8 @@ public enum ToolSelected
     Terrain = 2,
     Log = 3,
     Magnet = 4,
-    Miner = 5
+    Miner = 5,
+    Grass = 6
 }
 
 public class Controls : MonoBehaviour
@@ -85,7 +86,7 @@ public class Controls : MonoBehaviour
 
     void RaycastToTerrainCont(bool mod, float val)
     {
-        if (toolSelected != ToolSelected.Terrain && toolSelected != ToolSelected.Water && toolSelected != ToolSelected.Log)
+        if (UIElements[(int)toolSelected - 1].GetComponent<ToolbarItem>().isClick)
             return;
         var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
@@ -106,7 +107,7 @@ public class Controls : MonoBehaviour
 
     void RaycastToTerrainClick()
     {
-        if (toolSelected != ToolSelected.Miner && toolSelected != ToolSelected.Magnet)
+        if (!UIElements[(int)toolSelected - 1].GetComponent<ToolbarItem>().isClick)
             return;
         var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
@@ -166,6 +167,8 @@ public class Controls : MonoBehaviour
             activateToolbarItem(3);
         if (Input.GetKeyDown(KeyCode.Alpha5))
             activateToolbarItem(4);
+        if (Input.GetKeyDown(KeyCode.Alpha6))
+            activateToolbarItem(5);
         if (Input.GetMouseButtonDown(1))
             StartRotatingCam();
         if (Input.GetMouseButtonUp(1))
