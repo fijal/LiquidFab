@@ -17,8 +17,8 @@ public class Controls : MonoBehaviour
     public new GameObject camera;
     public Terrain terrain;
 
-    const float MOVE_SPEED = 16f;
-    const float SHIFT_SPEEDUP = 3f;
+    const float MOVE_SPEED = 10f;
+    const float SHIFT_SPEEDUP = 2.5f;
     const float MOUSE_ROTATE_SPEED = 1f;
     const float HEIGHT_SCROLL_SPEED = 5f;
 
@@ -45,7 +45,24 @@ public class Controls : MonoBehaviour
         if (speedUp)
             speed *= SHIFT_SPEEDUP;
         var ang = Quaternion.Euler(new Vector3(0, camera.transform.rotation.eulerAngles.y, 0));
-        camera.transform.parent.position += ang * (direction * speed * Time.deltaTime);
+        var mov = ang * (direction * speed * Time.deltaTime);
+        var newPos = camera.transform.parent.position + mov;
+        var max = Terrain.TERRAIN_SIZE * Terrain.SCALE;
+        if (newPos.x < 0)
+            newPos = new Vector3(0, newPos.y, newPos.z);
+        if (newPos.z < 0)
+            newPos = new Vector3(newPos.x, newPos.y, 0);
+        if (newPos.x > max)
+            newPos = new Vector3(max, newPos.y, newPos.z);
+        if (newPos.z > max)
+            newPos = new Vector3(newPos.x, newPos.y, max);
+        var minHeight = terrain.height((int)(newPos.x / Terrain.SCALE), (int)(newPos.z / Terrain.SCALE)) + 5;
+        var maxHeight = 45;
+        if (newPos.y < minHeight)
+            newPos = new Vector3(newPos.x, minHeight, newPos.z);
+        if (newPos.y > maxHeight)
+            newPos = new Vector3(newPos.x, maxHeight, newPos.z);
+        camera.transform.parent.position = newPos;
     }
 
     void StartRotatingCam()
@@ -161,7 +178,7 @@ public class Controls : MonoBehaviour
             RaycastToTerrainClick();
         if (Input.mouseScrollDelta.y != 0)
         {
-            Move(false, new Vector3(0, Input.mouseScrollDelta.y * -HEIGHT_SCROLL_SPEED, 0));
+            //Move(false, new Vector3(0, Input.mouseScrollDelta.y * -HEIGHT_SCROLL_SPEED, 0));
         }
         if (Input.GetKey(KeyCode.Q))
             Move(false, new Vector3(0, 1, 0));
