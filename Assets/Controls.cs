@@ -10,7 +10,9 @@ public enum ToolSelected
     Log = 3,
     Magnet = 4,
     Miner = 5,
-    Grass = 6
+    Grass = 6,
+    Sand = 7,
+    Iron = 8
 }
 
 public class Controls : MonoBehaviour
@@ -102,8 +104,19 @@ public class Controls : MonoBehaviour
                 hit.transform.Find("Water").GetComponent<Water>().modifyWaterSource(x, y, mod, val);
             else if (toolSelected == ToolSelected.Log)
                 hit.transform.gameObject.GetComponent<Terrain>().spawnTree(x, y);
-            else if (toolSelected == ToolSelected.Grass)
-                hit.transform.gameObject.GetComponent<Terrain>().changeToGrass(x, y, mod);
+            else if (toolSelected == ToolSelected.Grass || toolSelected == ToolSelected.Sand || toolSelected == ToolSelected.Iron)
+            {
+                int kind = 0;
+                if (mod)
+                    kind = 0;
+                else if (toolSelected == ToolSelected.Grass)
+                    kind = 1;
+                else if (toolSelected == ToolSelected.Sand)
+                    kind = 2;
+                else if (toolSelected == ToolSelected.Iron)
+                    kind = 3;
+                hit.transform.gameObject.GetComponent<Terrain>().changeTerrainKind(x, y, kind);
+            }
         }
     }
 
@@ -171,6 +184,10 @@ public class Controls : MonoBehaviour
             activateToolbarItem(4);
         if (Input.GetKeyDown(KeyCode.Alpha6))
             activateToolbarItem(5);
+        if (Input.GetKeyDown(KeyCode.Alpha7))
+            activateToolbarItem(6);
+        if (Input.GetKeyDown(KeyCode.Alpha8))
+            activateToolbarItem(7);
         if (Input.GetMouseButtonDown(1))
             StartRotatingCam();
         if (Input.GetMouseButtonUp(1))

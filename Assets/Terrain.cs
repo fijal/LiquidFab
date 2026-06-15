@@ -28,7 +28,7 @@ public class Terrain : MonoBehaviour
     public float[] terrainKind;
     public bool gameToLoad = false;
 
-    GameObject grass;
+    GameObject grass, sand, iron;
 
     float lastUpdate = 0.1f;
 
@@ -90,13 +90,8 @@ public class Terrain : MonoBehaviour
         go.transform.rotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
     }
 
-    public void changeToGrass(int x, int y, bool mod)
+    public void changeTerrainKind(int x, int y, int kind)
     {
-        int kind;
-        if (mod)
-            kind = 0;
-        else
-            kind = 1;
         terrainKind[x + y * TERRAIN_SIZE] = kind;
         terrainKind[x + 1 + y * TERRAIN_SIZE] = kind;
         terrainKind[x + (y + 1) * TERRAIN_SIZE] = kind;
@@ -128,7 +123,9 @@ public class Terrain : MonoBehaviour
         {
             meshbaker_runner.Complete();
             updateMesh(oldMesh);
-            updateGrassMesh(grass.GetComponent<MeshFilter>().sharedMesh);
+            updateSecondaryMesh(1, grass.GetComponent<MeshFilter>().sharedMesh);
+            updateSecondaryMesh(2, sand.GetComponent<MeshFilter>().sharedMesh);
+            updateSecondaryMesh(3, iron.GetComponent<MeshFilter>().sharedMesh);
             meshbaker.mesh_id = oldMesh.GetInstanceID();
             meshbaker_runner.Start(this, ref meshbaker, () =>
             {
@@ -157,7 +154,11 @@ public class Terrain : MonoBehaviour
         recalculateMesh();
         populateTrees();
         grass = transform.Find("Grass").gameObject;
-        createGrassMesh();
+        sand = transform.Find("Sand").gameObject;
+        iron = transform.Find("Iron").gameObject;
+        grass.GetComponent<MeshFilter>().mesh = createSecondaryMesh();
+        sand.GetComponent<MeshFilter>().mesh = createSecondaryMesh();
+        iron.GetComponent<MeshFilter>().mesh = createSecondaryMesh();
 
         water = transform.Find("Water").GetComponent<Water>();
         trees = new Dictionary<int, GameObject>();
@@ -183,7 +184,7 @@ public class Terrain : MonoBehaviour
         s.Dispose();
     }
 
-    void createGrassMesh()
+    Mesh createSecondaryMesh()
     {
         mesh = new Mesh();
         mesh.MarkDynamic();
@@ -213,7 +214,7 @@ public class Terrain : MonoBehaviour
         mesh.vertices = vertices0;
         mesh.triangles = triangles;
         mesh.uv = uvs;
-        grass.GetComponent<MeshFilter>().mesh = mesh;
+        return mesh;
     }
 
     Mesh createMesh()
@@ -265,14 +266,14 @@ public class Terrain : MonoBehaviour
         mesh.RecalculateNormals();
     }
 
-    void updateGrassMesh(Mesh mesh)
+    void updateSecondaryMesh(int kind, Mesh mesh)
     {
         var vertices = new Vector3[TERRAIN_SIZE * TERRAIN_SIZE];
         for (int x = 0; x < TERRAIN_SIZE; ++x)
             for (int y = 0; y < TERRAIN_SIZE; ++y)
             {
                 float h = 0;
-                if (terrainKind[x + y * TERRAIN_SIZE] == 1)
+                if (terrainKind[x + y * TERRAIN_SIZE] == kind)
                 {
                     h = height(x, y) + 0.0001f;
                 } else
