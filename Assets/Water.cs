@@ -10,11 +10,12 @@ public class Water : MonoBehaviour
     [NativeDisableContainerSafetyRestriction]
     public NativeArray<float> waterLevel;
     
-    const int WATER_SIZE_X = 256, WATER_SIZE_Y = 256;
+    const int WATER_SIZE_X = Terrain.TERRAIN_SIZE, WATER_SIZE_Y = Terrain.TERRAIN_SIZE;
+    public const float WATER_SOURCE_AMOUNT = 0.33f;
     Terrain terrain;
 
-    // XXX change this into a dictionary
-    Dictionary<int, float> waterSource;
+    public GameObject waterSourcePrefab;
+    Dictionary<int, WaterSource> waterSource;
     
     // Start is called before the first frame update
     void Start()
@@ -27,7 +28,7 @@ public class Water : MonoBehaviour
         
         terrain = transform.parent.GetComponent<Terrain>();
     
-        waterSource = new Dictionary<int, float>();
+        waterSource = new Dictionary<int, WaterSource>();
     }
 
     private void OnDestroy()
@@ -54,24 +55,33 @@ public class Water : MonoBehaviour
         if (!mod)
         {
             if (waterSource.ContainsKey(index))
-                waterSource[index] += val;
+                waterSource[index].increase(val);
             else
-                waterSource[index] = val;
+            {
+                var go = Instantiate(waterSourcePrefab, transform);
+                go.transform.position = new Vector3(x * Terrain.SCALE, terrain.height(x, y), y * Terrain.SCALE);
+                var ws = go.GetComponent<WaterSource>();
+                ws.increase(val);
+                waterSource[index] = ws;
+            }
         } else
         {
             if (waterSource.ContainsKey(index))
             {
-                waterSource[index] -= val;
-                if (waterSource[index] <= 0)
+                var survives = waterSource[index].decrease(val);
+                if (!survives)
+                {
+                    Destroy(waterSource[index].gameObject);
                     waterSource.Remove(index);
+                }
             }
         }
     }
 
     public void updateWaterSources()
     {
-        foreach (KeyValuePair<int, float> entry in waterSource)
-            waterLevel[entry.Key] += entry.Value;
+        foreach (KeyValuePair<int, WaterSource> entry in waterSource)
+            waterLevel[entry.Key] += entry.Value.amount;
         var m = 0f;
         for (int y = 0; y < WATER_SIZE_Y; y++)
             for (int x = 0; x < WATER_SIZE_X; x++)
@@ -112,7 +122,7 @@ public class Water : MonoBehaviour
                 float h = waterLevel[x + y * WATER_SIZE_X];
                 uvs[c] = new Vector3(fx, h, fy);
                 if (h < MIN_WATER)
-                    h = -0.2f;
+                    h = -0.4f;
 
                 /* XXX hack to prevent gaps between the terrain and the water at the border */
                 if (x == 0 || y == 0 || x == WATER_SIZE_X - 1 || y == WATER_SIZE_Y - 1)

@@ -38,6 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -168,7 +169,7 @@ MonoBehaviour:
   - {fileID: 8676952158559593809, guid: 418119bc089da594caa33bd03ea445f2, type: 3}
   water: {fileID: 0}
   terrainHeight: []
-  terrainKind: 
+  terrainKind: []
   gameToLoad: 0
 --- !u!4 &200605879
 Transform:
@@ -2185,6 +2186,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e317de9a9a029d8449980b309273fa92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  waterSourcePrefab: {fileID: 8830629815663301437, guid: cec870d43c4c26c4ba04136ed2b3ec2b, type: 3}
 --- !u!23 &1625717975
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2311,7 +2313,6 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
-  m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0

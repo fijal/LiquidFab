@@ -50,14 +50,14 @@ public class Controls : MonoBehaviour
         var ang = Quaternion.Euler(new Vector3(0, camera.transform.rotation.eulerAngles.y, 0));
         var mov = ang * (direction * speed * Time.deltaTime);
         var newPos = camera.transform.parent.position + mov;
-        var max = Terrain.TERRAIN_SIZE * Terrain.SCALE;
+        var max = (Terrain.TERRAIN_SIZE - 1) * Terrain.SCALE;
         if (newPos.x < 0)
             newPos = new Vector3(0, newPos.y, newPos.z);
         if (newPos.z < 0)
             newPos = new Vector3(newPos.x, newPos.y, 0);
-        if (newPos.x > max)
+        if (newPos.x >= max)
             newPos = new Vector3(max, newPos.y, newPos.z);
-        if (newPos.z > max)
+        if (newPos.z >= max)
             newPos = new Vector3(newPos.x, newPos.y, max);
         var minHeight = terrain.height((int)(newPos.x / Terrain.SCALE), (int)(newPos.z / Terrain.SCALE)) + 5;
         var maxHeight = 45;
@@ -101,7 +101,7 @@ public class Controls : MonoBehaviour
             if (toolSelected == ToolSelected.Terrain)
                 hit.transform.gameObject.GetComponent<Terrain>().terrainMod(x, y, mod, val);
             else if (toolSelected == ToolSelected.Water)
-                hit.transform.Find("Water").GetComponent<Water>().modifyWaterSource(x, y, mod, val);
+                hit.transform.Find("Water").GetComponent<Water>().modifyWaterSource(x, y, mod, val * Water.WATER_SOURCE_AMOUNT);
             else if (toolSelected == ToolSelected.Log)
                 hit.transform.gameObject.GetComponent<Terrain>().spawnTree(x, y);
             else if (toolSelected == ToolSelected.Grass || toolSelected == ToolSelected.Sand || toolSelected == ToolSelected.Iron)
