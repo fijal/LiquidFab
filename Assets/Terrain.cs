@@ -20,6 +20,9 @@ public class Terrain : MonoBehaviour
     public TextAsset terrainData;
     public GameObject logPrefab, minerPrefab, magnetPrefab;
     public GameObject[] treePrefabs;
+    public GameObject infoDialog;
+
+    List<GameObject> logs;
 
     public Simulation s;
     public Water water;
@@ -68,12 +71,13 @@ public class Terrain : MonoBehaviour
         trees[x + y * TERRAIN_SIZE] = go;
     }
 
-    public void spawnLog(int x, int y)
+    public GameObject spawnLog(int x, int y)
     {
         var go = Instantiate(logPrefab, transform);
-        go.GetComponent<Log>().terrain = this;
+        go.GetComponent<Log2>().terrain = this;
         go.transform.position = new Vector3(x * SCALE, height(x, y), y * SCALE);
-        go.transform.rotation = Quaternion.Euler(90, 0, 0);
+        go.transform.rotation = Quaternion.Euler(90, Random.Range(0, 90), 0);
+        return go;
     }
 
     public void spawnMagnet(int x, int y)
@@ -153,6 +157,9 @@ public class Terrain : MonoBehaviour
         terrainUpdatesX = new List<int>();
         terrainUpdatesY = new List<int>();
         terrainUpdatesVal = new List<float>();
+
+        logs = new List<GameObject>();
+
         recalculateMesh();
         populateTrees();
         /*grass = transform.Find("Grass").gameObject;
@@ -269,6 +276,33 @@ public class Terrain : MonoBehaviour
         mesh.RecalculateNormals();
     }
 
+    public void showTerrainInfo(GameObject camera, int x, int y)
+    {
+        var dialogContainer = infoDialog.transform.parent;
+
+        infoDialog.SetActive(true);
+        var d = infoDialog.GetComponent<Dialog>();
+        d.terrain = this;
+        d.x = x;
+        d.y = y;
+        var newPos = new Vector3(x * SCALE, camera.transform.position.y, y * SCALE);
+        var distance = newPos - camera.transform.position;
+        var rot = Quaternion.LookRotation(distance, Vector3.up).eulerAngles;
+        infoDialog.transform.rotation = Quaternion.Euler(0, rot.y, rot.z);
+        var scale = distance.magnitude;
+        var FAC = 0.2f;
+        dialogContainer.localScale = new Vector3(FAC * scale, FAC * scale, FAC * scale);
+        dialogContainer.transform.position = new Vector3(x * SCALE, height(x, y), y * SCALE);
+        updateDialog(x, y);
+    }
+
+    public void updateDialog(int x, int y)
+    {
+        infoDialog.GetComponent<Dialog>().text.text = $"X, Y: {x} {x}\nHeight: {height(x, y)}\nwater level {water.waterLevel[x + TERRAIN_SIZE * y]}\n" +
+            $"water flow: {s.waterFlowX[x + y * TERRAIN_SIZE]} {s.waterFlowY[x + y * TERRAIN_SIZE]}\n" +
+            $"sub level: {s.subLevel[x + y * TERRAIN_SIZE]}";
+    }
+
     /*void updateSecondaryMesh(int kind, Mesh mesh)
     {
         var vertices = new Vector3[TERRAIN_SIZE * TERRAIN_SIZE];
@@ -323,15 +357,31 @@ public class Terrain : MonoBehaviour
         {
             var x = entry.Key % TERRAIN_SIZE;
             var y = entry.Key / TERRAIN_SIZE;
-            if (water.waterLevel[entry.Key] > 0.15f)
+            if (water.waterLevel[entry.Key] > 0.015f)
             {
                 Destroy(entry.Value);
-                spawnLog(x, y);
+                logs.Add(spawnLog(x, y));
                 treesToRemove.Add(entry.Key);
             }
         }
         for (int i = 0; i < treesToRemove.Count; i++)
             trees.Remove(treesToRemove[i]);
+
+        for (int i = 0; i < logs.Count; i++)
+            logs[i].GetComponent<Log2>().force = Vector3.zero;
+
+        for (int i = 0; i < logs.Count; i++)
+            for (int j = 0; j < logs.Count; j++)
+                if (i != j)
+                {
+                    var rel = logs[i].transform.position - logs[j].transform.position;
+                    var val = rel.sqrMagnitude;
+                    if (val < 0.005f * 0.005f)
+                        val = 0.005f * 0.005f;
+                    var forceVal = 1 / val;
+                    logs[i].GetComponent<Log2>().force += new Vector2(rel.x * forceVal, rel.z * forceVal);
+                    logs[j].GetComponent<Log2>().force -= new Vector2(rel.x * forceVal, rel.z * forceVal);
+                }
     }
 
     public void Update()

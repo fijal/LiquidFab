@@ -6,7 +6,7 @@ public class WaterSource : MonoBehaviour
 {
     public float amount;
 
-    const float SCALE = 3;
+    const float SCALE = 5;
 
     public void increase(float amount)
     {

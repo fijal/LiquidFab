@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public enum ToolSelected
 {
+    Select = 0,
     Water = 1,
     Terrain = 2,
     Log = 3,
@@ -25,21 +26,35 @@ public class Controls : MonoBehaviour
     const float MOUSE_ROTATE_SPEED = 1f;
     const float HEIGHT_SCROLL_SPEED = 5f;
 
-    //public Sprite waterGray, waterColor, terrainGray, terrainColor;
-    public GameObject[] UIElements; // in order
+    GameObject[] UIElements;
     public GameObject helperUI;
+    public GameObject UIPanel;
 
     GameObject currentToolbarItem;
-
-    ToolSelected toolSelected = ToolSelected.Water;
+    ToolSelected toolSelected = ToolSelected.Select;
 
     Vector3 lastMousePos;
     float timer = 10.0f;
 
-    // Start is called before the first frame update
     void Start()
     {
+        var count = 0;
+        for (int i = 0; i < UIPanel.transform.childCount; ++i)
+            if (UIPanel.transform.GetChild(i).GetComponent<ToolbarItem>() != null)
+                count++;
+        UIElements = new GameObject[count];
+        count = 0;
+        for (int i = 0; i < UIPanel.transform.childCount; ++i)
+            if (UIPanel.transform.GetChild(i).GetComponent<ToolbarItem>() != null)
+            {
+                var go = UIPanel.transform.GetChild(i).gameObject;
+                UIElements[count] = go;
+                go.GetComponent<ToolbarItem>().updateLocation(count + 1);
+                go.GetComponent<ToolbarItem>().deactivate();
+                count++;
+            }
         currentToolbarItem = UIElements[0];
+        currentToolbarItem.GetComponent<ToolbarItem>().activate();
     }
 
     void Move(bool speedUp, Vector3 direction)
@@ -88,12 +103,12 @@ public class Controls : MonoBehaviour
 
     void RaycastToTerrainCont(bool mod, float val)
     {
-        if (UIElements[(int)toolSelected - 1].GetComponent<ToolbarItem>().isClick)
+        if (currentToolbarItem.GetComponent<ToolbarItem>().isClick)
             return;
         var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, 100, 1 << 3))
+        if (Physics.Raycast(ray, out hit, 200, 1 << 3))
         {
             var x = (hit.triangleIndex / 2) % (Terrain.TERRAIN_SIZE - 1);
             var y = (hit.triangleIndex / 2) / (Terrain.TERRAIN_SIZE - 1);
@@ -122,17 +137,19 @@ public class Controls : MonoBehaviour
 
     void RaycastToTerrainClick()
     {
-        if (!UIElements[(int)toolSelected - 1].GetComponent<ToolbarItem>().isClick)
+        if (!currentToolbarItem.GetComponent<ToolbarItem>().isClick)
             return;
         var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, 100, 1 << 3))
+        if (Physics.Raycast(ray, out hit, 200, 1 << 3))
         {
             var x = (hit.triangleIndex / 2) % (Terrain.TERRAIN_SIZE - 1);
             var y = (hit.triangleIndex / 2) / (Terrain.TERRAIN_SIZE - 1);
             if (toolSelected == ToolSelected.Miner)
                 hit.transform.gameObject.GetComponent<Terrain>().spawnMiner(x, y);
+            else if (toolSelected == ToolSelected.Select)
+                terrain.showTerrainInfo(camera, x, y);
             else if (toolSelected == ToolSelected.Magnet)
                 hit.transform.gameObject.GetComponent<Terrain>().spawnMagnet(x, y);
         }
@@ -172,6 +189,7 @@ public class Controls : MonoBehaviour
             Move(speedUp, new Vector3(-1, 0, 0));
         if (Input.GetKey(KeyCode.D))
             Move(speedUp, new Vector3(1, 0, 0));
+
         if (Input.GetKeyDown(KeyCode.Alpha1))
             activateToolbarItem(0);
         if (Input.GetKeyDown(KeyCode.Alpha2))
@@ -188,6 +206,9 @@ public class Controls : MonoBehaviour
             activateToolbarItem(6);
         if (Input.GetKeyDown(KeyCode.Alpha8))
             activateToolbarItem(7);
+        if (Input.GetKeyDown(KeyCode.Alpha9))
+            activateToolbarItem(8);
+
         if (Input.GetMouseButtonDown(1))
             StartRotatingCam();
         if (Input.GetMouseButtonUp(1))

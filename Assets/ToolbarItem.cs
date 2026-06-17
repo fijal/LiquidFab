@@ -9,6 +9,11 @@ public class ToolbarItem : MonoBehaviour
     public string helperText;
     public ToolSelected tool;
     public bool isClick = false; // whether it's a click or contiguous
+    
+    public void updateLocation(int location)
+    {
+        transform.Find("Text").GetComponent<Text>().text = location.ToString();
+    }
 
     public void activate()
     {

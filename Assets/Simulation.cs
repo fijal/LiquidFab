@@ -24,6 +24,7 @@ public struct Simulation : IJob
     int sizeX, sizeY;
 
     NativeArray<float> subFlowX, subFlowY;
+    [NativeDisableContainerSafetyRestriction]
     public NativeArray<float> subLevel;
 
     [NativeDisableContainerSafetyRestriction]
