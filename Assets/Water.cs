@@ -96,9 +96,9 @@ public class Water : MonoBehaviour
                     terrain.terrainKind[x + y * WATER_SIZE_X] = 1;
                 if (terrain.s.subLevel[x + y * WATER_SIZE_X] < 0.0009f)
                     terrain.terrainKind[x + y * WATER_SIZE_X] = 0;
-                if (terrain.s.subLevel[x + y * WATER_SIZE_X] > 0.003f && Random.Range(0f, 1f) > 0.99f &&
+                /*if (terrain.s.subLevel[x + y * WATER_SIZE_X] > 0.003f && Random.Range(0f, 1f) > 0.99f &&
                     waterLevel[x + y * WATER_SIZE_X] < 0.01f)
-                    terrain.spawnTree(x, y);
+                    terrain.spawnTree(x, y);*/
 
             }
     }

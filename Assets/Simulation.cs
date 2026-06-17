@@ -34,6 +34,9 @@ public struct Simulation : IJob
 
     public float BOUNDARY_FLOW;
 
+    const float SUB_TERRAIN_FAC = 0.1f; // how much the height of ground affects subterranean flow
+    const float SUB_SATURATION = 1f; // don't seep if ground is saturated
+
     public NativeArray<float> terrain;
 
     public Simulation(int sizeX, int sizeY)
@@ -134,9 +137,11 @@ public struct Simulation : IJob
                 float v;
                 if (simulationType == SimulationType.Water)
                     v = (source[x - 1 + y * sizeX] + terrain[x - 1 + y * sizeX]) - (source[x + y * sizeX] + terrain[x + y * sizeX]);
+                else if (simulationType == SimulationType.SubWater)
+                    v = (source[x - 1 + y * sizeX] + terrain[x - 1 + y * sizeX] * SUB_TERRAIN_FAC)
+                        - (source[x + y * sizeX] + terrain[x + y * sizeX] * SUB_TERRAIN_FAC);
                 else
                     v = source[x - 1 + y * sizeX] - source[x + y * sizeX];
-                // v = (readAtPos(x - 1, y) - readAtPos(x, y));
                 v *= frictionFactor * mass * gravity * dt;
                 if (maxAngle > 0)
                 {
@@ -158,9 +163,11 @@ public struct Simulation : IJob
                 float v;
                 if (simulationType == SimulationType.Water)
                     v = (source[x + (y - 1) * sizeX] + terrain[x + (y - 1) * sizeX]) - (source[x + y * sizeX] + terrain[x + y * sizeX]);
+                else if (simulationType == SimulationType.SubWater)
+                    v = (source[x + (y - 1) * sizeX] + terrain[x + (y - 1) * sizeX] * SUB_TERRAIN_FAC) -
+                        (source[x + y * sizeX] + terrain[x + y * sizeX] * SUB_TERRAIN_FAC);
                 else
                     v = (source[x + (y - 1) * sizeX]) - (source[x + y * sizeX]);
-                //v = (readAtPos(x, y - 1) - readAtPos(x, y));
                 v *= frictionFactor * mass * gravity * dt;
                 if (maxAngle > 0)
                 {
@@ -234,15 +241,16 @@ public struct Simulation : IJob
             {
                 var seepage = 0f;
                 if (simulationType == SimulationType.Water)
-                    seepage = 0.00005f;
+                    seepage = 0.0005f + 0.0002f * water[x + y * sizeX];
                 if (simulationType == SimulationType.SubWater)
-                    seepage = 0.00001f;
-                //source[x + y * sizeX] += ((flowX[x + y * (sizeX + 1)] + flowY[x + y * sizeX] - flowX[x + 1 + y * (sizeX + 1)]
-                //    - flowY[x + (y + 1) * sizeX]) - seepage) / dt;
+                    seepage = 0.00005f;
                 var cur = (flowX[x + y * (sizeX + 1)] + flowY[x + y * sizeX] - flowX[x + 1 + y * (sizeX + 1)]
                     - flowY[x + (y + 1) * sizeX]);
-                if (seepage > source[x + y * sizeX]) // XXX this needs rethinking, so we don't seep more than we have
+                if (seepage > source[x + y * sizeX])
                     seepage = source[x + y * sizeX];
+                if (simulationType == SimulationType.Water)
+                    if (subLevel[x + y * sizeX] + seepage > SUB_SATURATION)
+                        seepage = SUB_SATURATION - subLevel[x + y * sizeX];
                 source[x + y * sizeX] += (cur - seepage) / dt;
                 if (simulationType == SimulationType.Water)
                     subLevel[x + y * sizeX] += seepage;
