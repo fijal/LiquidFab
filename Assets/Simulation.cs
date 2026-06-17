@@ -15,19 +15,15 @@ public enum SimulationType
 
 public struct Simulation : IJob
 {
-    [NativeDisableContainerSafetyRestriction]
     public NativeArray<float> waterFlowX;
-    [NativeDisableContainerSafetyRestriction]
     public NativeArray<float> waterFlowY;
     NativeArray<float> terrainFlowX;
     NativeArray<float> terrainFlowY;
     int sizeX, sizeY;
 
     NativeArray<float> subFlowX, subFlowY;
-    [NativeDisableContainerSafetyRestriction]
     public NativeArray<float> subLevel;
 
-    [NativeDisableContainerSafetyRestriction]
     public NativeArray<float> water;
     
     public float viscosity;
@@ -40,7 +36,7 @@ public struct Simulation : IJob
 
     public NativeArray<float> terrain;
 
-    public Simulation(NativeArray<float> water, int sizeX, int sizeY)
+    public Simulation(int sizeX, int sizeY)
     {
         waterFlowX = new NativeArray<float>((sizeX + 1) * sizeY, Allocator.Persistent);
         waterFlowY = new NativeArray<float>(sizeX * (sizeY + 1), Allocator.Persistent);
@@ -51,7 +47,7 @@ public struct Simulation : IJob
 
         this.sizeX = sizeX;
         this.sizeY = sizeY;
-        this.water = water;
+        this.water = new NativeArray<float>(sizeX * sizeY, Allocator.Persistent);
         this.terrain = new NativeArray<float>(sizeX * sizeY, Allocator.Persistent);
         subLevel = new NativeArray<float>(sizeX * sizeY, Allocator.Persistent);
 
@@ -72,6 +68,8 @@ public struct Simulation : IJob
             terrainFlowX.Dispose();
         if (terrainFlowY != null)
             terrainFlowY.Dispose();
+        if (water != null)
+            water.Dispose();
 
         if (terrain != null)
             terrain.Dispose();
@@ -120,7 +118,7 @@ public struct Simulation : IJob
             flowY[i + sizeX * (sizeX - 1)] = -BOUNDARY_FLOW;
         }
 
-        if (maxAngle > 0)
+        /*if (maxAngle > 0)
         {
             for (int y = 1; y < sizeY; y++)
                 for (int x = 1; x < sizeX + 1; x++)
@@ -128,7 +126,7 @@ public struct Simulation : IJob
             for (int y = 1; y < sizeY + 1; y++)
                 for (int x = 1; x < sizeX; x++)
                     flowY[x + y * sizeX] = 0;
-        }
+        }*/
 
         for (int y = 0; y < sizeY; y++)
             for (int x = 1; x < sizeX; x++)

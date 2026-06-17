@@ -17,8 +17,8 @@ public class Log2 : MonoBehaviour
         var cur = transform.position;
         var x = cur.x / Terrain.SCALE;
         var y = cur.z / Terrain.SCALE;
-        var flowX = terrain.s.waterFlowX[(int)x + (int)y * Terrain.TERRAIN_SIZE];
-        var flowY = terrain.s.waterFlowY[(int)x + (int)y * Terrain.TERRAIN_SIZE];
+        var flowX = terrain.water.flowX((int)x, (int)y);
+        var flowY = terrain.water.flowY((int)x, (int)y);
         var flow = new Vector2(flowX, flowY) / Mathf.Max(0.05f, terrain.water.waterLevelFloat(x, y));
         var z = terrain.water.waterLevelFloat(x, y) + terrain.heightFloat(x, y);
         var flowForce = (flow * FLOW_FORCE - velocity);

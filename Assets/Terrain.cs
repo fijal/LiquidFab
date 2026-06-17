@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 using Unity.Jobs;
+using System.Runtime.InteropServices;
 
 public class Terrain : MonoBehaviour
 {
@@ -34,6 +35,7 @@ public class Terrain : MonoBehaviour
     Texture2D terrainKindTexture;
 
     float lastUpdate = 0.1f;
+    float subLevel;
 
     public float height(int x, int y)
     {
@@ -172,7 +174,7 @@ public class Terrain : MonoBehaviour
 
         water = transform.Find("Water").GetComponent<Water>();
         trees = new Dictionary<int, GameObject>();
-        s = new Simulation(water.waterLevel, TERRAIN_SIZE, TERRAIN_SIZE);
+        s = new Simulation(TERRAIN_SIZE, TERRAIN_SIZE);
     }
 
     void populateTrees()
@@ -299,8 +301,8 @@ public class Terrain : MonoBehaviour
     public void updateDialog(int x, int y)
     {
         infoDialog.GetComponent<Dialog>().text.text = $"X, Y: {x} {x}\nHeight: {height(x, y)}\nwater level {water.waterLevel[x + TERRAIN_SIZE * y]}\n" +
-            $"water flow: {s.waterFlowX[x + y * TERRAIN_SIZE]} {s.waterFlowY[x + y * TERRAIN_SIZE]}\n" +
-            $"sub level: {s.subLevel[x + y * TERRAIN_SIZE]}";
+            $"water flow: {water.flowX(x, y)} {water.flowY(x, y)}\n" +
+            $"sub level: {subLevel}";
     }
 
     /*void updateSecondaryMesh(int kind, Mesh mesh)
@@ -395,10 +397,15 @@ public class Terrain : MonoBehaviour
             // otherwise this is done less often.  We should probably do waterLevel[] +=
             // some value computed from how long it really was since the last time we were here
             water.updateWaterSources();
-            s.water = water.waterLevel;
+            s.water.CopyFrom(water.waterLevel);
             s_runner.Start(this, ref s, () =>
             {
+                s.water.CopyTo(water.waterLevel);
+                s.waterFlowX.CopyTo(water.waterFlowX);
+                s.waterFlowY.CopyTo(water.waterFlowY);
                 s.terrain.CopyTo(terrainHeight);
+                var d = infoDialog.GetComponent<Dialog>();
+                subLevel = s.subLevel[d.x + d.y * TERRAIN_SIZE];
                 water.updateWaterTexture(s);
             });
             lastUpdate = 0.1f;

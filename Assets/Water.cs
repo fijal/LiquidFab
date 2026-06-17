@@ -7,8 +7,7 @@ using UnityEngine;
 
 public class Water : MonoBehaviour
 {
-    [NativeDisableContainerSafetyRestriction]
-    public NativeArray<float> waterLevel;
+    public float[] waterLevel, waterFlowX, waterFlowY;
     
     const int WATER_SIZE_X = Terrain.TERRAIN_SIZE, WATER_SIZE_Y = Terrain.TERRAIN_SIZE;
     public const float WATER_SOURCE_AMOUNT = 0.33f;
@@ -24,17 +23,22 @@ public class Water : MonoBehaviour
         mesh.MarkDynamic();    // may help with meshes that are often updated
         GetComponent<MeshFilter>().mesh = mesh;
 
-        waterLevel = new NativeArray<float>(WATER_SIZE_X * WATER_SIZE_Y, Allocator.Persistent);
-        
+        waterLevel = new float[Terrain.TERRAIN_SIZE * Terrain.TERRAIN_SIZE];
+        waterFlowX = new float[(Terrain.TERRAIN_SIZE + 1) * Terrain.TERRAIN_SIZE];
+        waterFlowY = new float[(Terrain.TERRAIN_SIZE + 1) * Terrain.TERRAIN_SIZE];
+
         terrain = transform.parent.GetComponent<Terrain>();
     
         waterSource = new Dictionary<int, WaterSource>();
     }
-
-    private void OnDestroy()
+    public float flowX(int x, int y)
     {
-        if (waterLevel != null)
-            waterLevel.Dispose();
+        return waterFlowX[x + y * (Terrain.TERRAIN_SIZE + 1)];
+    }
+
+    public float flowY(int x, int y)
+    {
+        return waterFlowY[x + y * Terrain.TERRAIN_SIZE];
     }
 
     public float waterLevelFloat(float x, float y)
