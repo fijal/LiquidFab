@@ -8,9 +8,9 @@ public class Log2 : MonoBehaviour
     public Vector2 force;
     Vector2 velocity;
 
-    const float REPULSIVE_MULTIPLIER = 0.01f;
+    const float REPULSIVE_MULTIPLIER = 0.1f;
     const float REPULSIVE_CAP = 1f;
-    const float FLOW_FORCE = 10f;
+    const float FLOW_FORCE = 1f;
 
     void FixedUpdate()
     {
@@ -28,13 +28,12 @@ public class Log2 : MonoBehaviour
         velocity += (flowForce + repForce) * Time.fixedDeltaTime;
         var newPos = new Vector3(transform.position.x + velocity.x * Time.fixedDeltaTime, z,
             transform.position.z + velocity.y * Time.fixedDeltaTime);
-        /*if (terrain.water.waterLevelFloat(newPos.x, newPos.z) < 0.01f)
+        if (terrain.water.waterLevelFloat(newPos.x, newPos.z) < 0.01f)
         {
-            force = new Vector2(0, 0);
             velocity = flow * FLOW_FORCE;
             newPos = new Vector3(transform.position.x + velocity.x * Time.fixedDeltaTime, z,
             transform.position.z + velocity.y * Time.fixedDeltaTime);
-        }*/
+        }
         transform.position = newPos;
     }
 }

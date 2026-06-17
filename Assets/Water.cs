@@ -16,7 +16,6 @@ public class Water : MonoBehaviour
     public GameObject waterSourcePrefab;
     Dictionary<int, WaterSource> waterSource;
     
-    // Start is called before the first frame update
     void Start()
     {
         var mesh = new Mesh();
@@ -102,7 +101,6 @@ public class Water : MonoBehaviour
                     terrain.spawnTree(x, y);
 
             }
-        //Debug.Log(m);
     }
 
     public void updateWaterTexture(Simulation s)

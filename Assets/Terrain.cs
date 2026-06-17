@@ -130,10 +130,6 @@ public class Terrain : MonoBehaviour
             meshbaker_runner.Complete();
             updateMesh(oldMesh);
             updateTerrainKind();
-            /*updateSecondaryMesh(1, grass.GetComponent<MeshFilter>().sharedMesh);
-            //updateSecondaryMesh(2, sand.GetComponent<MeshFilter>().sharedMesh);
-            //updateSecondaryMesh(3, iron.GetComponent<MeshFilter>().sharedMesh);
-            */
             meshbaker.mesh_id = oldMesh.GetInstanceID();
             meshbaker_runner.Start(this, ref meshbaker, () =>
             {
@@ -164,12 +160,6 @@ public class Terrain : MonoBehaviour
 
         recalculateMesh();
         populateTrees();
-        /*grass = transform.Find("Grass").gameObject;
-        sand = transform.Find("Sand").gameObject;
-        iron = transform.Find("Iron").gameObject;
-        grass.GetComponent<MeshFilter>().mesh = createSecondaryMesh();
-        sand.GetComponent<MeshFilter>().mesh = createSecondaryMesh();
-        iron.GetComponent<MeshFilter>().mesh = createSecondaryMesh();*/
         createTerrainKindTexture();
 
         water = transform.Find("Water").GetComponent<Water>();
@@ -195,39 +185,6 @@ public class Terrain : MonoBehaviour
         s_runner.Dispose();
         s.Dispose();
     }
-
-    /*Mesh createSecondaryMesh()
-    {
-        mesh = new Mesh();
-        mesh.MarkDynamic();
-        var uvs = new Vector2[TERRAIN_SIZE * TERRAIN_SIZE];
-
-        var vertices0 = new Vector3[TERRAIN_SIZE * TERRAIN_SIZE];
-        var triangles = new int[(TERRAIN_SIZE - 1) * (TERRAIN_SIZE - 1) * 6];
-        int vert = 0;
-        for (int tris = 0; tris < (TERRAIN_SIZE - 1) * (TERRAIN_SIZE - 1); tris++)
-        {
-            var t = tris * 6;
-            triangles[t + 0] = vert + 0;
-            triangles[t + 1] = vert + TERRAIN_SIZE;
-            triangles[t + 2] = vert + 1;
-            triangles[t + 3] = vert + 1;
-            triangles[t + 4] = vert + TERRAIN_SIZE;
-            triangles[t + 5] = vert + TERRAIN_SIZE + 1;
-            vert++;
-            if (tris % (TERRAIN_SIZE - 1) == TERRAIN_SIZE - 2)
-                vert++;
-        }
-        for (int y = 0; y < TERRAIN_SIZE; y++)
-            for (int x = 0; x < TERRAIN_SIZE; x++)
-                uvs[x + y * TERRAIN_SIZE] = new Vector2(x, y);
-
-        mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
-        mesh.vertices = vertices0;
-        mesh.triangles = triangles;
-        mesh.uv = uvs;
-        return mesh;
-    }*/
 
     Mesh createMesh()
     {
@@ -292,7 +249,7 @@ public class Terrain : MonoBehaviour
         var rot = Quaternion.LookRotation(distance, Vector3.up).eulerAngles;
         infoDialog.transform.rotation = Quaternion.Euler(0, rot.y, rot.z);
         var scale = distance.magnitude;
-        var FAC = 0.2f;
+        var FAC = 0.15f;
         dialogContainer.localScale = new Vector3(FAC * scale, FAC * scale, FAC * scale);
         dialogContainer.transform.position = new Vector3(x * SCALE, height(x, y), y * SCALE);
         updateDialog(x, y);
@@ -304,27 +261,6 @@ public class Terrain : MonoBehaviour
             $"water flow: {water.flowX(x, y)} {water.flowY(x, y)}\n" +
             $"sub level: {subLevel}";
     }
-
-    /*void updateSecondaryMesh(int kind, Mesh mesh)
-    {
-        var vertices = new Vector3[TERRAIN_SIZE * TERRAIN_SIZE];
-        for (int x = 0; x < TERRAIN_SIZE; ++x)
-            for (int y = 0; y < TERRAIN_SIZE; ++y)
-            {
-                float h = 0;
-                if (terrainKind[x + y * TERRAIN_SIZE] == kind)
-                {
-                    h = height(x, y) + 0.001f;
-                } else
-                {
-                    h = height(x, y) - 0.5f;
-                }
-                vertices[x + y * TERRAIN_SIZE] = new Vector3(x * SCALE, h, y * SCALE);
-            }
-        mesh.vertices = vertices;
-        mesh.RecalculateBounds();
-        mesh.RecalculateNormals();
-    }*/
 
     void createTerrainKindTexture()
     {

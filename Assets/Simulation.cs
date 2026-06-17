@@ -118,7 +118,7 @@ public struct Simulation : IJob
             flowY[i + sizeX * (sizeX - 1)] = -BOUNDARY_FLOW;
         }
 
-        /*if (maxAngle > 0)
+        if (maxAngle > 0)
         {
             for (int y = 1; y < sizeY; y++)
                 for (int x = 1; x < sizeX + 1; x++)
@@ -126,7 +126,7 @@ public struct Simulation : IJob
             for (int y = 1; y < sizeY + 1; y++)
                 for (int x = 1; x < sizeX; x++)
                     flowY[x + y * sizeX] = 0;
-        }*/
+        }
 
         for (int y = 0; y < sizeY; y++)
             for (int x = 1; x < sizeX; x++)
