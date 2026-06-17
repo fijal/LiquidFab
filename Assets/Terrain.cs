@@ -69,7 +69,8 @@ public class Terrain : MonoBehaviour
             return;
         var go = Instantiate(treePrefabs[Random.Range(0, 3)], transform);
         go.transform.position = new Vector3(x * SCALE, height(x, y), y * SCALE);
-        go.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+        go.transform.localScale = new Vector3(0.02f, 0.02f, 0.02f);
+        go.AddComponent<Tree>();
         trees[x + y * TERRAIN_SIZE] = go;
     }
 
@@ -295,11 +296,16 @@ public class Terrain : MonoBehaviour
         {
             var x = entry.Key % TERRAIN_SIZE;
             var y = entry.Key / TERRAIN_SIZE;
-            if (water.waterLevel[entry.Key] > 0.015f)
+            if (water.waterLevel[entry.Key] > 0.15f)
             {
                 Destroy(entry.Value);
-                logs.Add(spawnLog(x, y));
+                //logs.Add(spawnLog(x, y));
                 treesToRemove.Add(entry.Key);
+            } else
+            {
+                s.subLevel[x + y * TERRAIN_SIZE] -= 0.003f;
+                if (s.subLevel[x + y * TERRAIN_SIZE] < 0)
+                    s.subLevel[x + y * TERRAIN_SIZE] = 0;
             }
         }
         for (int i = 0; i < treesToRemove.Count; i++)
