@@ -122,8 +122,8 @@ public class Water : MonoBehaviour
         var uvs = new Vector3[WATER_SIZE_X * WATER_SIZE_Y];
         var tris = new List<int>();
 
-        var flowX = s.GetFlowX();
-        var flowY = s.GetFlowY();
+        var flowX = waterFlowX;
+        var flowY = waterFlowY;
 
         int c = 0;
         for (int y = 0; y < WATER_SIZE_Y; y++)
@@ -135,7 +135,7 @@ public class Water : MonoBehaviour
                 float h = waterLevel[x + y * WATER_SIZE_X];
                 uvs[c] = new Vector3(fx, h, fy);
                 if (h < MIN_WATER)
-                    h = -0.4f;
+                    h = 0f;
 
                 /* XXX hack to prevent gaps between the terrain and the water at the border */
                 if (x == 0 || y == 0 || x == WATER_SIZE_X - 1 || y == WATER_SIZE_Y - 1)
