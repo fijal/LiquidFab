@@ -107,6 +107,8 @@ public class Terrain : MonoBehaviour
         var smoke = Instantiate(smokePrefab, go.transform);
         smoke.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
         smoke.transform.localPosition = new Vector3(0.03f, 0.8f, 0.2f);
+        var wp = go.AddComponent<waterPump>();
+        wp.basePos = heightFloat(x + 0.5f, y + 0.5f);
         water.waterSource[x + y * TERRAIN_SIZE] = 0.25f;
     }
 

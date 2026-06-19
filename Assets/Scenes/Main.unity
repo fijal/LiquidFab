@@ -163,6 +163,7 @@ MonoBehaviour:
   minerPrefab: {fileID: 919132149155446097, guid: 8a0b7c22caa135549abbe5ce70e9f32b, type: 3}
   magnetPrefab: {fileID: 919132149155446097, guid: ddb46085ee7ba5c48acc24532b94a739, type: 3}
   waterPumpPrefab: {fileID: 919132149155446097, guid: 753cfc86f9e7d224095db4054dc2ac3b, type: 3}
+  smokePrefab: {fileID: 2962304638282216219, guid: a28f463f0418d36429b86a53c1bac031, type: 3}
   treePrefabs:
   - {fileID: 7519813975544404550, guid: 05ea3cfde14450645ab00fa2671e783b, type: 3}
   - {fileID: 1481673226186282464, guid: d4b1707da7080554bb3db9338bb5ae66, type: 3}
