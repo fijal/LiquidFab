@@ -15,6 +15,7 @@ public class Terrain : MonoBehaviour
     public List<int> terrainUpdatesX, terrainUpdatesY;
     public List<float> terrainUpdatesVal;
     Dictionary<int, GameObject> trees;
+    Dictionary<int, GameObject> waterPumps;
 
     readonly MyJobRunner s_runner = new();
 
@@ -97,10 +98,17 @@ public class Terrain : MonoBehaviour
         go.transform.rotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
     }
 
-    public void spawnWaterPump(int x, int y)
+    public bool spawnWaterPump(int x, int y)
     {
         if (water.waterSource.ContainsKey(x + y * TERRAIN_SIZE))
-            return;
+            return false;
+        foreach (var entry in waterPumps)
+        {
+            var ex = entry.Key % TERRAIN_SIZE;
+            var ey = entry.Key / TERRAIN_SIZE;
+            if (Mathf.Abs(x - ex) < 5 && Mathf.Abs(y - ey) < 5)
+                return false;
+        }
         var go = Instantiate(waterPumpPrefab, transform);
         go.transform.position = new Vector3((x + 0.5f) * SCALE, heightFloat(x + 0.5f, y + 0.5f), (y + 0.5f) * SCALE);
         go.transform.rotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
@@ -110,6 +118,8 @@ public class Terrain : MonoBehaviour
         var wp = go.AddComponent<waterPump>();
         wp.basePos = heightFloat(x + 0.5f, y + 0.5f);
         water.waterSource[x + y * TERRAIN_SIZE] = 0.25f;
+        waterPumps.Add(x + y * TERRAIN_SIZE, go);
+        return true;
     }
 
     public void changeTerrainKind(int x, int y, int kind)
@@ -180,6 +190,7 @@ public class Terrain : MonoBehaviour
 
         water = transform.Find("Water").GetComponent<Water>();
         trees = new Dictionary<int, GameObject>();
+        waterPumps = new Dictionary<int, GameObject>();
         s = new Simulation(TERRAIN_SIZE, TERRAIN_SIZE);
     }
 

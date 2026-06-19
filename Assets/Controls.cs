@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -29,6 +30,7 @@ public class Controls : MonoBehaviour
     GameObject[] UIElements;
     public GameObject helperUI;
     public GameObject UIPanel;
+    public GameObject tooltip;
 
     GameObject currentToolbarItem;
     ToolSelected toolSelected = ToolSelected.Select;
@@ -153,7 +155,18 @@ public class Controls : MonoBehaviour
             else if (toolSelected == ToolSelected.Magnet)
                 hit.transform.gameObject.GetComponent<Terrain>().spawnMagnet(x, y);
             else if (toolSelected == ToolSelected.Water)
-                hit.transform.gameObject.GetComponent<Terrain>().spawnWaterPump(x, y);
+            {
+                var success = hit.transform.gameObject.GetComponent<Terrain>().spawnWaterPump(x, y);
+                if (!success)
+                {
+                    tooltip.GetComponent<TMP_Text>().text = "Too close to another pump";
+                    var rt = tooltip.GetComponent<RectTransform>();
+                    rt.anchoredPosition = new Vector2(Input.mousePosition.x, Input.mousePosition.y + 30);
+                    tooltip.SetActive(true);
+                    tooltip.GetComponent<Tooltip>().fadeTimer = 0.0f;
+                    tooltip.GetComponent<TMP_Text>().color = new Color(1, 1, 1, 1);
+                }
+            }
         }
 
     }
