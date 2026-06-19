@@ -162,6 +162,7 @@ MonoBehaviour:
   logPrefab: {fileID: 9201883984330220474, guid: f7a8bbd690d94464aa2f96f23dba1116, type: 3}
   minerPrefab: {fileID: 919132149155446097, guid: 8a0b7c22caa135549abbe5ce70e9f32b, type: 3}
   magnetPrefab: {fileID: 919132149155446097, guid: ddb46085ee7ba5c48acc24532b94a739, type: 3}
+  waterPumpPrefab: {fileID: 919132149155446097, guid: 753cfc86f9e7d224095db4054dc2ac3b, type: 3}
   treePrefabs:
   - {fileID: 7519813975544404550, guid: 05ea3cfde14450645ab00fa2671e783b, type: 3}
   - {fileID: 1481673226186282464, guid: d4b1707da7080554bb3db9338bb5ae66, type: 3}
@@ -430,7 +431,7 @@ MonoBehaviour:
   frameActive: {fileID: 21300000, guid: aa105c82eef35cc43bdec130c9d9b786, type: 3}
   helperText: SHIFT to remove
   tool: 1
-  isClick: 0
+  isClick: 1
 --- !u!1 &277933283
 GameObject:
   m_ObjectHideFlags: 0
@@ -2840,6 +2841,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e317de9a9a029d8449980b309273fa92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  waterLevel: []
+  waterFlowX: []
+  waterFlowY: []
   waterSourcePrefab: {fileID: 8830629815663301437, guid: cec870d43c4c26c4ba04136ed2b3ec2b, type: 3}
 --- !u!23 &1625717975
 MeshRenderer:

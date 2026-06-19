@@ -152,6 +152,8 @@ public class Controls : MonoBehaviour
                 terrain.showTerrainInfo(camera, x, y);
             else if (toolSelected == ToolSelected.Magnet)
                 hit.transform.gameObject.GetComponent<Terrain>().spawnMagnet(x, y);
+            else if (toolSelected == ToolSelected.Water)
+                hit.transform.gameObject.GetComponent<Terrain>().spawnWaterPump(x, y);
         }
 
     }

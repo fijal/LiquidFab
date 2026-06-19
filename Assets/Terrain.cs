@@ -19,7 +19,7 @@ public class Terrain : MonoBehaviour
     readonly MyJobRunner s_runner = new();
 
     public TextAsset terrainData;
-    public GameObject logPrefab, minerPrefab, magnetPrefab;
+    public GameObject logPrefab, minerPrefab, magnetPrefab, waterPumpPrefab;
     public GameObject[] treePrefabs;
     public GameObject infoDialog;
 
@@ -68,7 +68,7 @@ public class Terrain : MonoBehaviour
         if (trees.ContainsKey(x + y * TERRAIN_SIZE))
             return;
         var go = Instantiate(treePrefabs[Random.Range(0, 3)], transform);
-        go.transform.position = new Vector3(x * SCALE, height(x, y), y * SCALE);
+        go.transform.position = new Vector3((x + 0.5f) * SCALE, heightFloat(x + 0.5f, y + 0.5f), (y + 0.5f) * SCALE);
         go.transform.localScale = new Vector3(0.02f, 0.02f, 0.02f);
         go.AddComponent<Tree>();
         trees[x + y * TERRAIN_SIZE] = go;
@@ -94,6 +94,13 @@ public class Terrain : MonoBehaviour
     {
         var go = Instantiate(minerPrefab, transform);
         go.transform.position = new Vector3(x * SCALE, height(x, y), y * SCALE);
+        go.transform.rotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
+    }
+
+    public void spawnWaterPump(int x, int y)
+    {
+        var go = Instantiate(waterPumpPrefab, transform);
+        go.transform.position = new Vector3((x + 0.5f) * SCALE, heightFloat(x + 0.5f, y + 0.5f), (y + 0.5f) * SCALE);
         go.transform.rotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
     }
 
