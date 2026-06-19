@@ -46,10 +46,18 @@ public class Terrain : MonoBehaviour
     public float heightFloat(float x, float y)
     {
         int ix = (int)x;
+        if (ix < 0) ix = 0;
+        else if (ix >= TERRAIN_SIZE) ix = TERRAIN_SIZE - 1;
         float xrem = x - (float)ix;
         int iy = (int)y;
+        if (iy < 0) iy = 0;
+        else if (iy >= TERRAIN_SIZE) iy = TERRAIN_SIZE - 1;
         float yrem = y - (float)iy;
-        return ((1 - xrem) * height(ix + 1, iy) + (1 - yrem) * height(ix, iy + 1) + (xrem + yrem) * height(ix, iy)) / 2;
+        int i = ix + iy * TERRAIN_SIZE;
+        return Mathf.Lerp(
+            Mathf.Lerp(terrainHeight[i], terrainHeight[i + 1], xrem),
+            Mathf.Lerp(terrainHeight[i + TERRAIN_SIZE], terrainHeight[i + 1 + TERRAIN_SIZE], xrem),
+            yrem);
     }
 
     public void setHeight(int x, int y, float v)

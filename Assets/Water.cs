@@ -43,12 +43,18 @@ public class Water : MonoBehaviour
     public float waterLevelFloat(float x, float y)
     {
         int ix = (int)x;
+        if (ix < 0) ix = 0;
+        else if (ix >= WATER_SIZE_X) ix = WATER_SIZE_X - 1;
         float xrem = x - (float)ix;
         int iy = (int)y;
+        if (iy < 0) iy = 0;
+        else if (iy >= WATER_SIZE_Y) iy = WATER_SIZE_Y - 1;
         float yrem = y - (float)iy;
-        return ((1 - xrem) * waterLevel[ix + 1 + iy * WATER_SIZE_X] +
-                (1 - yrem) * waterLevel[ix + (iy + 1) * WATER_SIZE_X] +
-                (xrem + yrem) * waterLevel[ix + iy * WATER_SIZE_X]) / 2;
+        int i = ix + iy * WATER_SIZE_X;
+        return Mathf.Lerp(
+            Mathf.Lerp(waterLevel[i], waterLevel[i + 1], xrem),
+            Mathf.Lerp(waterLevel[i + WATER_SIZE_X], waterLevel[i + 1 + WATER_SIZE_X], xrem),
+            yrem);
     }
 
     public void addPumpAsWaterSource(int x, int y)
