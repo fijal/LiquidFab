@@ -14,7 +14,7 @@ public class Water : MonoBehaviour
     Terrain terrain;
 
     public GameObject waterSourcePrefab;
-    Dictionary<int, WaterSource> waterSource;
+    public Dictionary<int, float> waterSource;
     
     void Start()
     {
@@ -28,7 +28,7 @@ public class Water : MonoBehaviour
 
         terrain = transform.parent.GetComponent<Terrain>();
     
-        waterSource = new Dictionary<int, WaterSource>();
+        waterSource = new Dictionary<int, float>();
     }
     public float flowX(int x, int y)
     {
@@ -51,7 +51,12 @@ public class Water : MonoBehaviour
                 (xrem + yrem) * waterLevel[ix + iy * WATER_SIZE_X]) / 2;
     }
 
-    public void modifyWaterSource(int x, int y, bool mod, float val)
+    public void addPumpAsWaterSource(int x, int y)
+    {
+
+    }
+
+    /*public void modifyWaterSource(int x, int y, bool mod, float val)
     {
         val *= 0.3f;
         var index = x + y * WATER_SIZE_X;
@@ -79,12 +84,12 @@ public class Water : MonoBehaviour
                 }
             }
         }
-    }
+    }*/
 
     public void updateWaterSources()
     {
-        foreach (KeyValuePair<int, WaterSource> entry in waterSource)
-            waterLevel[entry.Key] += entry.Value.amount;
+        foreach (KeyValuePair<int, float> entry in waterSource)
+            waterLevel[entry.Key] += entry.Value;
         var m = 0f;
         for (int y = 0; y < WATER_SIZE_Y; y++)
             for (int x = 0; x < WATER_SIZE_X; x++)

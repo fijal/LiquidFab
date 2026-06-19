@@ -99,9 +99,12 @@ public class Terrain : MonoBehaviour
 
     public void spawnWaterPump(int x, int y)
     {
+        if (water.waterSource.ContainsKey(x + y * TERRAIN_SIZE))
+            return;
         var go = Instantiate(waterPumpPrefab, transform);
         go.transform.position = new Vector3((x + 0.5f) * SCALE, heightFloat(x + 0.5f, y + 0.5f), (y + 0.5f) * SCALE);
         go.transform.rotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
+        water.waterSource[x + y * TERRAIN_SIZE] = 0.25f;
     }
 
     public void changeTerrainKind(int x, int y, int kind)

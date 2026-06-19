@@ -115,8 +115,8 @@ public class Controls : MonoBehaviour
 
             if (toolSelected == ToolSelected.Terrain)
                 hit.transform.gameObject.GetComponent<Terrain>().terrainMod(x, y, mod, val);
-            else if (toolSelected == ToolSelected.Water)
-                hit.transform.Find("Water").GetComponent<Water>().modifyWaterSource(x, y, mod, val * Water.WATER_SOURCE_AMOUNT);
+            //else if (toolSelected == ToolSelected.Water)
+            //    hit.transform.Find("Water").GetComponent<Water>().modifyWaterSource(x, y, mod, val * Water.WATER_SOURCE_AMOUNT);
             else if (toolSelected == ToolSelected.Log)
                 hit.transform.gameObject.GetComponent<Terrain>().spawnTree(x, y);
             else if (toolSelected == ToolSelected.Grass || toolSelected == ToolSelected.Sand || toolSelected == ToolSelected.Iron)
