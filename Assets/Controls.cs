@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public enum ToolSelected
@@ -28,6 +29,7 @@ public class Controls : MonoBehaviour
     const float HEIGHT_SCROLL_SPEED = 5f;
 
     GameObject[] UIElements;
+    public EventSystem eventSystem;
     public GameObject helperUI;
     public GameObject UIPanel;
     public GameObject tooltip;
@@ -139,11 +141,21 @@ public class Controls : MonoBehaviour
 
     void RaycastToTerrainClick()
     {
-        if (!currentToolbarItem.GetComponent<ToolbarItem>().isClick)
+        List<RaycastResult> res = new List<RaycastResult>();
+        var ped = new PointerEventData(eventSystem);
+        ped.position = Input.mousePosition;
+        UIPanel.GetComponent<GraphicRaycaster>().Raycast(ped, res);
+        if (res.Count > 0)
+        {
+            activateToolbarItem(res[0].gameObject);
             return;
+        }
+        
         var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
-
+        if (!currentToolbarItem.GetComponent<ToolbarItem>().isClick)
+            return;
+        
         if (Physics.Raycast(ray, out hit, 200, 1 << 3))
         {
             var x = (hit.triangleIndex / 2) % (Terrain.TERRAIN_SIZE - 1);
@@ -173,8 +185,13 @@ public class Controls : MonoBehaviour
 
     void activateToolbarItem(int index)
     {
+        activateToolbarItem(UIElements[index]);
+    }
+
+    void activateToolbarItem(GameObject obj)
+    {
         currentToolbarItem.GetComponent<ToolbarItem>().deactivate();
-        currentToolbarItem = UIElements[index];
+        currentToolbarItem = obj;
         var item = currentToolbarItem.GetComponent<ToolbarItem>();
         item.activate();
         helperUI.GetComponent<Text>().text = item.helperText;
