@@ -174,23 +174,27 @@ public class Controls : MonoBehaviour
             if (toolSelected == ToolSelected.Miner)
                 hit.transform.gameObject.GetComponent<Terrain>().spawnMiner(x, y);
             else if (toolSelected == ToolSelected.Select)
-                terrain.showTerrainInfo(camera, x, y);
+                terrain.interactWithTerrain(x, y);
+                //terrain.showTerrainInfo(camera, x, y);
             else if (toolSelected == ToolSelected.Magnet)
                 hit.transform.gameObject.GetComponent<Terrain>().spawnMagnet(x, y);
             else if (toolSelected == ToolSelected.Water)
             {
                 var success = hit.transform.gameObject.GetComponent<Terrain>().spawnWaterPump(x, y);
                 if (!success)
-                {
-                    tooltip.GetComponent<TMP_Text>().text = "Too close to another pump";
-                    var rt = tooltip.GetComponent<RectTransform>();
-                    rt.anchoredPosition = new Vector2(Input.mousePosition.x, Input.mousePosition.y + 30);
-                    tooltip.SetActive(true);
-                    tooltip.GetComponent<Tooltip>().fadeTimer = 0.0f;
-                    tooltip.GetComponent<TMP_Text>().color = new Color(1, 1, 1, 1);
-                }
+                    showTooltip("Too close to another pump");
             }
         }
+    }
+
+    public void showTooltip(string text)
+    {
+        tooltip.GetComponent<TMP_Text>().text = text;
+        var rt = tooltip.GetComponent<RectTransform>();
+        rt.anchoredPosition = new Vector2(Input.mousePosition.x, Input.mousePosition.y + 30);
+        tooltip.SetActive(true);
+        tooltip.GetComponent<Tooltip>().fadeTimer = 0.0f;
+        tooltip.GetComponent<TMP_Text>().color = new Color(1, 1, 1, 1);
     }
 
     void activateToolbarItem(int index)
