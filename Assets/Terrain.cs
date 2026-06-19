@@ -19,7 +19,7 @@ public class Terrain : MonoBehaviour
     readonly MyJobRunner s_runner = new();
 
     public TextAsset terrainData;
-    public GameObject logPrefab, minerPrefab, magnetPrefab, waterPumpPrefab;
+    public GameObject logPrefab, minerPrefab, magnetPrefab, waterPumpPrefab, smokePrefab;
     public GameObject[] treePrefabs;
     public GameObject infoDialog;
 
@@ -104,6 +104,9 @@ public class Terrain : MonoBehaviour
         var go = Instantiate(waterPumpPrefab, transform);
         go.transform.position = new Vector3((x + 0.5f) * SCALE, heightFloat(x + 0.5f, y + 0.5f), (y + 0.5f) * SCALE);
         go.transform.rotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
+        var smoke = Instantiate(smokePrefab, go.transform);
+        smoke.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
+        smoke.transform.localPosition = new Vector3(0.03f, 0.8f, 0.2f);
         water.waterSource[x + y * TERRAIN_SIZE] = 0.25f;
     }
 

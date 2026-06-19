@@ -74,8 +74,8 @@ public class Controls : MonoBehaviour
             newPos = new Vector3(max, newPos.y, newPos.z);
         if (newPos.z >= max)
             newPos = new Vector3(newPos.x, newPos.y, max);
-        var minHeight = terrain.height((int)(newPos.x / Terrain.SCALE), (int)(newPos.z / Terrain.SCALE)) + 5;
-        var maxHeight = 45;
+        var minHeight = terrain.height((int)(newPos.x / Terrain.SCALE), (int)(newPos.z / Terrain.SCALE)) + 3;
+        var maxHeight = 35;
         if (newPos.y < minHeight)
             newPos = new Vector3(newPos.x, minHeight, newPos.z);
         if (newPos.y > maxHeight)
