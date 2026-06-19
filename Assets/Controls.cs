@@ -107,6 +107,17 @@ public class Controls : MonoBehaviour
 
     void RaycastToTerrainCont(bool mod, float val)
     {
+        // bleh, if we are over the UI, ignore the button
+        List<RaycastResult> res = new List<RaycastResult>();
+        var ped = new PointerEventData(eventSystem);
+        ped.position = Input.mousePosition;
+        UIPanel.GetComponent<GraphicRaycaster>().Raycast(ped, res);
+        if (res.Count > 0)
+        {
+            activateToolbarItem(res[0].gameObject);
+            return;
+        }
+
         if (currentToolbarItem.GetComponent<ToolbarItem>().isClick)
             return;
         var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
@@ -180,7 +191,6 @@ public class Controls : MonoBehaviour
                 }
             }
         }
-
     }
 
     void activateToolbarItem(int index)
@@ -247,10 +257,11 @@ public class Controls : MonoBehaviour
             StopRotatingCam();
         if (Input.GetMouseButton(1))
             RotateCam();
-        if (Input.GetMouseButton(0))
-            RaycastToTerrainCont(Input.GetKey(KeyCode.LeftShift), Time.deltaTime);
+
         if (Input.GetMouseButtonDown(0))
             RaycastToTerrainClick();
+        if (Input.GetMouseButton(0))
+            RaycastToTerrainCont(Input.GetKey(KeyCode.LeftShift), Time.deltaTime);
         if (Input.mouseScrollDelta.y != 0)
         {
             //Move(false, new Vector3(0, Input.mouseScrollDelta.y * -HEIGHT_SCROLL_SPEED, 0));
