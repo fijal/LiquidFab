@@ -7,6 +7,7 @@ public class Tree : MonoBehaviour
     public float age;
     public const float MAX_AGE = 180;
     const float MAX_SCALE = 1.5f;
+    public int x, y;
 
     void Start()
     {

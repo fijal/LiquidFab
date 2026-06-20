@@ -81,10 +81,14 @@ public class Terrain : MonoBehaviour
         if (prefab == null)
             prefab = treePrefabs[Random.Range(0, 3)];
         var go = Instantiate(prefab, transform);
+        go.layer = 3; // terrain
         go.transform.position = new Vector3((x + 0.5f) * SCALE, heightFloat(x + 0.5f, y + 0.5f), (y + 0.5f) * SCALE);
         go.transform.localScale = new Vector3(0.02f, 0.02f, 0.02f);
         var t = go.AddComponent<Tree>();
+        var bc = go.AddComponent<BoxCollider>();
         t.age = age;
+        t.x = x;
+        t.y = y;
         trees[x + y * TERRAIN_SIZE] = go;
     }
 
@@ -313,6 +317,7 @@ public class Terrain : MonoBehaviour
             {
                 trees.Remove(x + y * TERRAIN_SIZE);
                 Destroy(tree);
+                //controls.changeMouseCursorToLog();
                 spawnLog(x, y);
             }
         }
