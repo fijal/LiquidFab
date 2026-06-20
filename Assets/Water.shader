@@ -7,11 +7,14 @@ Shader "Unlit/Water"
     }
     SubShader
     {
-        Tags { "RenderType"="Opaque" }
+        Tags { "Queue" = "Transparent+25" "RenderType" = "Transparent" }
         LOD 100
 
         Pass
         {
+            ZWrite Off
+            Blend SrcAlpha OneMinusSrcAlpha
+
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
@@ -31,9 +34,12 @@ Shader "Unlit/Water"
             {
                 UNITY_FOG_COORDS(1)
                 float4 vertex : SV_POSITION;
-                float4 uv3_and_light : TEXCOORD0;
+                float4 misc : TEXCOORD0;
                 float2 src_vertex_xz : TEXCOORD2;
             };
+            #define m_flow         misc.xy
+            #define m_waterdepth   misc.z
+            #define m_light        misc.w
 
             v2f vert (appdata v)
             {
@@ -46,9 +52,9 @@ Shader "Unlit/Water"
                 float sqr_mag = dot(flow, flow);
                 if (sqr_mag > 1)
                     flow *= rsqrt(sqr_mag);
-                o.uv3_and_light.xz = flow * 0.75;
-                o.uv3_and_light.y = v.uv3.y;
-                o.uv3_and_light.w = dot(normal, light);
+                o.m_flow = flow * 0.75;
+                o.m_waterdepth = v.uv3.y;
+                o.m_light = dot(normal, light);
                 o.src_vertex_xz = v.vertex.xz;
                 UNITY_TRANSFER_FOG(o,o.vertex);
                 return o;
@@ -58,12 +64,12 @@ Shader "Unlit/Water"
 
             fixed4 frag (v2f i) : SV_Target
             {
-                float4 col = 1;
-                col.xyz = lerp(_ColorShallow, _Color, saturate(i.uv3_and_light.y));
-                col.xyz *= saturate(i.uv3_and_light.w);
+                float4 col;
+                col.rgb = lerp(_ColorShallow, _Color, saturate(i.m_waterdepth));
+                col.rgb *= saturate(i.m_light);
 
                 float2 pos = i.src_vertex_xz;
-                float2 flow = i.uv3_and_light.xz;
+                float2 flow = i.m_flow;
 
                 float2 dot_pos = floor(pos) + 0.5;
                 float t = frac(_Time.w + dot(dot_pos, float2(1.3298139, 2.6010221)));
@@ -72,7 +78,8 @@ Shader "Unlit/Water"
 
                 float2 dot_delta = (dot_pos - pos) / dot_strength;
                 float s1 = dot(dot_delta, dot_delta);
-                col.xyz += (1 - saturate(s1)) * 0.025;
+                col.rgb += (1 - saturate(s1)) * 0.025;
+                col.a = saturate(i.m_waterdepth * 60);
 
                 // apply fog
                 UNITY_APPLY_FOG(i.fogCoord, col);
