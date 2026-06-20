@@ -22,7 +22,9 @@ public class Terrain : MonoBehaviour
     public TextAsset terrainData;
     public GameObject logPrefab, minerPrefab, magnetPrefab, waterPumpPrefab, smokePrefab;
     public GameObject[] treePrefabs;
+    public GameObject palmPrefab;
     public GameObject infoDialog;
+    public Controls controls;
 
     List<GameObject> logs;
 
@@ -72,14 +74,21 @@ public class Terrain : MonoBehaviour
         terrainUpdatesVal.Add(mod ? -2.5f * val : 2.5f * val);
     }
 
-    public void spawnTree(int x, int y)
+    public void spawnTree(int x, int y, GameObject prefab=null, float age = 0)
     {
         if (trees.ContainsKey(x + y * TERRAIN_SIZE))
             return;
-        var go = Instantiate(treePrefabs[Random.Range(0, 3)], transform);
+        if (prefab == null)
+            prefab = treePrefabs[Random.Range(0, 3)];
+        var go = Instantiate(prefab, transform);
+        go.layer = 3; // terrain
         go.transform.position = new Vector3((x + 0.5f) * SCALE, heightFloat(x + 0.5f, y + 0.5f), (y + 0.5f) * SCALE);
         go.transform.localScale = new Vector3(0.02f, 0.02f, 0.02f);
-        go.AddComponent<Tree>();
+        var t = go.AddComponent<Tree>();
+        var bc = go.AddComponent<BoxCollider>();
+        t.age = age;
+        t.x = x;
+        t.y = y;
         trees[x + y * TERRAIN_SIZE] = go;
     }
 
@@ -193,25 +202,19 @@ public class Terrain : MonoBehaviour
         logs = new List<GameObject>();
 
         recalculateMesh();
+        trees = new Dictionary<int, GameObject>();
         populateTrees();
         createTerrainKindTexture();
 
         water = transform.Find("Water").GetComponent<Water>();
-        trees = new Dictionary<int, GameObject>();
         waterPumps = new Dictionary<int, GameObject>();
         s = new Simulation(TERRAIN_SIZE, TERRAIN_SIZE);
     }
 
     void populateTrees()
     {
-        /*for (int i = 0; i < 3000; i++)
-        {
-            var tree = Instantiate(treePrefabs[Random.Range(0, 3)], transform);
-            var x = Random.Range(0.5f, TERRAIN_SIZE * SCALE - 0.5f);
-            var y = Random.Range(0.5f, TERRAIN_SIZE * SCALE - 0.5f);
-            tree.transform.position = new Vector3(x, heightFloat(x / SCALE, y / SCALE), y);
-            tree.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-        }*/
+        for (int i = 0; i < 100; i++)
+            spawnTree(Random.Range(0, TERRAIN_SIZE - 1), Random.Range(0, TERRAIN_SIZE - 1), palmPrefab, Tree.MAX_AGE);
     }
 
     private void OnDestroy()
@@ -302,6 +305,24 @@ public class Terrain : MonoBehaviour
         terrainKindTexture = new Texture2D(TERRAIN_SIZE, TERRAIN_SIZE, TextureFormat.RFloat, false, true);
         Shader.SetGlobalTexture("MTerrainKind", terrainKindTexture);
     }
+
+    public void interactWithTerrain(int x, int y)
+    {
+        if (trees.ContainsKey(x + y * TERRAIN_SIZE))
+        {
+            var tree = trees[x + y * TERRAIN_SIZE];
+            if (tree.GetComponent<Tree>().age < Tree.MAX_AGE)
+                controls.showTooltip("tree too young");
+            else
+            {
+                trees.Remove(x + y * TERRAIN_SIZE);
+                Destroy(tree);
+                //controls.changeMouseCursorToLog();
+                spawnLog(x, y);
+            }
+        }
+    }
+
 
     void updateTerrainKind()
     {

@@ -105,7 +105,7 @@ public class Controls : MonoBehaviour
         camera.transform.Rotate(-v, 0, 0);
     }
 
-    void RaycastToTerrainCont(bool mod, float val)
+    void RaycastToTerrain(bool isClick, bool mod=false, float val=0)
     {
         // bleh, if we are over the UI, ignore the button
         List<RaycastResult> res = new List<RaycastResult>();
@@ -118,34 +118,59 @@ public class Controls : MonoBehaviour
             return;
         }
 
-        if (currentToolbarItem.GetComponent<ToolbarItem>().isClick)
-            return;
         var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
         if (Physics.Raycast(ray, out hit, 200, 1 << 3))
         {
+            var tree = hit.transform.gameObject.GetComponent<Tree>();
+            if (tree)
+            {
+                if (toolSelected == ToolSelected.Select)
+                    terrain.interactWithTerrain(tree.x, tree.y);
+                return;
+            }
+
             var x = (hit.triangleIndex / 2) % (Terrain.TERRAIN_SIZE - 1);
             var y = (hit.triangleIndex / 2) / (Terrain.TERRAIN_SIZE - 1);
 
-            if (toolSelected == ToolSelected.Terrain)
-                hit.transform.gameObject.GetComponent<Terrain>().terrainMod(x, y, mod, val);
-            //else if (toolSelected == ToolSelected.Water)
-            //    hit.transform.Find("Water").GetComponent<Water>().modifyWaterSource(x, y, mod, val * Water.WATER_SOURCE_AMOUNT);
-            else if (toolSelected == ToolSelected.Log)
-                hit.transform.gameObject.GetComponent<Terrain>().spawnTree(x, y);
-            else if (toolSelected == ToolSelected.Grass || toolSelected == ToolSelected.Sand || toolSelected == ToolSelected.Iron)
+            if (isClick)
             {
-                int kind = 0;
-                if (mod)
-                    kind = 0;
-                else if (toolSelected == ToolSelected.Grass)
-                    kind = 1;
-                else if (toolSelected == ToolSelected.Sand)
-                    kind = 2;
-                else if (toolSelected == ToolSelected.Iron)
-                    kind = 3;
-                hit.transform.gameObject.GetComponent<Terrain>().changeTerrainKind(x, y, kind);
+                if (toolSelected == ToolSelected.Miner)
+                    hit.transform.gameObject.GetComponent<Terrain>().spawnMiner(x, y);
+                else if (toolSelected == ToolSelected.Select)
+                    terrain.interactWithTerrain(x, y);
+                //terrain.showTerrainInfo(camera, x, y);
+                else if (toolSelected == ToolSelected.Magnet)
+                    hit.transform.gameObject.GetComponent<Terrain>().spawnMagnet(x, y);
+                else if (toolSelected == ToolSelected.Water)
+                {
+                    var success = hit.transform.gameObject.GetComponent<Terrain>().spawnWaterPump(x, y);
+                    if (!success)
+                        showTooltip("Too close to another pump");
+                }
+            }
+            else
+            {
+                if (toolSelected == ToolSelected.Terrain)
+                    hit.transform.gameObject.GetComponent<Terrain>().terrainMod(x, y, mod, val);
+                //else if (toolSelected == ToolSelected.Water)
+                //    hit.transform.Find("Water").GetComponent<Water>().modifyWaterSource(x, y, mod, val * Water.WATER_SOURCE_AMOUNT);
+                else if (toolSelected == ToolSelected.Log)
+                    hit.transform.gameObject.GetComponent<Terrain>().spawnTree(x, y);
+                else if (toolSelected == ToolSelected.Grass || toolSelected == ToolSelected.Sand || toolSelected == ToolSelected.Iron)
+                {
+                    int kind = 0;
+                    if (mod)
+                        kind = 0;
+                    else if (toolSelected == ToolSelected.Grass)
+                        kind = 1;
+                    else if (toolSelected == ToolSelected.Sand)
+                        kind = 2;
+                    else if (toolSelected == ToolSelected.Iron)
+                        kind = 3;
+                    hit.transform.gameObject.GetComponent<Terrain>().changeTerrainKind(x, y, kind);
+                }
             }
         }
     }
@@ -174,23 +199,27 @@ public class Controls : MonoBehaviour
             if (toolSelected == ToolSelected.Miner)
                 hit.transform.gameObject.GetComponent<Terrain>().spawnMiner(x, y);
             else if (toolSelected == ToolSelected.Select)
-                terrain.showTerrainInfo(camera, x, y);
+                terrain.interactWithTerrain(x, y);
+                //terrain.showTerrainInfo(camera, x, y);
             else if (toolSelected == ToolSelected.Magnet)
                 hit.transform.gameObject.GetComponent<Terrain>().spawnMagnet(x, y);
             else if (toolSelected == ToolSelected.Water)
             {
                 var success = hit.transform.gameObject.GetComponent<Terrain>().spawnWaterPump(x, y);
                 if (!success)
-                {
-                    tooltip.GetComponent<TMP_Text>().text = "Too close to another pump";
-                    var rt = tooltip.GetComponent<RectTransform>();
-                    rt.anchoredPosition = new Vector2(Input.mousePosition.x, Input.mousePosition.y + 30);
-                    tooltip.SetActive(true);
-                    tooltip.GetComponent<Tooltip>().fadeTimer = 0.0f;
-                    tooltip.GetComponent<TMP_Text>().color = new Color(1, 1, 1, 1);
-                }
+                    showTooltip("Too close to another pump");
             }
         }
+    }
+
+    public void showTooltip(string text)
+    {
+        tooltip.GetComponent<TMP_Text>().text = text;
+        var rt = tooltip.GetComponent<RectTransform>();
+        rt.anchoredPosition = new Vector2(Input.mousePosition.x, Input.mousePosition.y + 30);
+        tooltip.SetActive(true);
+        tooltip.GetComponent<Tooltip>().fadeTimer = 0.0f;
+        tooltip.GetComponent<TMP_Text>().color = new Color(1, 1, 1, 1);
     }
 
     void activateToolbarItem(int index)
@@ -259,9 +288,9 @@ public class Controls : MonoBehaviour
             RotateCam();
 
         if (Input.GetMouseButtonDown(0))
-            RaycastToTerrainClick();
+            RaycastToTerrain(true);
         if (Input.GetMouseButton(0))
-            RaycastToTerrainCont(Input.GetKey(KeyCode.LeftShift), Time.deltaTime);
+            RaycastToTerrain(false, Input.GetKey(KeyCode.LeftShift), Time.deltaTime);
         if (Input.mouseScrollDelta.y != 0)
         {
             //Move(false, new Vector3(0, Input.mouseScrollDelta.y * -HEIGHT_SCROLL_SPEED, 0));
