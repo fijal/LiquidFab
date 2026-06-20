@@ -68,7 +68,7 @@ Shader "Custom/Terrain"
 
             fixed4 frag(v2f IN) : SV_Target
             {
-                float kind = MTerrainKind.Load(uint3(IN.uv, 0)).r;
+                uint kind = (uint)MTerrainKind.Load(uint3(IN.uv, 0)).r;
 
                 float2 uv;
                 float3 color;

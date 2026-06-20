@@ -94,8 +94,12 @@ public class Water : MonoBehaviour
 
     public void updateWaterSources()
     {
+        // XXX this is done 10 times per second only if the background thread can keep up;
+        // otherwise this is done less often.  We should probably do waterLevel[] +=
+        // some value computed from how long it really was since the last time we were here
         foreach (KeyValuePair<int, float> entry in waterSource)
             waterLevel[entry.Key] += entry.Value;
+
         var m = 0f;
         for (int y = 0; y < WATER_SIZE_Y; y++)
             for (int x = 0; x < WATER_SIZE_X; x++)
@@ -103,12 +107,37 @@ public class Water : MonoBehaviour
                 var c = terrain.s.subLevel[x + y * WATER_SIZE_X];
                 if (c > m)
                     m = c;
-                if (terrain.s.subLevel[x + y * WATER_SIZE_X] > 0.0011f)
-                    terrain.terrainKind[x + y * WATER_SIZE_X] = 1;
-                if (terrain.s.subLevel[x + y * WATER_SIZE_X] < 0.0009f)
-                    terrain.terrainKind[x + y * WATER_SIZE_X] = 0;
-                if (terrain.s.subLevel[x + y * WATER_SIZE_X] > 0.003f && Random.Range(0f, 1f) > 0.999f &&
-                    waterLevel[x + y * WATER_SIZE_X] < 0.0001f)
+
+                var k = terrain.terrainKind[x + y * WATER_SIZE_X];
+                switch ((uint)k)
+                {
+                    case 0:
+                        if (c > 0.001f)
+                        {
+                            /* turn sand into grass over a period of one second */
+                            k += 0.101f;
+                            if (k >= 1f)
+                                k = 1.99f;
+                        }
+                        else
+                            k = 0f;
+                        break;
+
+                    case 1:
+                        if (c < 0.001f)
+                        {
+                            /* turn grass back to sand over a period of two seconds */
+                            k -= 0.051f;
+                            if (k < 1f)
+                                k = 0f;
+                        }
+                        else
+                            k = 1.99f;
+                        break;
+                }
+                terrain.terrainKind[x + y * WATER_SIZE_X] = k;
+
+                if (c > 0.003f && Random.Range(0f, 1f) > 0.999f && waterLevel[x + y * WATER_SIZE_X] < 0.0001f)
                     terrain.spawnTree(x, y);
 
             }
