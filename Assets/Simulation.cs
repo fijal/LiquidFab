@@ -232,11 +232,11 @@ public struct Simulation : IJob
                 {
                     var scale = max_outflow / total;
 
-                    /* clamp 'scale' between -1 and 1.  NaNs are turned to 1. */
+                    /* clamp 'scale' between 0 and 1.  NaNs are turned to 1. */
                     if (!(scale <= 1f))
                         scale = 1f;
-                    if (!(scale >= -1f))
-                        scale = -1f;
+                    if (!(scale >= 0f))
+                        scale = 0;
 
                     if (flowX[x + y * (sizeX + 1)] < 0)
                         flowX[x + y * (sizeX + 1)] *= scale;
