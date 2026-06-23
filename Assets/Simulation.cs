@@ -139,6 +139,7 @@ public struct Simulation : IJob
                         - (source[x + y * sizeX] + terrain[x + y * sizeX] * SUB_TERRAIN_FAC);
                 else
                     v = source[x - 1 + y * sizeX] - source[x + y * sizeX];
+                CheckFinite(v);
                 v *= frictionFactor * mass * gravity * dt;
                 if (maxAngle > 0)
                 {
@@ -152,6 +153,7 @@ public struct Simulation : IJob
                         v += maxAngle;
                 }
                 flowX[x + y * (sizeX + 1)] += v;
+                CheckFinite(flowX[x + y * (sizeX + 1)]);
             }
 
         for (int y = 1; y < sizeY; y++)
@@ -165,6 +167,7 @@ public struct Simulation : IJob
                         (source[x + y * sizeX] + terrain[x + y * sizeX] * SUB_TERRAIN_FAC);
                 else
                     v = (source[x + (y - 1) * sizeX]) - (source[x + y * sizeX]);
+                CheckFinite(v);
                 v *= frictionFactor * mass * gravity * dt;
                 if (maxAngle > 0)
                 {
@@ -178,6 +181,7 @@ public struct Simulation : IJob
                         v += maxAngle;
                 }
                 flowY[x + y * sizeX] += v;
+                CheckFinite(flowY[x + y * sizeX]);
             }
 
         // viscosity
@@ -195,7 +199,10 @@ public struct Simulation : IJob
                     H *= H;
 
                     if (H > 0f)
+                    {
                         flowX[x + y * (sizeX + 1)] *= H / (H + 3 * dt * viscosity);
+                        CheckFinite(flowX[x + y * (sizeX + 1)]);
+                    }
                 }
             for (int y = 1; y < sizeY; ++y)
                 for (int x = 0; x < sizeX; ++x)
@@ -208,7 +215,10 @@ public struct Simulation : IJob
                     H *= H;
 
                     if (H > 0f)
+                    {
                         flowY[x + y * sizeX] *= H / (H + 3 * dt * viscosity);
+                        CheckFinite(flowY[x + y * sizeX]);
+                    }
                 }
         }
 
@@ -220,7 +230,14 @@ public struct Simulation : IJob
                 float max_outflow = source[x + y * sizeX] / dt;
                 if (total > 0)
                 {
-                    var scale = Mathf.Min(1f, max_outflow / total);
+                    var scale = max_outflow / total;
+
+                    /* clamp 'scale' between -1 and 1.  NaNs are turned to 1. */
+                    if (!(scale <= 1f))
+                        scale = 1f;
+                    if (!(scale >= -1f))
+                        scale = -1f;
+
                     if (flowX[x + y * (sizeX + 1)] < 0)
                         flowX[x + y * (sizeX + 1)] *= scale;
                     if (flowY[x + y * sizeX] < 0)
@@ -229,7 +246,6 @@ public struct Simulation : IJob
                         flowX[x + 1 + y * (sizeX + 1)] *= scale;
                     if (flowY[x + (y + 1) * sizeX] > 0)
                         flowY[x + (y + 1) * sizeX] *= scale;
-
                 }
             }
 
@@ -241,19 +257,34 @@ public struct Simulation : IJob
                     seepage = 0.0005f + 0.0002f * water[x + y * sizeX];
                 if (simulationType == SimulationType.SubWater)
                     seepage = 0.00005f;
+                CheckFinite(seepage);
                 var cur = (flowX[x + y * (sizeX + 1)] + flowY[x + y * sizeX] - flowX[x + 1 + y * (sizeX + 1)]
                     - flowY[x + (y + 1) * sizeX]);
+                CheckFinite(cur);
                 if (seepage > source[x + y * sizeX])
                     seepage = source[x + y * sizeX];
                 if (simulationType == SimulationType.Water)
                     if (subLevel[x + y * sizeX] + seepage > SUB_SATURATION)
                         seepage = SUB_SATURATION - subLevel[x + y * sizeX];
+                CheckFinite(seepage);
                 source[x + y * sizeX] += (cur - seepage) / dt;
+                CheckFinite(source[x + y * sizeX]);
                 if (simulationType == SimulationType.Water)
+                {
                     subLevel[x + y * sizeX] += seepage;
+                    CheckFinite(subLevel[x + y * sizeX]);
+                }
             }
 
 
         return;
+    }
+
+    static void CheckFinite(float a)
+    {
+        if (!float.IsFinite(a))
+        {
+            Debug.LogAssertion("non-finite number!  put a breakpoint here in Simulation.cs");
+        }
     }
 }
