@@ -34,6 +34,8 @@ public class Controls : MonoBehaviour
     public GameObject UIPanel;
     public GameObject tooltip;
 
+    public Texture2D mouseCursorLog;
+
     GameObject currentToolbarItem;
     ToolSelected toolSelected = ToolSelected.Select;
 
@@ -128,6 +130,12 @@ public class Controls : MonoBehaviour
             {
                 if (toolSelected == ToolSelected.Select)
                     terrain.interactWithTerrain(tree.x, tree.y);
+                return;
+            }
+            var baseG = hit.transform.gameObject.GetComponent<Base>();
+            if (baseG)
+            {
+                baseG.detailsPanel.SetActive(true);
                 return;
             }
 
@@ -235,6 +243,11 @@ public class Controls : MonoBehaviour
         item.activate();
         helperUI.GetComponent<Text>().text = item.helperText;
         toolSelected = item.tool;
+    }
+
+    public void changeMouseCursorToLog()
+    {
+        Cursor.SetCursor(mouseCursorLog, Vector2.zero, CursorMode.Auto);
     }
 
     void SaveGame()

@@ -317,8 +317,8 @@ public class Terrain : MonoBehaviour
             {
                 trees.Remove(x + y * TERRAIN_SIZE);
                 Destroy(tree);
-                //controls.changeMouseCursorToLog();
-                spawnLog(x, y);
+                controls.changeMouseCursorToLog();
+                //spawnLog(x, y);
             }
         }
     }
