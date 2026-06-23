@@ -394,13 +394,13 @@ public class Terrain : MonoBehaviour
             s.water.CopyFrom(water.waterLevel);
             s_runner.Start(this, ref s, () =>
             {
-                s.water.CopyTo(water.waterLevel);
                 s.waterFlowX.CopyTo(water.waterFlowX);
                 s.waterFlowY.CopyTo(water.waterFlowY);
                 s.terrain.CopyTo(terrainHeight);
                 var d = infoDialog.GetComponent<Dialog>();
                 subLevel = s.subLevel[d.x + d.y * TERRAIN_SIZE];
-                water.updateWaterTexture(s);
+                water.updateWaterTexture(s.water);
+                s.water.CopyTo(water.waterLevel);
             });
             lastUpdate = 0.1f;
         }

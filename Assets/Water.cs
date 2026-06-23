@@ -143,7 +143,7 @@ public class Water : MonoBehaviour
             }
     }
 
-    public void updateWaterTexture(Simulation s)
+    public void updateWaterTexture(NativeArray<float> new_water_level)
     {
         const float MIN_WATER = 0.001f;
 
@@ -154,6 +154,8 @@ public class Water : MonoBehaviour
         var flowX = waterFlowX;
         var flowY = waterFlowY;
 
+        bool[] corners = new bool[WATER_SIZE_X * WATER_SIZE_Y];
+
         int c = 0;
         for (int y = 0; y < WATER_SIZE_Y; y++)
             for (int x = 0; x < WATER_SIZE_X; x++)
@@ -161,9 +163,15 @@ public class Water : MonoBehaviour
                 float fx = flowX[x + y * (WATER_SIZE_X + 1)] + flowX[x + 1 + y * (WATER_SIZE_X + 1)];
                 float fy = flowY[x + y * WATER_SIZE_X] + flowX[x + (y + 1) * WATER_SIZE_X];
 
-                float h = waterLevel[x + y * WATER_SIZE_X];
+                /* use the mean value of the previous waterLevel and the new_water_level fresh
+                 * from Simulation.cs */
+                float h_old = waterLevel[x + y * WATER_SIZE_X];
+                float h_new = new_water_level[x + y * WATER_SIZE_X];
+                float h = (h_old + h_new) * 0.5f;
                 uvs[c] = new Vector3(fx, h, fy);
-                if (h < MIN_WATER)
+                bool any_water = h_old >= MIN_WATER || h_new >= MIN_WATER;
+                corners[x + y * WATER_SIZE_X] = any_water;
+                if (!any_water)
                     h = 0f;
 
                 /* XXX hack to prevent gaps between the terrain and the water at the border */
@@ -179,10 +187,10 @@ public class Water : MonoBehaviour
             for (int x = 0; x < WATER_SIZE_X - 1; x++)
             {
                 int b = x + y * WATER_SIZE_X;
-                bool corner00 = waterLevel[b] >= MIN_WATER;
-                bool corner10 = waterLevel[b + 1] >= MIN_WATER;
-                bool corner01 = waterLevel[b + WATER_SIZE_X] >= MIN_WATER;
-                bool corner11 = waterLevel[b + 1 + WATER_SIZE_X] >= MIN_WATER;
+                bool corner00 = corners[b];
+                bool corner10 = corners[b + 1];
+                bool corner01 = corners[b + WATER_SIZE_X];
+                bool corner11 = corners[b + 1 + WATER_SIZE_X];
                 int total_corners =
                     (corner00 ? 1 : 0) +
                     (corner10 ? 1 : 0) +
