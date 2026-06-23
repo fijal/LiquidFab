@@ -409,4 +409,19 @@ public class Terrain : MonoBehaviour
             lastUpdate -= Time.deltaTime;
         }
     }
+
+
+#if UNITY_EDITOR
+    private void LateUpdate()
+    {
+        foreach (var t in FindObjectsOfType<Transform>())
+        {
+            if (t.position.sqrMagnitude > 2000f*2000f)
+            {
+                Debug.LogAssertion("TOO FAR AWAY: " + t.gameObject.name, t.gameObject);
+                Debug.DebugBreak();
+            }
+        }
+    }
+#endif
 }

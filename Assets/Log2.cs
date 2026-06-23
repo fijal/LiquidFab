@@ -36,9 +36,9 @@ public class Log2 : MonoBehaviour
         }
 
         /* when in free fall below the terrain or off to the sides */
-        if (newPos.y < -1000)
-            Destroy(gameObject);
-        else
+        if (newPos.sqrMagnitude < 10000000f)
             transform.position = newPos;
+        else
+            Destroy(gameObject);   /* includes NaN values */
     }
 }
