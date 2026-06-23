@@ -34,6 +34,11 @@ public class Log2 : MonoBehaviour
             newPos = new Vector3(transform.position.x + velocity.x * Time.fixedDeltaTime, z,
             transform.position.z + velocity.y * Time.fixedDeltaTime);
         }
-        transform.position = newPos;
+
+        /* when in free fall below the terrain or off to the sides */
+        if (newPos.y < -1000)
+            Destroy(gameObject);
+        else
+            transform.position = newPos;
     }
 }
