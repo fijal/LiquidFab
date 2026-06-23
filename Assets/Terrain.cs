@@ -49,11 +49,11 @@ public class Terrain : MonoBehaviour
     {
         int ix = (int)x;
         if (ix < 0) ix = 0;
-        else if (ix >= TERRAIN_SIZE) ix = TERRAIN_SIZE - 1;
+        else if (ix >= TERRAIN_SIZE - 1) ix = TERRAIN_SIZE - 2;
         float xrem = x - (float)ix;
         int iy = (int)y;
         if (iy < 0) iy = 0;
-        else if (iy >= TERRAIN_SIZE) iy = TERRAIN_SIZE - 1;
+        else if (iy >= TERRAIN_SIZE - 1) iy = TERRAIN_SIZE - 2;
         float yrem = y - (float)iy;
         int i = ix + iy * TERRAIN_SIZE;
         return Mathf.Lerp(

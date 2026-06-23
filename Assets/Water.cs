@@ -44,11 +44,11 @@ public class Water : MonoBehaviour
     {
         int ix = (int)x;
         if (ix < 0) ix = 0;
-        else if (ix >= WATER_SIZE_X) ix = WATER_SIZE_X - 1;
+        else if (ix >= WATER_SIZE_X - 1) ix = WATER_SIZE_X - 2;
         float xrem = x - (float)ix;
         int iy = (int)y;
         if (iy < 0) iy = 0;
-        else if (iy >= WATER_SIZE_Y) iy = WATER_SIZE_Y - 1;
+        else if (iy >= WATER_SIZE_Y - 1) iy = WATER_SIZE_Y - 2;
         float yrem = y - (float)iy;
         int i = ix + iy * WATER_SIZE_X;
         return Mathf.Lerp(
