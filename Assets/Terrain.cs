@@ -127,14 +127,17 @@ public class Terrain : MonoBehaviour
                 return false;
         }
         var go = Instantiate(waterPumpPrefab, transform);
+        go.layer = 3;
+        go.AddComponent<BoxCollider>();
         go.transform.position = new Vector3((x + 0.5f) * SCALE, heightFloat(x + 0.5f, y + 0.5f), (y + 0.5f) * SCALE);
         go.transform.rotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
         var smoke = Instantiate(smokePrefab, go.transform);
         smoke.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
         smoke.transform.localPosition = new Vector3(0.03f, 0.8f, 0.2f);
         var wp = go.AddComponent<waterPump>();
+        wp.smoke = smoke.GetComponent<ParticleSystem>();
+        wp.smoke.Stop();
         wp.basePos = heightFloat(x + 0.5f, y + 0.5f);
-        water.waterSource[x + y * TERRAIN_SIZE] = 0.25f;
         waterPumps.Add(x + y * TERRAIN_SIZE, go);
         return true;
     }
@@ -317,8 +320,7 @@ public class Terrain : MonoBehaviour
             {
                 trees.Remove(x + y * TERRAIN_SIZE);
                 Destroy(tree);
-                //controls.changeMouseCursorToLog();
-                spawnLog(x, y);
+                controls.changeMouseCursorToLog();
             }
         }
     }
@@ -390,6 +392,15 @@ public class Terrain : MonoBehaviour
             runUpdates();
             s.terrain.CopyFrom(terrainHeight);
             recalculateMesh();
+            foreach (var entry in waterPumps)
+            {
+                var x = entry.Key % TERRAIN_SIZE;
+                var y = entry.Key / TERRAIN_SIZE;
+                if (entry.Value.GetComponent<waterPump>().fuelLevel > 0)
+                    water.waterSource[x + y * TERRAIN_SIZE] = 0.25f;
+                else
+                    water.waterSource[x + y * TERRAIN_SIZE] = 0f;
+            }
             water.updateWaterSources();
             s.water.CopyFrom(water.waterLevel);
             s_runner.Start(this, ref s, () =>
