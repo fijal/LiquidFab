@@ -14,4 +14,9 @@ public class waterPump : MonoBehaviour
         var c = transform.position;
         transform.position = new Vector3(c.x, basePos + 0.05f * (Mathf.Sin(pos * 3f) - 1), c.z);
     }
+
+    public void interact(Controls controls)
+    {
+        Instantiate(controls.detailsPanel);
+    }
 }

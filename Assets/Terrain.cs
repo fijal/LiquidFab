@@ -127,6 +127,8 @@ public class Terrain : MonoBehaviour
                 return false;
         }
         var go = Instantiate(waterPumpPrefab, transform);
+        go.layer = 3;
+        go.AddComponent<BoxCollider>();
         go.transform.position = new Vector3((x + 0.5f) * SCALE, heightFloat(x + 0.5f, y + 0.5f), (y + 0.5f) * SCALE);
         go.transform.rotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
         var smoke = Instantiate(smokePrefab, go.transform);

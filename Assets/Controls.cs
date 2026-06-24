@@ -33,6 +33,7 @@ public class Controls : MonoBehaviour
     public GameObject helperUI;
     public GameObject UIPanel;
     public GameObject tooltip;
+    public GameObject detailsPanel;
 
     public Texture2D mouseCursorLog;
 
@@ -136,6 +137,12 @@ public class Controls : MonoBehaviour
             if (baseG)
             {
                 baseG.detailsPanel.SetActive(true);
+                return;
+            }
+            var wp = hit.transform.gameObject.GetComponent<waterPump>();
+            if (wp)
+            {
+                wp.interact(this);
                 return;
             }
 
