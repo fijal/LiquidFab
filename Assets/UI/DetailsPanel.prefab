@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5503521989186851201}
   - component: {fileID: 5624123229952545252}
   m_Layer: 5
-  m_Name: Panel (1)
+  m_Name: fuelLevel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -34,10 +34,10 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -109.36948, y: 0}
-  m_SizeDelta: {x: -218.739, y: 0}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 0.000038146973, y: 0}
+  m_SizeDelta: {x: 218.99997, y: 0}
+  m_Pivot: {x: -0.000000033527613, y: 0.5}
 --- !u!222 &5503521989186851201
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -478,9 +478,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab5afd8a86bb56e4c9e0486d582a3f7e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pumpPanel: {fileID: 0}
-  mainBuildPanel: {fileID: 0}
-  buildingPanel: {fileID: 0}
+  controls: {fileID: 0}
+  interactable: {fileID: 0}
+  fuelLevel: {fileID: 4394727645813979672}
 --- !u!1 &5774552571970366178
 GameObject:
   m_ObjectHideFlags: 0

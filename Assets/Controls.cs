@@ -15,7 +15,8 @@ public enum ToolSelected
     Miner = 5,
     Grass = 6,
     Sand = 7,
-    Iron = 8
+    Iron = 8,
+    PickedObject = 9
 }
 
 public class Controls : MonoBehaviour
@@ -34,6 +35,7 @@ public class Controls : MonoBehaviour
     public GameObject UIPanel;
     public GameObject tooltip;
     public GameObject detailsPanel;
+    public bool detailsPanelActive = false;
 
     public Texture2D mouseCursorLog;
 
@@ -110,7 +112,8 @@ public class Controls : MonoBehaviour
 
     void RaycastToTerrain(bool isClick, bool mod=false, float val=0)
     {
-        // bleh, if we are over the UI, ignore the button
+        if (detailsPanelActive)
+            return;
         List<RaycastResult> res = new List<RaycastResult>();
         var ped = new PointerEventData(eventSystem);
         ped.position = Input.mousePosition;
@@ -126,6 +129,9 @@ public class Controls : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit, 200, 1 << 3))
         {
+            if (hit.transform.gameObject.GetComponent<Terrain>() == null && !isClick)
+                return;
+
             var tree = hit.transform.gameObject.GetComponent<Tree>();
             if (tree)
             {
@@ -136,13 +142,21 @@ public class Controls : MonoBehaviour
             var baseG = hit.transform.gameObject.GetComponent<Base>();
             if (baseG)
             {
-                baseG.detailsPanel.SetActive(true);
+                if (toolSelected == ToolSelected.Select)
+                    baseG.detailsPanel.SetActive(true);
                 return;
             }
             var wp = hit.transform.gameObject.GetComponent<waterPump>();
             if (wp)
             {
-                wp.interact(this);
+                if (toolSelected == ToolSelected.Select)
+                    wp.interact(this);
+                else if (toolSelected == ToolSelected.PickedObject)
+                {
+                    wp.feedFuel();
+                    setNullCursor();
+                    return;
+                }
                 return;
             }
 
@@ -151,7 +165,12 @@ public class Controls : MonoBehaviour
 
             if (isClick)
             {
-                if (toolSelected == ToolSelected.Miner)
+                if (toolSelected == ToolSelected.PickedObject)
+                {
+                    setNullCursor();
+                    terrain.spawnLog(x, y);
+                }
+                else if (toolSelected == ToolSelected.Miner)
                     hit.transform.gameObject.GetComponent<Terrain>().spawnMiner(x, y);
                 else if (toolSelected == ToolSelected.Select)
                     terrain.interactWithTerrain(x, y);
@@ -190,41 +209,10 @@ public class Controls : MonoBehaviour
         }
     }
 
-    void RaycastToTerrainClick()
+    void setNullCursor()
     {
-        List<RaycastResult> res = new List<RaycastResult>();
-        var ped = new PointerEventData(eventSystem);
-        ped.position = Input.mousePosition;
-        UIPanel.GetComponent<GraphicRaycaster>().Raycast(ped, res);
-        if (res.Count > 0)
-        {
-            activateToolbarItem(res[0].gameObject);
-            return;
-        }
-        
-        var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-        if (!currentToolbarItem.GetComponent<ToolbarItem>().isClick)
-            return;
-        
-        if (Physics.Raycast(ray, out hit, 200, 1 << 3))
-        {
-            var x = (hit.triangleIndex / 2) % (Terrain.TERRAIN_SIZE - 1);
-            var y = (hit.triangleIndex / 2) / (Terrain.TERRAIN_SIZE - 1);
-            if (toolSelected == ToolSelected.Miner)
-                hit.transform.gameObject.GetComponent<Terrain>().spawnMiner(x, y);
-            else if (toolSelected == ToolSelected.Select)
-                terrain.interactWithTerrain(x, y);
-                //terrain.showTerrainInfo(camera, x, y);
-            else if (toolSelected == ToolSelected.Magnet)
-                hit.transform.gameObject.GetComponent<Terrain>().spawnMagnet(x, y);
-            else if (toolSelected == ToolSelected.Water)
-            {
-                var success = hit.transform.gameObject.GetComponent<Terrain>().spawnWaterPump(x, y);
-                if (!success)
-                    showTooltip("Too close to another pump");
-            }
-        }
+        Cursor.SetCursor(null, Vector2.up, CursorMode.Auto);
+        toolSelected = ToolSelected.Select;
     }
 
     public void showTooltip(string text)
@@ -255,6 +243,7 @@ public class Controls : MonoBehaviour
     public void changeMouseCursorToLog()
     {
         Cursor.SetCursor(mouseCursorLog, Vector2.zero, CursorMode.Auto);
+        toolSelected = ToolSelected.PickedObject;
     }
 
     void SaveGame()
@@ -269,56 +258,59 @@ public class Controls : MonoBehaviour
 
     void Update()
     {
-        bool speedUp = false;
-        if (Input.GetKey(KeyCode.LeftShift))
-            speedUp = true;
-        if (Input.GetKey(KeyCode.W))
-            Move(speedUp, new Vector3(0, 0, 1));
-        if (Input.GetKey(KeyCode.S))
-            Move(speedUp, new Vector3(0, 0, -1));
-        if (Input.GetKey(KeyCode.A))
-            Move(speedUp, new Vector3(-1, 0, 0));
-        if (Input.GetKey(KeyCode.D))
-            Move(speedUp, new Vector3(1, 0, 0));
-
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-            activateToolbarItem(0);
-        if (Input.GetKeyDown(KeyCode.Alpha2))
-            activateToolbarItem(1);
-        if (Input.GetKeyDown(KeyCode.Alpha3))
-            activateToolbarItem(2);
-        if (Input.GetKeyDown(KeyCode.Alpha4))
-            activateToolbarItem(3);
-        if (Input.GetKeyDown(KeyCode.Alpha5))
-            activateToolbarItem(4);
-        if (Input.GetKeyDown(KeyCode.Alpha6))
-            activateToolbarItem(5);
-        if (Input.GetKeyDown(KeyCode.Alpha7))
-            activateToolbarItem(6);
-        if (Input.GetKeyDown(KeyCode.Alpha8))
-            activateToolbarItem(7);
-        if (Input.GetKeyDown(KeyCode.Alpha9))
-            activateToolbarItem(8);
-
-        if (Input.GetMouseButtonDown(1))
-            StartRotatingCam();
-        if (Input.GetMouseButtonUp(1))
-            StopRotatingCam();
-        if (Input.GetMouseButton(1))
-            RotateCam();
-
-        if (Input.GetMouseButtonDown(0))
-            RaycastToTerrain(true);
-        if (Input.GetMouseButton(0))
-            RaycastToTerrain(false, Input.GetKey(KeyCode.LeftShift), Time.deltaTime);
-        if (Input.mouseScrollDelta.y != 0)
+        if (!detailsPanelActive)
         {
-            //Move(false, new Vector3(0, Input.mouseScrollDelta.y * -HEIGHT_SCROLL_SPEED, 0));
+            bool speedUp = false;
+            if (Input.GetKey(KeyCode.LeftShift))
+                speedUp = true;
+            if (Input.GetKey(KeyCode.W))
+                Move(speedUp, new Vector3(0, 0, 1));
+            if (Input.GetKey(KeyCode.S))
+                Move(speedUp, new Vector3(0, 0, -1));
+            if (Input.GetKey(KeyCode.A))
+                Move(speedUp, new Vector3(-1, 0, 0));
+            if (Input.GetKey(KeyCode.D))
+                Move(speedUp, new Vector3(1, 0, 0));
+
+            if (Input.GetKeyDown(KeyCode.Alpha1))
+                activateToolbarItem(0);
+            if (Input.GetKeyDown(KeyCode.Alpha2))
+                activateToolbarItem(1);
+            if (Input.GetKeyDown(KeyCode.Alpha3))
+                activateToolbarItem(2);
+            if (Input.GetKeyDown(KeyCode.Alpha4))
+                activateToolbarItem(3);
+            if (Input.GetKeyDown(KeyCode.Alpha5))
+                activateToolbarItem(4);
+            if (Input.GetKeyDown(KeyCode.Alpha6))
+                activateToolbarItem(5);
+            if (Input.GetKeyDown(KeyCode.Alpha7))
+                activateToolbarItem(6);
+            if (Input.GetKeyDown(KeyCode.Alpha8))
+                activateToolbarItem(7);
+            if (Input.GetKeyDown(KeyCode.Alpha9))
+                activateToolbarItem(8);
+
+            if (Input.GetMouseButtonDown(1))
+                StartRotatingCam();
+            if (Input.GetMouseButtonUp(1))
+                StopRotatingCam();
+            if (Input.GetMouseButton(1))
+                RotateCam();
+
+            if (Input.GetMouseButtonDown(0))
+                RaycastToTerrain(true);
+            if (Input.GetMouseButton(0))
+                RaycastToTerrain(false, Input.GetKey(KeyCode.LeftShift), Time.deltaTime);
+            if (Input.mouseScrollDelta.y != 0)
+            {
+                //Move(false, new Vector3(0, Input.mouseScrollDelta.y * -HEIGHT_SCROLL_SPEED, 0));
+            }
+            if (Input.GetKey(KeyCode.Q))
+                Move(false, new Vector3(0, 1, 0));
+            if (Input.GetKey(KeyCode.E))
+                Move(false, new Vector3(0, -1, 0));
         }
-        if (Input.GetKey(KeyCode.Q))
-            Move(false, new Vector3(0, 1, 0));
-        if (Input.GetKey(KeyCode.E))
-            Move(false, new Vector3(0, -1, 0));
         if (Input.GetKey(KeyCode.Escape))
             Application.Quit();
         if (Input.GetKey(KeyCode.F3))
