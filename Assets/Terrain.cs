@@ -439,9 +439,9 @@ public class Terrain : MonoBehaviour
         LiquidFab.Savegame.Savegame.StartSavegame(builder);
         LiquidFab.Savegame.Savegame.AddNo(builder, 13);
         LiquidFab.Savegame.Savegame.AddTrees(builder, treeTable);
-        LiquidFab.Savegame.Savegame.EndSavegame(builder);
-        builder.Finish(0);
-        //LiquidFab.Savegame.Savegame.;
+        var save_ofs = LiquidFab.Savegame.Savegame.EndSavegame(builder);
+     
+        builder.Finish(save_ofs.Value);
     }
 
     public void load(LiquidFab.Savegame.Savegame save)
