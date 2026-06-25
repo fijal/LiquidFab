@@ -1,0 +1,12 @@
+namespace LiquidFab.Savegame;
+
+struct Tree {
+    x:int;
+    y:int;
+    age:float;
+}
+
+table Savegame {
+    no: int;
+    trees: [Tree];
+}

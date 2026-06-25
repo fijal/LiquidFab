@@ -4,6 +4,8 @@ using Unity.Collections;
 using UnityEngine;
 using Unity.Jobs;
 using System.Runtime.InteropServices;
+using LiquidFab;
+using Google.FlatBuffers;
 
 public class Terrain : MonoBehaviour
 {
@@ -419,6 +421,34 @@ public class Terrain : MonoBehaviour
         {
             lastUpdate -= Time.deltaTime;
         }
+    }
+
+    public void save(FlatBufferBuilder builder)
+    {
+        var i = 0;
+
+        LiquidFab.Savegame.Savegame.StartTreesVector(builder, trees.Count);
+        foreach (var entry in trees)
+        {
+            var t = entry.Value.GetComponent<Tree>();
+            var st = LiquidFab.Savegame.Tree.CreateTree(builder, t.x, t.y, t.age);
+            i++;
+        }
+        VectorOffset treeTable = builder.EndVector();
+
+        LiquidFab.Savegame.Savegame.StartSavegame(builder);
+        LiquidFab.Savegame.Savegame.AddNo(builder, 13);
+        LiquidFab.Savegame.Savegame.AddTrees(builder, treeTable);
+        LiquidFab.Savegame.Savegame.EndSavegame(builder);
+        builder.Finish(0);
+        //LiquidFab.Savegame.Savegame.;
+    }
+
+    public void load(LiquidFab.Savegame.Savegame save)
+    {
+        Debug.Log(save.No);
+        Debug.Log($"Found {save.TreesLength} trees");
+        //save.Trees
     }
 
 

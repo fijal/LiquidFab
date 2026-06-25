@@ -4,6 +4,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Google.FlatBuffers;
+using System.IO;
 
 public enum ToolSelected
 {
@@ -248,11 +250,19 @@ public class Controls : MonoBehaviour
 
     void SaveGame()
     {
-
+        var builder = new FlatBufferBuilder(1024);
+        terrain.save(builder);
+        File.WriteAllBytes("savegame.sav", builder.SizedByteArray());
     }
 
     void LoadGame()
     {
+        byte[] bytes = File.ReadAllBytes("savegame.sav");
+        Debug.Log(bytes.Length);
+        var save = LiquidFab.Savegame.Savegame.GetRootAsSavegame(new ByteBuffer(bytes));
+        Debug.Log(save);
+        terrain.load(save);
+        //terrain;
         //terrain.gameToLoad = true;
     }
 
@@ -313,9 +323,9 @@ public class Controls : MonoBehaviour
         }
         if (Input.GetKey(KeyCode.Escape))
             Application.Quit();
-        if (Input.GetKey(KeyCode.F3))
+        if (Input.GetKeyDown(KeyCode.F3))
             SaveGame();
-        if (Input.GetKey(KeyCode.F4))
+        if (Input.GetKeyDown(KeyCode.F4))
             LoadGame();
         if (timer > 0)
         {
