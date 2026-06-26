@@ -3,10 +3,11 @@ namespace LiquidFab.Savegame;
 struct Tree {
     x:int;
     y:int;
+    kind:int;
     age:float;
 }
 
 table Savegame {
-    no: int;
+    version: int;
     trees: [Tree];
 }

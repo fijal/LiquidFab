@@ -24,7 +24,6 @@ public class Terrain : MonoBehaviour
     public TextAsset terrainData;
     public GameObject logPrefab, minerPrefab, magnetPrefab, waterPumpPrefab, smokePrefab;
     public GameObject[] treePrefabs;
-    public GameObject palmPrefab;
     public GameObject infoDialog;
     public Controls controls;
 
@@ -76,12 +75,13 @@ public class Terrain : MonoBehaviour
         terrainUpdatesVal.Add(mod ? -2.5f * val : 2.5f * val);
     }
 
-    public void spawnTree(int x, int y, GameObject prefab=null, float age = 0)
+    public void spawnTree(int x, int y, float age=0, int kind=-1)
     {
         if (trees.ContainsKey(x + y * TERRAIN_SIZE))
             return;
-        if (prefab == null)
-            prefab = treePrefabs[Random.Range(0, 3)];
+        if (kind == -1)
+            kind = Random.Range(0, 3);
+        var prefab = treePrefabs[kind];
         var go = Instantiate(prefab, transform);
         go.layer = 3; // terrain
         go.transform.position = new Vector3((x + 0.5f) * SCALE, heightFloat(x + 0.5f, y + 0.5f), (y + 0.5f) * SCALE);
@@ -91,6 +91,7 @@ public class Terrain : MonoBehaviour
         t.age = age;
         t.x = x;
         t.y = y;
+        t.kind = kind;
         trees[x + y * TERRAIN_SIZE] = go;
     }
 
@@ -219,7 +220,7 @@ public class Terrain : MonoBehaviour
     void populateTrees()
     {
         for (int i = 0; i < 100; i++)
-            spawnTree(Random.Range(0, TERRAIN_SIZE - 1), Random.Range(0, TERRAIN_SIZE - 1), palmPrefab, Tree.MAX_AGE);
+            spawnTree(Random.Range(0, TERRAIN_SIZE - 1), Random.Range(0, TERRAIN_SIZE - 1), Tree.MAX_AGE, 4);
     }
 
     private void OnDestroy()
@@ -431,24 +432,37 @@ public class Terrain : MonoBehaviour
         foreach (var entry in trees)
         {
             var t = entry.Value.GetComponent<Tree>();
-            var st = LiquidFab.Savegame.Tree.CreateTree(builder, t.x, t.y, t.age);
+            var st = LiquidFab.Savegame.Tree.CreateTree(builder, t.x, t.y, t.kind, t.age);
             i++;
         }
         VectorOffset treeTable = builder.EndVector();
 
         LiquidFab.Savegame.Savegame.StartSavegame(builder);
-        LiquidFab.Savegame.Savegame.AddNo(builder, 13);
+        LiquidFab.Savegame.Savegame.AddVersion(builder, Controls.SAVEGAME_VERSION);
         LiquidFab.Savegame.Savegame.AddTrees(builder, treeTable);
         var save_ofs = LiquidFab.Savegame.Savegame.EndSavegame(builder);
      
         builder.Finish(save_ofs.Value);
     }
 
+    public void clearLevel()
+    {
+        foreach (var entry in trees)
+        {
+            Destroy(entry.Value);
+        }
+        trees.Clear();
+    }
+
     public void load(LiquidFab.Savegame.Savegame save)
     {
-        Debug.Log(save.No);
-        Debug.Log($"Found {save.TreesLength} trees");
-        //save.Trees
+        clearLevel();
+        var treesLen = save.TreesLength;
+        for (int i = 0; i < treesLen; i++)
+        {
+            var t = save.Trees(i).Value;
+            spawnTree(t.X, t.Y, t.Age, t.Kind);
+        }
     }
 
 

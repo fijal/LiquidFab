@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028301, g: 0.22571309, b: 0.30692127, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -169,7 +169,7 @@ MonoBehaviour:
   - {fileID: 1481673226186282464, guid: d4b1707da7080554bb3db9338bb5ae66, type: 3}
   - {fileID: 321735410901635458, guid: 8bcf7d324d7bf3d408efd85c3f387606, type: 3}
   - {fileID: 8676952158559593809, guid: 418119bc089da594caa33bd03ea445f2, type: 3}
-  palmPrefab: {fileID: 2879297865776978741, guid: cb02a7f2c965da1429ca600ba36076da, type: 3}
+  - {fileID: 2879297865776978741, guid: cb02a7f2c965da1429ca600ba36076da, type: 3}
   infoDialog: {fileID: 1931423981}
   controls: {fileID: 1508809697}
   water: {fileID: 0}
