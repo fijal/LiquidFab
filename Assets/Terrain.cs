@@ -470,8 +470,11 @@ public class Terrain : MonoBehaviour
         var buf = new float[TERRAIN_SIZE * TERRAIN_SIZE];
         s.subLevel.CopyTo(buf);
         VectorOffset subLevelTable = LiquidFab.Savegame.Savegame.CreateWaterLevelVector(builder, buf);
-        //VectorOffset subFlowX = LiquidFab.Savegame.Savegame.CreateWaterFlowXVector(builder, water.waterFlowX);
-        //VectorOffset subFlowY = LiquidFab.Savegame.Savegame.CreateWaterFlowXVector(builder, water.waterFlowY);
+        buf = new float[(TERRAIN_SIZE + 1) * TERRAIN_SIZE];
+        s.subFlowX.CopyTo(buf);
+        VectorOffset subFlowX = LiquidFab.Savegame.Savegame.CreateSubFlowXVector(builder, buf);
+        s.subFlowY.CopyTo(buf);
+        VectorOffset subFlowY = LiquidFab.Savegame.Savegame.CreateSubFlowYVector(builder, buf);
 
         LiquidFab.Savegame.Savegame.StartSavegame(builder);
         LiquidFab.Savegame.Savegame.AddVersion(builder, Controls.SAVEGAME_VERSION);
@@ -483,6 +486,8 @@ public class Terrain : MonoBehaviour
         LiquidFab.Savegame.Savegame.AddWaterFlowX(builder, waterFlowX);
         LiquidFab.Savegame.Savegame.AddWaterFlowY(builder, waterFlowY);
         LiquidFab.Savegame.Savegame.AddSubWaterLevel(builder, subLevelTable);
+        LiquidFab.Savegame.Savegame.AddSubFlowX(builder, subFlowX);
+        LiquidFab.Savegame.Savegame.AddSubFlowY(builder, subFlowY);
         var save_ofs = LiquidFab.Savegame.Savegame.EndSavegame(builder);
      
         builder.Finish(save_ofs.Value);
@@ -541,6 +546,13 @@ public class Terrain : MonoBehaviour
         s.waterFlowX.CopyFrom(water.waterFlowX);
         s.waterFlowY.CopyFrom(water.waterFlowY);
         s.subLevel.CopyFrom(buf);
+        buf = new float[TERRAIN_SIZE * (TERRAIN_SIZE + 1)];
+        for (int i = 0; i < (TERRAIN_SIZE + 1) * TERRAIN_SIZE; ++i)
+            buf[i] = save.SubFlowX(i);
+        s.subFlowX.CopyFrom(buf);
+        for (int i = 0; i < (TERRAIN_SIZE + 1) * TERRAIN_SIZE; ++i)
+            buf[i] = save.SubFlowY(i);
+        s.subFlowY.CopyFrom(buf);
         return true;
     }
 

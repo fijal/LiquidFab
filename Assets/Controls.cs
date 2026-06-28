@@ -49,7 +49,7 @@ public class Controls : MonoBehaviour
     Vector3 lastMousePos;
     float timer = 10.0f;
 
-    public const int SAVEGAME_VERSION = 5;
+    public const int SAVEGAME_VERSION = 6;
 
     void Start()
     {

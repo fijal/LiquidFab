@@ -21,7 +21,7 @@ public struct Simulation : IJob
     NativeArray<float> terrainFlowY;
     int sizeX, sizeY;
 
-    NativeArray<float> subFlowX, subFlowY;
+    public NativeArray<float> subFlowX, subFlowY;
     public NativeArray<float> subLevel;
 
     public NativeArray<float> water;
