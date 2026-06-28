@@ -35,6 +35,7 @@ public class Terrain : MonoBehaviour
 
     public float[] terrainHeight;
     public float[] terrainKind;
+    public string gameToSave = "";
     public string gameToLoad = "";
 
     Texture2D terrainKindTexture;
@@ -395,10 +396,18 @@ public class Terrain : MonoBehaviour
             {
                 load(gameToLoad);
                 gameToLoad = "";
+                controls.doneSaveLoad();
+            }
+            if (gameToSave != "")
+            {
+                save(gameToSave);
+                gameToSave = "";
+                controls.doneSaveLoad();
             }
             runUpdates();
             s.terrain.CopyFrom(terrainHeight);
             recalculateMesh();
+            water.waterSource.Clear();
             foreach (var entry in waterPumps)
             {
                 var x = entry.Key % TERRAIN_SIZE;
@@ -428,8 +437,10 @@ public class Terrain : MonoBehaviour
         }
     }
 
-    public void save(FlatBufferBuilder builder)
+    public void save(string filename)
     {
+        var builder = new FlatBufferBuilder(1024);
+        
         LiquidFab.Savegame.Savegame.StartTreesVector(builder, trees.Count);
         foreach (var entry in trees)
         {
@@ -449,13 +460,33 @@ public class Terrain : MonoBehaviour
         }
         VectorOffset waterPumpTable = builder.EndVector();
 
+        VectorOffset terrainLevelTable = LiquidFab.Savegame.Savegame.CreateTerrainLevelVector(builder, terrainHeight);
+        VectorOffset terrainKindTable = LiquidFab.Savegame.Savegame.CreateTerrainKindVector(builder, terrainKind);
+
+        VectorOffset waterLevelTable = LiquidFab.Savegame.Savegame.CreateWaterLevelVector(builder, water.waterLevel);
+        VectorOffset waterFlowX = LiquidFab.Savegame.Savegame.CreateWaterFlowXVector(builder, water.waterFlowX);
+        VectorOffset waterFlowY = LiquidFab.Savegame.Savegame.CreateWaterFlowXVector(builder, water.waterFlowY);
+
+        var buf = new float[TERRAIN_SIZE * TERRAIN_SIZE];
+        s.subLevel.CopyTo(buf);
+        VectorOffset subLevelTable = LiquidFab.Savegame.Savegame.CreateWaterLevelVector(builder, buf);
+        //VectorOffset subFlowX = LiquidFab.Savegame.Savegame.CreateWaterFlowXVector(builder, water.waterFlowX);
+        //VectorOffset subFlowY = LiquidFab.Savegame.Savegame.CreateWaterFlowXVector(builder, water.waterFlowY);
+
         LiquidFab.Savegame.Savegame.StartSavegame(builder);
         LiquidFab.Savegame.Savegame.AddVersion(builder, Controls.SAVEGAME_VERSION);
         LiquidFab.Savegame.Savegame.AddTrees(builder, treeTable);
         LiquidFab.Savegame.Savegame.AddWaterPumps(builder, waterPumpTable);
+        LiquidFab.Savegame.Savegame.AddTerrainLevel(builder, terrainLevelTable);
+        LiquidFab.Savegame.Savegame.AddTerrainKind(builder, terrainKindTable);
+        LiquidFab.Savegame.Savegame.AddWaterLevel(builder, waterLevelTable);
+        LiquidFab.Savegame.Savegame.AddWaterFlowX(builder, waterFlowX);
+        LiquidFab.Savegame.Savegame.AddWaterFlowY(builder, waterFlowY);
+        LiquidFab.Savegame.Savegame.AddSubWaterLevel(builder, subLevelTable);
         var save_ofs = LiquidFab.Savegame.Savegame.EndSavegame(builder);
      
         builder.Finish(save_ofs.Value);
+        File.WriteAllBytes(filename, builder.SizedByteArray());
     }
 
     public void clearLevel()
@@ -496,6 +527,20 @@ public class Terrain : MonoBehaviour
             p.logs = wp.Logs;
             p.maybeConsumeLog();
         }
+        var buf = new float[TERRAIN_SIZE * TERRAIN_SIZE];
+        for (int i = 0; i < TERRAIN_SIZE * TERRAIN_SIZE; ++i)
+        {
+            water.waterLevel[i] = save.WaterLevel(i);
+            water.waterFlowX[i] = save.WaterFlowX(i);
+            water.waterFlowY[i] = save.WaterFlowY(i);
+            terrainHeight[i] = save.TerrainLevel(i);
+            terrainKind[i] = save.TerrainKind(i);
+            buf[i] = save.SubWaterLevel(i);
+        }
+        s.water.CopyFrom(water.waterLevel);
+        s.waterFlowX.CopyFrom(water.waterFlowX);
+        s.waterFlowY.CopyFrom(water.waterFlowY);
+        s.subLevel.CopyFrom(buf);
         return true;
     }
 

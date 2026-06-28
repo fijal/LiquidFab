@@ -38,6 +38,8 @@ public class Controls : MonoBehaviour
     public GameObject tooltip;
     public GameObject detailsPanel;
     public bool detailsPanelActive = false;
+    public GameObject saveloadInfoPrefab;
+    GameObject saveloadInfo = null;
 
     public Texture2D mouseCursorLog;
 
@@ -47,7 +49,7 @@ public class Controls : MonoBehaviour
     Vector3 lastMousePos;
     float timer = 10.0f;
 
-    public const int SAVEGAME_VERSION = 4;
+    public const int SAVEGAME_VERSION = 5;
 
     void Start()
     {
@@ -252,19 +254,27 @@ public class Controls : MonoBehaviour
 
     void SaveGame()
     {
-        var builder = new FlatBufferBuilder(1024);
-        terrain.save(builder);
-        File.WriteAllBytes("savegame.sav", builder.SizedByteArray());
+        terrain.gameToSave = "savegame.sav";
+        saveloadInfo = Instantiate(saveloadInfoPrefab);
+        saveloadInfo.transform.Find("Text").GetComponent<TMP_Text>().text = "Saving game...";
     }
 
     void LoadGame()
     {
         terrain.gameToLoad = "savegame.sav";
+        saveloadInfo = Instantiate(saveloadInfoPrefab);
+        saveloadInfo.transform.Find("Text").GetComponent<TMP_Text>().text = "Loading game...";
+    }
+
+    public void doneSaveLoad()
+    {
+        Destroy(saveloadInfo);
+        saveloadInfo = null;
     }
 
     void Update()
     {
-        if (!detailsPanelActive)
+        if (!detailsPanelActive && saveloadInfo == null)
         {
             bool speedUp = false;
             if (Input.GetKey(KeyCode.LeftShift))

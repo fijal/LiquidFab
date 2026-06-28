@@ -19,6 +19,11 @@ table Savegame {
     trees: [Tree];
 	water_pumps: [WaterPump];
 	terrain_level: [float];
+	terrain_kind: [float];
 	water_level: [float];
+	water_flow_x: [float];
+	water_flow_y: [float];
 	sub_water_level: [float];
+	sub_flow_x: [float];
+	sub_flow_y: [float];
 }

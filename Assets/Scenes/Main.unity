@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.18028301, g: 0.22571309, b: 0.30692127, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -175,7 +175,8 @@ MonoBehaviour:
   water: {fileID: 0}
   terrainHeight: []
   terrainKind: []
-  gameToLoad: 0
+  gameToSave: 
+  gameToLoad: 
 --- !u!4 &200605879
 Transform:
   m_ObjectHideFlags: 0
@@ -3076,6 +3077,7 @@ MonoBehaviour:
   tooltip: {fileID: 1159542905}
   detailsPanel: {fileID: 5774552571651377798, guid: 857616e76cab946d8a1f175d4d976056, type: 3}
   detailsPanelActive: 0
+  saveloadInfoPrefab: {fileID: 6657476263798860063, guid: 04804100f7e490e4cb4c8fd21c7bd3de, type: 3}
   mouseCursorLog: {fileID: 2800000, guid: 6c57c80c510bb0b46895494eb34b97f4, type: 3}
 --- !u!4 &1508809698
 Transform:
