@@ -47,15 +47,23 @@ public class waterPump : MonoBehaviour
         controls.detailsPanelActive = true;
     }
 
-    public bool feedFuel()
+    public bool maybeConsumeLog()
     {
-        logs++;
-        if (logs == 1 && fuelLevel == 0)
+        if (logs >= 1 && fuelLevel == 0)
         {
             smoke.Play();
             fuelLevel = MAX_FUEL;
             logs--;
+        } else if (fuelLevel > 0)
+        {
+            smoke.Play();
         }
         return true;
+    }
+
+    public bool feedFuel()
+    {
+        logs++;
+        return maybeConsumeLog();
     }
 }

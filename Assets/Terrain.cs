@@ -118,16 +118,16 @@ public class Terrain : MonoBehaviour
         go.transform.rotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
     }
 
-    public bool spawnWaterPump(int x, int y)
+    public waterPump spawnWaterPump(int x, int y)
     {
         if (water.waterSource.ContainsKey(x + y * TERRAIN_SIZE))
-            return false;
+            return null;
         foreach (var entry in waterPumps)
         {
             var ex = entry.Key % TERRAIN_SIZE;
             var ey = entry.Key / TERRAIN_SIZE;
             if (Mathf.Abs(x - ex) < 5 && Mathf.Abs(y - ey) < 5)
-                return false;
+                return null;
         }
         var go = Instantiate(waterPumpPrefab, transform);
         go.layer = 3;
@@ -142,7 +142,7 @@ public class Terrain : MonoBehaviour
         wp.smoke.Stop();
         wp.basePos = heightFloat(x + 0.5f, y + 0.5f);
         waterPumps.Add(x + y * TERRAIN_SIZE, go);
-        return true;
+        return wp;
     }
 
     public void changeTerrainKind(int x, int y, int kind)
@@ -426,20 +426,29 @@ public class Terrain : MonoBehaviour
 
     public void save(FlatBufferBuilder builder)
     {
-        var i = 0;
-
         LiquidFab.Savegame.Savegame.StartTreesVector(builder, trees.Count);
         foreach (var entry in trees)
         {
             var t = entry.Value.GetComponent<Tree>();
-            var st = LiquidFab.Savegame.Tree.CreateTree(builder, t.x, t.y, t.kind, t.age);
-            i++;
+            LiquidFab.Savegame.Tree.CreateTree(builder, t.x, t.y, t.kind, t.age);
         }
         VectorOffset treeTable = builder.EndVector();
+
+        LiquidFab.Savegame.Savegame.StartWaterPumpsVector(builder, waterPumps.Count);
+        foreach (var entry in waterPumps)
+        {
+            var wp = entry.Value.GetComponent<waterPump>();
+            var xy = entry.Key;
+            var x = xy % TERRAIN_SIZE;
+            var y = xy / TERRAIN_SIZE;
+            LiquidFab.Savegame.WaterPump.CreateWaterPump(builder, x, y, wp.fuelLevel, wp.logs);
+        }
+        VectorOffset waterPumpTable = builder.EndVector();
 
         LiquidFab.Savegame.Savegame.StartSavegame(builder);
         LiquidFab.Savegame.Savegame.AddVersion(builder, Controls.SAVEGAME_VERSION);
         LiquidFab.Savegame.Savegame.AddTrees(builder, treeTable);
+        LiquidFab.Savegame.Savegame.AddWaterPumps(builder, waterPumpTable);
         var save_ofs = LiquidFab.Savegame.Savegame.EndSavegame(builder);
      
         builder.Finish(save_ofs.Value);
@@ -452,6 +461,9 @@ public class Terrain : MonoBehaviour
             Destroy(entry.Value);
         }
         trees.Clear();
+        foreach (var entry in waterPumps)
+            Destroy(entry.Value);
+        waterPumps.Clear();
     }
 
     public void load(LiquidFab.Savegame.Savegame save)
@@ -462,6 +474,15 @@ public class Terrain : MonoBehaviour
         {
             var t = save.Trees(i).Value;
             spawnTree(t.X, t.Y, t.Age, t.Kind);
+        }
+        var wpLen = save.WaterPumpsLength;
+        for (int i = 0; i < wpLen; i++)
+        {
+            var wp = save.WaterPumps(i).Value;
+            var p = spawnWaterPump(wp.X, wp.Y);
+            p.fuelLevel = wp.FuelLevel;
+            p.logs = wp.Logs;
+            p.maybeConsumeLog();
         }
     }
 

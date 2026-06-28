@@ -7,7 +7,15 @@ struct Tree {
     age:float;
 }
 
+struct WaterPump {
+	x:int;
+	y:int;
+	fuel_level: float;
+	logs: int;
+}
+
 table Savegame {
     version: int;
     trees: [Tree];
+	water_pumps: [WaterPump];
 }

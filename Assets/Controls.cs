@@ -47,7 +47,7 @@ public class Controls : MonoBehaviour
     Vector3 lastMousePos;
     float timer = 10.0f;
 
-    public const int SAVEGAME_VERSION = 2;
+    public const int SAVEGAME_VERSION = 3;
 
     void Start()
     {
@@ -184,7 +184,7 @@ public class Controls : MonoBehaviour
                 else if (toolSelected == ToolSelected.Water)
                 {
                     var success = hit.transform.gameObject.GetComponent<Terrain>().spawnWaterPump(x, y);
-                    if (!success)
+                    if (success == null)
                         showTooltip("Too close to another pump");
                 }
             }
