@@ -68,24 +68,72 @@ public struct Savegame : IFlatbufferObject
   public int TreesLength { get { int o = __p.__offset(6); return o != 0 ? __p.__vector_len(o) : 0; } }
   public LiquidFab.Savegame.WaterPump? WaterPumps(int j) { int o = __p.__offset(8); return o != 0 ? (LiquidFab.Savegame.WaterPump?)(new LiquidFab.Savegame.WaterPump()).__assign(__p.__vector(o) + j * 16, __p.bb) : null; }
   public int WaterPumpsLength { get { int o = __p.__offset(8); return o != 0 ? __p.__vector_len(o) : 0; } }
+  public float TerrainLevel(int j) { int o = __p.__offset(10); return o != 0 ? __p.bb.GetFloat(__p.__vector(o) + j * 4) : (float)0; }
+  public int TerrainLevelLength { get { int o = __p.__offset(10); return o != 0 ? __p.__vector_len(o) : 0; } }
+#if ENABLE_SPAN_T
+  public Span<float> GetTerrainLevelBytes() { return __p.__vector_as_span<float>(10, 4); }
+#else
+  public ArraySegment<byte>? GetTerrainLevelBytes() { return __p.__vector_as_arraysegment(10); }
+#endif
+  public float[] GetTerrainLevelArray() { return __p.__vector_as_array<float>(10); }
+  public float WaterLevel(int j) { int o = __p.__offset(12); return o != 0 ? __p.bb.GetFloat(__p.__vector(o) + j * 4) : (float)0; }
+  public int WaterLevelLength { get { int o = __p.__offset(12); return o != 0 ? __p.__vector_len(o) : 0; } }
+#if ENABLE_SPAN_T
+  public Span<float> GetWaterLevelBytes() { return __p.__vector_as_span<float>(12, 4); }
+#else
+  public ArraySegment<byte>? GetWaterLevelBytes() { return __p.__vector_as_arraysegment(12); }
+#endif
+  public float[] GetWaterLevelArray() { return __p.__vector_as_array<float>(12); }
+  public float SubWaterLevel(int j) { int o = __p.__offset(14); return o != 0 ? __p.bb.GetFloat(__p.__vector(o) + j * 4) : (float)0; }
+  public int SubWaterLevelLength { get { int o = __p.__offset(14); return o != 0 ? __p.__vector_len(o) : 0; } }
+#if ENABLE_SPAN_T
+  public Span<float> GetSubWaterLevelBytes() { return __p.__vector_as_span<float>(14, 4); }
+#else
+  public ArraySegment<byte>? GetSubWaterLevelBytes() { return __p.__vector_as_arraysegment(14); }
+#endif
+  public float[] GetSubWaterLevelArray() { return __p.__vector_as_array<float>(14); }
 
   public static Offset<LiquidFab.Savegame.Savegame> CreateSavegame(FlatBufferBuilder builder,
       int version = 0,
       VectorOffset treesOffset = default(VectorOffset),
-      VectorOffset water_pumpsOffset = default(VectorOffset)) {
-    builder.StartTable(3);
+      VectorOffset water_pumpsOffset = default(VectorOffset),
+      VectorOffset terrain_levelOffset = default(VectorOffset),
+      VectorOffset water_levelOffset = default(VectorOffset),
+      VectorOffset sub_water_levelOffset = default(VectorOffset)) {
+    builder.StartTable(6);
+    Savegame.AddSubWaterLevel(builder, sub_water_levelOffset);
+    Savegame.AddWaterLevel(builder, water_levelOffset);
+    Savegame.AddTerrainLevel(builder, terrain_levelOffset);
     Savegame.AddWaterPumps(builder, water_pumpsOffset);
     Savegame.AddTrees(builder, treesOffset);
     Savegame.AddVersion(builder, version);
     return Savegame.EndSavegame(builder);
   }
 
-  public static void StartSavegame(FlatBufferBuilder builder) { builder.StartTable(3); }
+  public static void StartSavegame(FlatBufferBuilder builder) { builder.StartTable(6); }
   public static void AddVersion(FlatBufferBuilder builder, int version) { builder.AddInt(0, version, 0); }
   public static void AddTrees(FlatBufferBuilder builder, VectorOffset treesOffset) { builder.AddOffset(1, treesOffset.Value, 0); }
   public static void StartTreesVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(16, numElems, 4); }
   public static void AddWaterPumps(FlatBufferBuilder builder, VectorOffset waterPumpsOffset) { builder.AddOffset(2, waterPumpsOffset.Value, 0); }
   public static void StartWaterPumpsVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(16, numElems, 4); }
+  public static void AddTerrainLevel(FlatBufferBuilder builder, VectorOffset terrainLevelOffset) { builder.AddOffset(3, terrainLevelOffset.Value, 0); }
+  public static VectorOffset CreateTerrainLevelVector(FlatBufferBuilder builder, float[] data) { builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddFloat(data[i]); return builder.EndVector(); }
+  public static VectorOffset CreateTerrainLevelVectorBlock(FlatBufferBuilder builder, float[] data) { builder.StartVector(4, data.Length, 4); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateTerrainLevelVectorBlock(FlatBufferBuilder builder, ArraySegment<float> data) { builder.StartVector(4, data.Count, 4); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateTerrainLevelVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<float>(dataPtr, sizeInBytes); return builder.EndVector(); }
+  public static void StartTerrainLevelVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
+  public static void AddWaterLevel(FlatBufferBuilder builder, VectorOffset waterLevelOffset) { builder.AddOffset(4, waterLevelOffset.Value, 0); }
+  public static VectorOffset CreateWaterLevelVector(FlatBufferBuilder builder, float[] data) { builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddFloat(data[i]); return builder.EndVector(); }
+  public static VectorOffset CreateWaterLevelVectorBlock(FlatBufferBuilder builder, float[] data) { builder.StartVector(4, data.Length, 4); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateWaterLevelVectorBlock(FlatBufferBuilder builder, ArraySegment<float> data) { builder.StartVector(4, data.Count, 4); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateWaterLevelVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<float>(dataPtr, sizeInBytes); return builder.EndVector(); }
+  public static void StartWaterLevelVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
+  public static void AddSubWaterLevel(FlatBufferBuilder builder, VectorOffset subWaterLevelOffset) { builder.AddOffset(5, subWaterLevelOffset.Value, 0); }
+  public static VectorOffset CreateSubWaterLevelVector(FlatBufferBuilder builder, float[] data) { builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddFloat(data[i]); return builder.EndVector(); }
+  public static VectorOffset CreateSubWaterLevelVectorBlock(FlatBufferBuilder builder, float[] data) { builder.StartVector(4, data.Length, 4); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateSubWaterLevelVectorBlock(FlatBufferBuilder builder, ArraySegment<float> data) { builder.StartVector(4, data.Count, 4); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateSubWaterLevelVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<float>(dataPtr, sizeInBytes); return builder.EndVector(); }
+  public static void StartSubWaterLevelVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
   public static Offset<LiquidFab.Savegame.Savegame> EndSavegame(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     return new Offset<LiquidFab.Savegame.Savegame>(o);
@@ -101,6 +149,9 @@ static public class SavegameVerify
       && verifier.VerifyField(tablePos, 4 /*Version*/, 4 /*int*/, 4, false)
       && verifier.VerifyVectorOfData(tablePos, 6 /*Trees*/, 16 /*LiquidFab.Savegame.Tree*/, false)
       && verifier.VerifyVectorOfData(tablePos, 8 /*WaterPumps*/, 16 /*LiquidFab.Savegame.WaterPump*/, false)
+      && verifier.VerifyVectorOfData(tablePos, 10 /*TerrainLevel*/, 4 /*float*/, false)
+      && verifier.VerifyVectorOfData(tablePos, 12 /*WaterLevel*/, 4 /*float*/, false)
+      && verifier.VerifyVectorOfData(tablePos, 14 /*SubWaterLevel*/, 4 /*float*/, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }

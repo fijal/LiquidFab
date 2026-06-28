@@ -47,7 +47,7 @@ public class Controls : MonoBehaviour
     Vector3 lastMousePos;
     float timer = 10.0f;
 
-    public const int SAVEGAME_VERSION = 3;
+    public const int SAVEGAME_VERSION = 4;
 
     void Start()
     {
@@ -259,14 +259,7 @@ public class Controls : MonoBehaviour
 
     void LoadGame()
     {
-        byte[] bytes = File.ReadAllBytes("savegame.sav");
-        var save = LiquidFab.Savegame.Savegame.GetRootAsSavegame(new ByteBuffer(bytes));
-        if (save.Version != SAVEGAME_VERSION)
-        {
-            showTooltip("wrong savegame version!");
-            return;
-        }
-        terrain.load(save);
+        terrain.gameToLoad = "savegame.sav";
     }
 
     void Update()

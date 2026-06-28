@@ -6,6 +6,7 @@ using Unity.Jobs;
 using System.Runtime.InteropServices;
 using LiquidFab;
 using Google.FlatBuffers;
+using System.IO;
 
 public class Terrain : MonoBehaviour
 {
@@ -34,7 +35,7 @@ public class Terrain : MonoBehaviour
 
     public float[] terrainHeight;
     public float[] terrainKind;
-    public bool gameToLoad = false;
+    public string gameToLoad = "";
 
     Texture2D terrainKindTexture;
 
@@ -120,8 +121,6 @@ public class Terrain : MonoBehaviour
 
     public waterPump spawnWaterPump(int x, int y)
     {
-        if (water.waterSource.ContainsKey(x + y * TERRAIN_SIZE))
-            return null;
         foreach (var entry in waterPumps)
         {
             var ex = entry.Key % TERRAIN_SIZE;
@@ -392,6 +391,11 @@ public class Terrain : MonoBehaviour
     {
         if (lastUpdate <= 0 && !s_runner.Running)
         {
+            if (gameToLoad != "")
+            {
+                load(gameToLoad);
+                gameToLoad = "";
+            }
             runUpdates();
             s.terrain.CopyFrom(terrainHeight);
             recalculateMesh();
@@ -466,8 +470,16 @@ public class Terrain : MonoBehaviour
         waterPumps.Clear();
     }
 
-    public void load(LiquidFab.Savegame.Savegame save)
+    public bool load(string savefile)
     {
+        byte[] bytes = File.ReadAllBytes(savefile);
+        var save = LiquidFab.Savegame.Savegame.GetRootAsSavegame(new ByteBuffer(bytes));
+        if (save.Version != Controls.SAVEGAME_VERSION)
+        {
+            controls.showTooltip("wrong savegame version!");
+            return false;
+        }
+
         clearLevel();
         var treesLen = save.TreesLength;
         for (int i = 0; i < treesLen; i++)
@@ -484,6 +496,7 @@ public class Terrain : MonoBehaviour
             p.logs = wp.Logs;
             p.maybeConsumeLog();
         }
+        return true;
     }
 
 
