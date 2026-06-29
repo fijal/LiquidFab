@@ -35,7 +35,7 @@ public struct Simulation : IJob
     public float BOUNDARY_FLOW;
 
     const float SUB_TERRAIN_FAC = 0.1f; // how much the height of ground affects subterranean flow
-    const float SUB_SATURATION = 1f; // don't seep if ground is saturated
+    const float SUB_SATURATION = 0.5f; // don't seep if ground is saturated
 
     public NativeArray<float> terrain;
 
@@ -107,7 +107,7 @@ public struct Simulation : IJob
 
     void subExecute(SimulationType simulationType, NativeArray<float> source, NativeArray<float> flowX, NativeArray<float> flowY)
     {
-        const float dt = 1f;
+        const float dt = 0.5f;
         var frictionFactor = Mathf.Pow(1 - friction, dt);
 
         for (int i = 0; i < sizeX; ++i)
@@ -140,7 +140,7 @@ public struct Simulation : IJob
                 else
                     v = source[x - 1 + y * sizeX] - source[x + y * sizeX];
                 CheckFinite(v);
-                v *= frictionFactor * mass * gravity * dt;
+                v *= mass * gravity * dt;
                 if (maxAngle > 0)
                 {
                     if (v > 0 && v < maxAngle)
@@ -152,7 +152,7 @@ public struct Simulation : IJob
                     if (v < 0)
                         v += maxAngle;
                 }
-                flowX[x + y * (sizeX + 1)] += v;
+                flowX[x + y * (sizeX + 1)] = flowX[x + y * (sizeX + 1)] * frictionFactor + v;
                 CheckFinite(flowX[x + y * (sizeX + 1)]);
             }
 
@@ -180,7 +180,7 @@ public struct Simulation : IJob
                     if (v < 0)
                         v += maxAngle;
                 }
-                flowY[x + y * sizeX] += v;
+                flowY[x + y * sizeX] = flowY[x + y * sizeX] * frictionFactor + v;
                 CheckFinite(flowY[x + y * sizeX]);
             }
 
@@ -267,11 +267,11 @@ public struct Simulation : IJob
                     if (subLevel[x + y * sizeX] + seepage > SUB_SATURATION)
                         seepage = SUB_SATURATION - subLevel[x + y * sizeX];
                 CheckFinite(seepage);
-                source[x + y * sizeX] += (cur - seepage) / dt;
+                source[x + y * sizeX] += (cur - seepage) * dt;
                 CheckFinite(source[x + y * sizeX]);
                 if (simulationType == SimulationType.Water)
                 {
-                    subLevel[x + y * sizeX] += seepage;
+                    subLevel[x + y * sizeX] += seepage * dt;
                     CheckFinite(subLevel[x + y * sizeX]);
                 }
             }
