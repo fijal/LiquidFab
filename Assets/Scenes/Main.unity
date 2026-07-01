@@ -3076,6 +3076,7 @@ MonoBehaviour:
   UIPanel: {fileID: 1629515862}
   tooltip: {fileID: 1159542905}
   detailsPanel: {fileID: 5774552571651377798, guid: 857616e76cab946d8a1f175d4d976056, type: 3}
+  highlightPrefab: {fileID: 4128577039421395299, guid: 3b9d802abe305428d8056c4899342396, type: 3}
   detailsPanelActive: 0
   saveloadInfoPrefab: {fileID: 6657476263798860063, guid: 04804100f7e490e4cb4c8fd21c7bd3de, type: 3}
   mouseCursorLog: {fileID: 2800000, guid: 6c57c80c510bb0b46895494eb34b97f4, type: 3}

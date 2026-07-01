@@ -359,7 +359,7 @@ public class Terrain : MonoBehaviour
             if (water.waterLevel[entry.Key] > 0.15f)
             {
                 Destroy(entry.Value);
-                //logs.Add(spawnLog(x, y));
+                logs.Add(spawnLog(x, y));
                 treesToRemove.Add(entry.Key);
             } else
             {
@@ -412,11 +412,15 @@ public class Terrain : MonoBehaviour
             {
                 var x = entry.Key % TERRAIN_SIZE;
                 var y = entry.Key / TERRAIN_SIZE;
-                if (entry.Value.GetComponent<waterPump>().fuelLevel > 0)
+                //if (entry.Value.GetComponent<waterPump>().fuelLevel > 0)
                     water.waterSource[x + y * TERRAIN_SIZE] = 0.25f;
-                else
-                    water.waterSource[x + y * TERRAIN_SIZE] = 0f;
+                //else
+                //    water.waterSource[x + y * TERRAIN_SIZE] = 0f;
             }
+            water.waterSource[128 + 128 * TERRAIN_SIZE] = 1f;
+            water.waterSource[129 + 128 * TERRAIN_SIZE] = 1f;
+            water.waterSource[128 + 129 * TERRAIN_SIZE] = 1f;
+            water.waterSource[129 + 129 * TERRAIN_SIZE] = 1f;
             water.updateWaterSources();
             s.water.CopyFrom(water.waterLevel);
             s_runner.Start(this, ref s, () =>

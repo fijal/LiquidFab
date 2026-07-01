@@ -96,7 +96,7 @@ public struct Simulation : IJob
         subExecute(SimulationType.Terrain, this.terrain, terrainFlowX, terrainFlowY);
         // then modify water
         friction = 0.05f;
-        viscosity = 0.1f;
+        viscosity = 0.0f;
         BOUNDARY_FLOW = -1;
         maxAngle = 0f;
         subExecute(SimulationType.Water, this.water, waterFlowX, waterFlowY);
