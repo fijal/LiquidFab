@@ -87,17 +87,17 @@ public struct Simulation : IJob
     public void Execute()
     {
         // modify terrain first
-        friction = 0.5f;
-        BOUNDARY_FLOW = 0;
+        //friction = 0.5f;
+        //BOUNDARY_FLOW = 0;
         //s.viscosity = 0.1f;
-        maxAngle = 0.1f;
-        mass = 1f;
-        viscosity = 0;
-        subExecute(SimulationType.Terrain, this.terrain, terrainFlowX, terrainFlowY);
+        //maxAngle = 0.1f;
+        //mass = 1f;
+        //viscosity = 0;
+        //subExecute(SimulationType.Terrain, this.terrain, terrainFlowX, terrainFlowY);
         // then modify water
         friction = 0.05f;
         viscosity = 0.0f;
-        BOUNDARY_FLOW = -1;
+        BOUNDARY_FLOW = 0; //  -1;
         maxAngle = 0f;
         subExecute(SimulationType.Water, this.water, waterFlowX, waterFlowY);
         friction = 0.5f;
@@ -257,6 +257,11 @@ public struct Simulation : IJob
                     seepage = 0.0005f + 0.0002f * water[x + y * sizeX];
                 if (simulationType == SimulationType.SubWater)
                     seepage = 0.00005f;
+
+                // XXX <tmp>
+                seepage = 0;
+                // XXX </tmp>
+
                 CheckFinite(seepage);
                 var cur = (flowX[x + y * (sizeX + 1)] + flowY[x + y * sizeX] - flowX[x + 1 + y * (sizeX + 1)]
                     - flowY[x + (y + 1) * sizeX]);

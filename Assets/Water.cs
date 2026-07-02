@@ -18,6 +18,7 @@ public class Water : MonoBehaviour
     
     void Start()
     {
+        Debug.Log("water start");
         var mesh = new Mesh();
         mesh.MarkDynamic();    // may help with meshes that are often updated
         GetComponent<MeshFilter>().mesh = mesh;
@@ -25,6 +26,9 @@ public class Water : MonoBehaviour
         waterLevel = new float[Terrain.TERRAIN_SIZE * Terrain.TERRAIN_SIZE];
         waterFlowX = new float[(Terrain.TERRAIN_SIZE + 1) * Terrain.TERRAIN_SIZE];
         waterFlowY = new float[(Terrain.TERRAIN_SIZE + 1) * Terrain.TERRAIN_SIZE];
+
+        for (int i = 0; i < Terrain.TERRAIN_SIZE * Terrain.TERRAIN_SIZE; i++)
+            waterLevel[i] = 1.0f;
 
         terrain = transform.parent.GetComponent<Terrain>();
     
