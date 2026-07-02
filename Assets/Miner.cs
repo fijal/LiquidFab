@@ -5,12 +5,14 @@ using UnityEngine;
 public class Miner : MonoBehaviour
 {
     public GameObject ironPrefab;
+    public GameObject movingPart;
     public Terrain terrain;
     float nextSpawn;
+    float pos = 0;
 
     private void Start()
     {
-        nextSpawn = 1.0f;
+        nextSpawn = 3.0f;
     }
 
     void Update()
@@ -18,8 +20,11 @@ public class Miner : MonoBehaviour
         nextSpawn -= Time.deltaTime;
         if (nextSpawn <= 0)
         {
-            nextSpawn = 1.0f;
+            nextSpawn = 3.0f;
             terrain.spawnFloater(gameObject, ironPrefab);
         }
+        pos += Time.fixedDeltaTime;
+        var c = movingPart.transform.localPosition;
+        movingPart.transform.localPosition = new Vector3(c.x, 0.05f * (Mathf.Sin(pos / 3f) - 1), c.z);
     }
 }

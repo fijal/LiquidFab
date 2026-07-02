@@ -460,6 +460,14 @@ public class Terrain : MonoBehaviour
             f.transform.position = new Vector3(cur.x, heightFloat(cur.x / SCALE, cur.z / SCALE) + water.waterLevelFloat(cur.x / SCALE, cur.z / SCALE),
                                                cur.z);
         }
+        // and of buildings
+        foreach (var entry in buildings)
+        {
+            var f = entry.Value;
+            var cur = f.transform.position;
+            f.transform.position = new Vector3(cur.x, heightFloat(cur.x / SCALE, cur.z / SCALE) + water.waterLevelFloat(cur.x / SCALE, cur.z / SCALE),
+                                               cur.z);
+        }
 
 
     }

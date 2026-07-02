@@ -42,6 +42,8 @@ public class Controls : MonoBehaviour
     public GameObject saveloadInfoPrefab;
     GameObject saveloadInfo = null;
 
+    public GameObject highlightQuad;
+
     public Texture2D mouseCursorLog;
 
     GameObject currentToolbarItem, hoverPanel;
@@ -135,6 +137,7 @@ public class Controls : MonoBehaviour
 
     void RaycastToTerrain(bool isClick, bool justHover=false, bool mod=false, float val=0)
     {
+        // XXX rework this part XXX
         List<RaycastResult> res = new List<RaycastResult>();
         var ped = new PointerEventData(eventSystem);
         ped.position = Input.mousePosition;
@@ -148,8 +151,31 @@ public class Controls : MonoBehaviour
         var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, 200, 1 << 3))
+        if (justHover)
         {
+            if (Physics.Raycast(ray, out hit, 200, 1 << 3))
+            {
+                if (hit.transform.gameObject.GetComponent<Terrain>() == null)
+                {
+                    highlightQuad.SetActive(false);
+                    return;
+                }
+                var x = (hit.triangleIndex / 2) % (Terrain.TERRAIN_SIZE - 1);
+                var y = (hit.triangleIndex / 2) / (Terrain.TERRAIN_SIZE - 1);
+
+                var z = terrain.height(x, y) + terrain.water.waterLevel[x + y * Terrain.TERRAIN_SIZE] + 0.1f;
+                highlightQuad.transform.position = new Vector3((x + 0.5f) * Terrain.SCALE, z, (y + 0.5f) * Terrain.SCALE);
+                highlightQuad.SetActive(true);
+                return;
+            }
+            else
+            {
+                highlightQuad.SetActive(false);
+            }
+            return;
+        }
+
+        if (Physics.Raycast(ray, out hit, 200, 1 << 3)) {
             if (hit.transform.gameObject.GetComponent<Terrain>() == null && !isClick && !justHover)
                 return;
             if (hit.transform.gameObject.GetComponent<Terrain>() == null && justHover)

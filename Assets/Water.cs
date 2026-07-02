@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using UnityEngine;
 
@@ -18,7 +17,6 @@ public class Water : MonoBehaviour
     
     void Start()
     {
-        Debug.Log("water start");
         var mesh = new Mesh();
         mesh.MarkDynamic();    // may help with meshes that are often updated
         GetComponent<MeshFilter>().mesh = mesh;
