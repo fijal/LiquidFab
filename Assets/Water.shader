@@ -7,12 +7,13 @@ Shader "Unlit/Water"
     }
     SubShader
     {
-        Tags { "Queue" = "Transparent+25" "RenderType" = "Transparent" }
+        // this is an early transparent shader that still updates the z buffer
+        Tags { "Queue" = "Transparent-100" "RenderType" = "Transparent" }
         LOD 100
 
         Pass
         {
-            ZWrite Off
+            ZWrite On
             Blend SrcAlpha OneMinusSrcAlpha
 
             CGPROGRAM
