@@ -1,14 +1,9 @@
 fileFormatVersion: 2
-guid: 9ecdf682743ce4b438f9b833b77d0615
+guid: c997e64c328c8e445b9b12d231b4eaa7
 SketchUpImporter:
   serializedVersion: 21300
   internalIDToNameTable: []
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: _
-    second: {fileID: 2100000, guid: ec7a1f8f332e1ee4d90dff17604a34e1, type: 2}
+  externalObjects: {}
   materials:
     materialImportMode: 2
     materialName: 2
@@ -114,5 +109,5 @@ SketchUpImporter:
   selectedNodes: 0000000001000000
   assetHash:
     serializedVersion: 2
-    Hash: 012b01ae750bccbf056a77be40272884
+    Hash: 80f06d03ae1f9ae3f535acb597cb8a7c
   fileUnit: 0

@@ -13,7 +13,7 @@ public enum ToolSelected
     Water = 1,
     Terrain = 2,
     Log = 3,
-    Magnet = 4,
+    Forge = 4,
     Miner = 5,
     Grass = 6,
     Sand = 7,
@@ -231,8 +231,8 @@ public class Controls : MonoBehaviour
                 else if (toolSelected == ToolSelected.Select)
                     terrain.interactWithTerrain(x, y);
                 //terrain.showTerrainInfo(camera, x, y);
-                else if (toolSelected == ToolSelected.Magnet)
-                    hit.transform.gameObject.GetComponent<Terrain>().spawnMagnet(x, y);
+                else if (toolSelected == ToolSelected.Forge)
+                    hit.transform.gameObject.GetComponent<Terrain>().spawnForge(x, y);
                 else if (toolSelected == ToolSelected.Water)
                 {
                     var success = hit.transform.gameObject.GetComponent<Terrain>().spawnWaterPump(x, y);

@@ -24,7 +24,7 @@ public class Terrain : MonoBehaviour
     readonly MyJobRunner s_runner = new();
 
     public TextAsset terrainData;
-    public GameObject logPrefab, minerPrefab, magnetPrefab, waterPumpPrefab, smokePrefab;
+    public GameObject logPrefab, minerPrefab, forgePrefab, waterPumpPrefab, smokePrefab, ironPlatePrefab;
     public GameObject[] treePrefabs;
     public GameObject infoDialog;
     public Controls controls;
@@ -102,9 +102,16 @@ public class Terrain : MonoBehaviour
     public void spawnFloater(GameObject spawner, GameObject prefab)
     {
         var go = Instantiate(prefab, transform);
-        var cur = spawner.transform.position;
-        var newPos = spawner.transform.rotation * (new Vector3(1, 0, 0));
-        go.transform.position = cur + newPos;
+        //var cur = spawner.transform.position;
+        // XXX generic interface please XXX
+        Vector3 loc;
+        if (spawner.GetComponent<Miner>())
+            loc = spawner.GetComponent<Miner>().spawnPoint.transform.position;
+        else
+            loc = spawner.GetComponent<Forge>().spawnPoint.transform.position;
+        //var newPos = spawner.transform.rotation * (new Vector3(1, 0, 0));
+        go.transform.position = loc;
+        go.transform.rotation = Quaternion.Euler(0, Random.Range(0, 90), 0);
         floaters.Add(go);
     }
 
@@ -117,11 +124,15 @@ public class Terrain : MonoBehaviour
         return go;
     }
 
-    public void spawnMagnet(int x, int y)
+    public void spawnForge(int x, int y)
     {
-        var go = Instantiate(magnetPrefab, transform);
+        if (buildings.ContainsKey(x + y * TERRAIN_SIZE))
+            return;
+        var go = Instantiate(forgePrefab, transform);
         go.transform.position = new Vector3(x * SCALE, height(x, y), y * SCALE);
         go.transform.rotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
+        go.GetComponent<Forge>().terrain = this;
+        buildings.Add(x + y * TERRAIN_SIZE, go);
     }
 
     public void spawnMiner(int x, int y)
@@ -397,7 +408,8 @@ public class Terrain : MonoBehaviour
                 Destroy(entry.Value);
                 logs.Add(spawnLog(x, y));
                 treesToRemove.Add(entry.Key);
-            } else
+            }
+            else
             {
                 s.subLevel[x + y * TERRAIN_SIZE] -= 0.003f;
                 if (s.subLevel[x + y * TERRAIN_SIZE] < 0)
@@ -469,7 +481,37 @@ public class Terrain : MonoBehaviour
                                                cur.z);
         }
 
-
+        // XXX just a hack for now XXX
+        foreach (var entry in buildings)
+        {
+            if (!entry.Value.GetComponent<Forge>())
+                continue;
+            var forge = entry.Value.GetComponent<Forge>();
+            if (forge.producing)
+                continue;
+            int delEntry = -1;
+            for (int i = 0; i < floaters.Count; i++)
+            {
+                var f = floaters[i];
+                if ((forge.pickupPoint.transform.position - f.transform.position).magnitude < 0.5f)
+                {
+                    delEntry = i;
+                    break;
+                }
+            }
+            if (delEntry != -1)
+            {
+                var f = floaters[delEntry];
+                var newFloaters = new List<GameObject>();
+                for (int i = 0; i < floaters.Count; i++)
+                    if (i != delEntry)
+                        newFloaters.Add(floaters[i]);
+                floaters = newFloaters;
+                Destroy(f);
+                forge.producing = true;
+                forge.timer = 3.0f;
+            }
+        }
     }
 
     public void Update()
