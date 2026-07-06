@@ -216,12 +216,12 @@ public class Controls : MonoBehaviour
                     terrain.spawnLog(x, y);
                 }
                 else if (toolSelected == ToolSelected.Miner && currentToolbarItem.GetComponent<ToolbarItem>().isLegalPlacement(highlight, terrain, hit.point))
-                    terrain.spawnBuilding(terrain.minerPrefab, hit.point, highlight.transform.rotation);
+                    terrain.spawnMiner(hit.point, highlight.transform.rotation);
                 else if (toolSelected == ToolSelected.Select)
                     terrain.interactWithTerrain(x, y);
                 //terrain.showTerrainInfo(camera, x, y);
                 else if (toolSelected == ToolSelected.Forge && currentToolbarItem.GetComponent<ToolbarItem>().isLegalPlacement(highlight, terrain, hit.point))
-                    terrain.spawnBuilding(terrain.forgePrefab, hit.point, highlight.transform.rotation);
+                    terrain.spawnForge(hit.point, highlight.transform.rotation);
                 else if (toolSelected == ToolSelected.Water)
                 {
                     var success = hit.transform.gameObject.GetComponent<Terrain>().spawnWaterPump(x, y);

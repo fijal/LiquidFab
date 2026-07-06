@@ -29,6 +29,7 @@ public class Terrain : MonoBehaviour
     public GameObject[] treePrefabs;
     public GameObject infoDialog;
     public Controls controls;
+    public Receipes receipes;
 
     List<GameObject> logs;
     
@@ -108,13 +109,26 @@ public class Terrain : MonoBehaviour
         floaters.Add(go);
     }
 
-    public void spawnBuilding(GameObject prefab, Vector3 point, Quaternion rot)
+    public void spawnMiner(Vector3 point, Quaternion rot)
+    {
+        var miner = spawnBuilding(minerPrefab, point, rot);
+        miner.GetComponent<Building>().setReceipe(receipes.receipes[0]);
+    }
+
+    public void spawnForge(Vector3 point, Quaternion rot)
+    {
+        var forge = spawnBuilding(forgePrefab, point, rot);
+        forge.GetComponent<Building>().setReceipe(receipes.receipes[1]);
+    }
+
+    public GameObject spawnBuilding(GameObject prefab, Vector3 point, Quaternion rot)
     {
         var go = Instantiate(prefab, transform);
         go.transform.position = point;
         go.transform.rotation = rot;
         go.GetComponent<Building>().terrain = this;
         buildings.Add(go);
+        return go;
     }
 
     public GameObject spawnLog(int x, int y)
@@ -417,45 +431,18 @@ public class Terrain : MonoBehaviour
                     logs[j].GetComponent<Log2>().force -= new Vector2(rel.x * forceVal, rel.z * forceVal);
                 }*/
 
-        // fix the z of buildings to make them float
+        updateBuildings();
+    }
+
+    public void updateBuildings()
+    {
         foreach (var f in buildings)
         {
+            f.GetComponent<Building>().receipeProgress();
             var cur = f.transform.position;
             f.transform.position = new Vector3(cur.x, heightFloat(cur.x / SCALE, cur.z / SCALE) + water.waterLevelFloat(cur.x / SCALE, cur.z / SCALE),
                                                cur.z);
         }
-
-        // XXX just a hack for now XXX
-        /*foreach (var entry in buildings)
-        {
-            if (!entry.Value.GetComponent<Forge>())
-                continue;
-            var forge = entry.Value.GetComponent<Forge>();
-            if (forge.producing)
-                continue;
-            int delEntry = -1;
-            for (int i = 0; i < floaters.Count; i++)
-            {
-                var f = floaters[i];
-                if ((forge.pickupPoint.transform.position - f.transform.position).magnitude < 0.5f)
-                {
-                    delEntry = i;
-                    break;
-                }
-            }
-            if (delEntry != -1)
-            {
-                var f = floaters[delEntry];
-                var newFloaters = new List<GameObject>();
-                for (int i = 0; i < floaters.Count; i++)
-                    if (i != delEntry)
-                        newFloaters.Add(floaters[i]);
-                floaters = newFloaters;
-                Destroy(f);
-                forge.producing = true;
-                forge.timer = 3.0f;
-            }
-        }*/
     }
 
     public void moveFloaters()
