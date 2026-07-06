@@ -492,23 +492,20 @@ public class Terrain : MonoBehaviour
             c = Physics.OverlapBox(a.transform.position, bc.size, a.transform.rotation, 1 << 7);
             for (int i = 0; i < c.Length; i++)
             {
-                Debug.Log($"i: {i}");
                 var b = c[i].gameObject;
+                if (a == b)
+                    continue;
                 if (a.transform.position == b.transform.position)
                 {
                     var angle = Random.Range(0, 180);
                     var mov = Quaternion.Euler(0, angle, 0) * new Vector3(0.1f, 0, 0);
-                    Debug.Log(mov);
                     a.transform.position += mov;
                     b.transform.position -= mov;
                 }
                 if ((a.transform.position - b.transform.position).magnitude < 0.5f)
                 {
-                    Debug.Log(a.transform.position);
-                    Debug.Log(b.transform.position);
                     var rel = a.transform.position - b.transform.position;
                     var val = rel.magnitude;
-                    Debug.Log(val);
                     var forceVal = 1 / val * 0.01f;
                     a.GetComponent<Floater>().force += new Vector2(rel.x * forceVal, rel.z * forceVal);
                     b.GetComponent<Floater>().force -= new Vector2(rel.x * forceVal, rel.z * forceVal);
