@@ -16,7 +16,7 @@ public class Forge : MonoBehaviour
         var c = movingPart.transform.localPosition;
         movingPart.transform.localPosition = new Vector3(c.x, 0.05f * (Mathf.Sin(pos / 3f) + 1.2f), c.z);
 
-        if (producing)
+        /*if (producing)
         {
             timer -= Time.fixedDeltaTime;
             if (timer <= 0)
@@ -24,6 +24,6 @@ public class Forge : MonoBehaviour
                 producing = false;
                 GetComponent<Building>().terrain.spawnFloater(gameObject, GetComponent<Building>().terrain.ironPlatePrefab);
             }
-        }
+        }*/
     }
 }

@@ -22,7 +22,24 @@ public class Building : MonoBehaviour
             }
             else
             {
-
+                var c = Physics.OverlapBox(pickupPoint.transform.position, new Vector3(0.5f, 0.5f, 0.5f), pickupPoint.transform.rotation, 1 << 7);
+                for (int i = 0; i < c.Length; ++i)
+                {
+                    var tp = c[i].GetComponent<Floater>().tp;
+                    for (int j = 0; j < productsGathered.Length; ++j)
+                        if (productsGathered[j] < selectedReceipe.inputCounts[j] && selectedReceipe.inputs[j].tp == tp)
+                        {
+                            productsGathered[j]++;
+                            terrain.removeFloater(c[i].gameObject);
+                        }
+                }
+                // check if we have all
+                var all = true;
+                for (int j = 0; j < productsGathered.Length; ++j)
+                    if (productsGathered[j] < selectedReceipe.inputCounts[j])
+                        all = false;
+                if (all)
+                    producing = true;
             }
         }
     }
@@ -41,7 +58,9 @@ public class Building : MonoBehaviour
             if (buildTimer < 0)
             {
                 producing = false;
-                terrain.spawnFloater(gameObject, selectedReceipe.output.GetComponent<Item>().prefab);
+                var item = selectedReceipe.output.GetComponent<Item>();
+                terrain.spawnFloater(gameObject, item.prefab, item.tp);
+                setReceipe(selectedReceipe);
                 receipeProgress(); // run one gathering of resources
             }
         }

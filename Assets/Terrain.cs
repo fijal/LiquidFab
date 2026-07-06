@@ -100,12 +100,13 @@ public class Terrain : MonoBehaviour
         trees[x + y * TERRAIN_SIZE] = go;
     }
 
-    public void spawnFloater(GameObject spawner, GameObject prefab)
+    public void spawnFloater(GameObject spawner, GameObject prefab, ItemType tp)
     {
         var go = Instantiate(prefab, transform);
         Vector3 loc = spawner.GetComponent<Building>().spawnPoint.transform.position;
         go.transform.position = loc;
         go.transform.rotation = Quaternion.Euler(0, Random.Range(0, 90), 0);
+        go.GetComponent<Floater>().tp = tp;
         floaters.Add(go);
     }
 
@@ -508,6 +509,12 @@ public class Terrain : MonoBehaviour
                                                cur.z);
         }
 
+    }
+
+    public void removeFloater(GameObject floater)
+    {
+        floaters.Remove(floater);
+        Destroy(floater);
     }
 
     public void Update()

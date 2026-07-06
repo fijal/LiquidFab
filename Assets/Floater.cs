@@ -6,6 +6,7 @@ public class Floater : MonoBehaviour
 {
     public Vector2 force;
     public Vector2 buildingForce;
+    public ItemType tp;
 
     void Start()
     {
