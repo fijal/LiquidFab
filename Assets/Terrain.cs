@@ -477,7 +477,7 @@ public class Terrain : MonoBehaviour
 
             }
             
-            c = Physics.OverlapBox(a.transform.position, bc.size, a.transform.rotation, 1 << 7);
+            c = Physics.OverlapBox(a.transform.position, bc.size * 3, a.transform.rotation, 1 << 7);
             for (int i = 0; i < c.Length; i++)
             {
                 var b = c[i].gameObject;
@@ -490,7 +490,8 @@ public class Terrain : MonoBehaviour
                     a.transform.position += mov;
                     b.transform.position -= mov;
                 }
-                if ((a.transform.position - b.transform.position).magnitude < 0.5f)
+                // XXX unnecessary? XXX
+                //if ((a.transform.position - b.transform.position).magnitude < 1f)
                 {
                     var rel = a.transform.position - b.transform.position;
                     var val = rel.magnitude;

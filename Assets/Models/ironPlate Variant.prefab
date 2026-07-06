@@ -55,6 +55,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: ironPlate Variant
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: c997e64c328c8e445b9b12d231b4eaa7, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c997e64c328c8e445b9b12d231b4eaa7, type: 3}
 --- !u!1 &898974361182709275 stripped
@@ -62,6 +66,19 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: c997e64c328c8e445b9b12d231b4eaa7, type: 3}
   m_PrefabInstance: {fileID: 51973617226324810}
   m_PrefabAsset: {fileID: 0}
+--- !u!65 &-527347866928518181
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 898974361182709275}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.14, y: 0.02, z: 0.08}
+  m_Center: {x: 0.07, y: 0.01, z: 0.04}
 --- !u!114 &-6068962640328895270
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -77,16 +94,3 @@ MonoBehaviour:
   force: {x: 0, y: 0}
   buildingForce: {x: 0, y: 0}
   tp: 0
---- !u!65 &-527347866928518181
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 898974361182709275}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.14, y: 0.02, z: 0.08}
-  m_Center: {x: 0.07, y: 0.01, z: 0.04}
