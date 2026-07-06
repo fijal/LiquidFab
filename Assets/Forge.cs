@@ -4,8 +4,7 @@ using UnityEngine;
 
 public class Forge : MonoBehaviour
 {
-    public Terrain terrain;
-    public GameObject movingPart, spawnPoint, pickupPoint;
+    public GameObject movingPart;
     float pos = 0;
 
     public bool producing = false;
@@ -23,7 +22,7 @@ public class Forge : MonoBehaviour
             if (timer <= 0)
             {
                 producing = false;
-                terrain.spawnFloater(gameObject, terrain.ironPlatePrefab);
+                GetComponent<Building>().terrain.spawnFloater(gameObject, GetComponent<Building>().terrain.ironPlatePrefab);
             }
         }
     }

@@ -6,8 +6,7 @@ public class Miner : MonoBehaviour
 {
     public GameObject ironPrefab;
     public GameObject movingPart;
-    public GameObject spawnPoint;
-    public Terrain terrain;
+    
     float nextSpawn;
     float pos = 0;
 
@@ -21,8 +20,8 @@ public class Miner : MonoBehaviour
         nextSpawn -= Time.deltaTime;
         if (nextSpawn <= 0)
         {
-            nextSpawn = 1.0f;
-            terrain.spawnFloater(gameObject, ironPrefab);
+            nextSpawn = 3.0f;
+            GetComponent<Building>().terrain.spawnFloater(gameObject, ironPrefab);
         }
         pos += Time.fixedDeltaTime;
         var c = movingPart.transform.localPosition;

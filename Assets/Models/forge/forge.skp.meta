@@ -3,7 +3,42 @@ guid: 4035a0379e817c14f9890fdb4b5b3c34
 SketchUpImporter:
   serializedVersion: 21300
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Niraj_Pant
+    second: {fileID: 2100000, guid: 4a513247744e5ee439636b4c20fcb774, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: _
+    second: {fileID: 2100000, guid: 99c57b3e5c5e0cd43b5d2d0723c9d921, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: _1
+    second: {fileID: 2100000, guid: b717020aa7252564d8c2c5453580d875, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: _2
+    second: {fileID: 2100000, guid: afc2b692ac20bb245b34ca2222b396d7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: _3
+    second: {fileID: 2100000, guid: 5511b15cb4d67124aada9442bb647ce6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: _4
+    second: {fileID: 2100000, guid: 4d0e0b1afb783d84697c00ec80f24fd2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: _defaultMat
+    second: {fileID: 2100000, guid: 902bb835771f9634a9e3e4a12c30bc7c, type: 2}
   materials:
     materialImportMode: 2
     materialName: 2

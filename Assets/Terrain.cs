@@ -19,7 +19,8 @@ public class Terrain : MonoBehaviour
     public List<float> terrainUpdatesVal;
     Dictionary<int, GameObject> trees;
     Dictionary<int, GameObject> waterPumps;
-    Dictionary<int, GameObject> buildings;
+    HashSet<GameObject> buildings;
+    HashSet<GameObject> floaters;
 
     readonly MyJobRunner s_runner = new();
 
@@ -30,8 +31,7 @@ public class Terrain : MonoBehaviour
     public Controls controls;
 
     List<GameObject> logs;
-    List<GameObject> floaters;
-
+    
     public Simulation s;
     public Water water;
 
@@ -102,17 +102,19 @@ public class Terrain : MonoBehaviour
     public void spawnFloater(GameObject spawner, GameObject prefab)
     {
         var go = Instantiate(prefab, transform);
-        //var cur = spawner.transform.position;
-        // XXX generic interface please XXX
-        Vector3 loc;
-        if (spawner.GetComponent<Miner>())
-            loc = spawner.GetComponent<Miner>().spawnPoint.transform.position;
-        else
-            loc = spawner.GetComponent<Forge>().spawnPoint.transform.position;
-        //var newPos = spawner.transform.rotation * (new Vector3(1, 0, 0));
+        Vector3 loc = spawner.GetComponent<Building>().spawnPoint.transform.position;
         go.transform.position = loc;
         go.transform.rotation = Quaternion.Euler(0, Random.Range(0, 90), 0);
         floaters.Add(go);
+    }
+
+    public void spawnBuilding(GameObject prefab, Vector3 point, Quaternion rot)
+    {
+        var go = Instantiate(prefab, transform);
+        go.transform.position = point;
+        go.transform.rotation = rot;
+        go.GetComponent<Building>().terrain = this;
+        buildings.Add(go);
     }
 
     public GameObject spawnLog(int x, int y)
@@ -122,28 +124,6 @@ public class Terrain : MonoBehaviour
         go.transform.position = new Vector3(x * SCALE, height(x, y), y * SCALE);
         go.transform.rotation = Quaternion.Euler(90, Random.Range(0, 90), 0);
         return go;
-    }
-
-    public void spawnForge(int x, int y)
-    {
-        if (buildings.ContainsKey(x + y * TERRAIN_SIZE))
-            return;
-        var go = Instantiate(forgePrefab, transform);
-        go.transform.position = new Vector3(x * SCALE, height(x, y), y * SCALE);
-        go.transform.rotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
-        go.GetComponent<Forge>().terrain = this;
-        buildings.Add(x + y * TERRAIN_SIZE, go);
-    }
-
-    public void spawnMiner(int x, int y)
-    {
-        if (buildings.ContainsKey(x + y * TERRAIN_SIZE))
-            return;
-        var go = Instantiate(minerPrefab, transform);
-        go.transform.position = new Vector3((x + 0.5f) * SCALE, height(x, y) + water.waterLevelFloat(x, y), (y + 0.5f) * SCALE);
-        go.transform.rotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
-        go.GetComponent<Miner>().terrain = this;
-        buildings.Add(x + y * TERRAIN_SIZE, go);
     }
 
     public waterPump spawnWaterPump(int x, int y)
@@ -238,13 +218,13 @@ public class Terrain : MonoBehaviour
         terrainUpdatesVal = new List<float>();
 
         logs = new List<GameObject>();
-        floaters = new List<GameObject>();
-
+        
         water = transform.Find("Water").GetComponent<Water>();
         //recalculateMesh();
         trees = new Dictionary<int, GameObject>();
-        buildings = new Dictionary<int, GameObject>();
-        populateTrees();
+        buildings = new HashSet<GameObject>();
+        floaters = new HashSet<GameObject>();
+        //populateTrees();
         createTerrainKindTexture();
 
         waterPumps = new Dictionary<int, GameObject>();
@@ -419,6 +399,8 @@ public class Terrain : MonoBehaviour
         for (int i = 0; i < treesToRemove.Count; i++)
             trees.Remove(treesToRemove[i]);
 
+        moveFloaters();
+
         /*for (int i = 0; i < logs.Count; i++)
             logs[i].GetComponent<Log2>().force = Vector3.zero;
 
@@ -435,54 +417,16 @@ public class Terrain : MonoBehaviour
                     logs[j].GetComponent<Log2>().force -= new Vector2(rel.x * forceVal, rel.z * forceVal);
                 }*/
 
-        for (int i = 0; i < floaters.Count; i++)
+        // fix the z of buildings to make them float
+        foreach (var f in buildings)
         {
-            var f = floaters[i];
-            f.GetComponent<Floater>().force = new Vector2(0, 0);
-        }
-
-        for (int i = 0; i < floaters.Count; i++)
-            for (int j = 0; j < floaters.Count; j++)
-                if (i != j)
-                {
-                    var a = floaters[i];
-                    var b = floaters[j];
-                    if (a.transform.position == b.transform.position)
-                    {
-                        var angle = Random.Range(0, 90);
-                        var mov = Quaternion.Euler(0, angle, 0) * new Vector3(0.01f, 0, 0);
-                        a.transform.position += mov;
-                        b.transform.position -= mov;
-                    }
-                    else if ((a.transform.position - b.transform.position).magnitude < 0.5f)
-                    {
-                        var rel = a.transform.position - b.transform.position;
-                        var val = rel.magnitude;
-                        var forceVal = 1 / val * 0.01f;
-                        a.GetComponent<Floater>().force += new Vector2(rel.x * forceVal, rel.z * forceVal);
-                        b.GetComponent<Floater>().force -= new Vector2(rel.x * forceVal, rel.z * forceVal);
-                    }
-                }
-
-        // fix the z of floaters
-        for (int i = 0; i < floaters.Count; i++)
-        {
-            var f = floaters[i];
-            var cur = f.transform.position;
-            f.transform.position = new Vector3(cur.x, heightFloat(cur.x / SCALE, cur.z / SCALE) + water.waterLevelFloat(cur.x / SCALE, cur.z / SCALE),
-                                               cur.z);
-        }
-        // and of buildings
-        foreach (var entry in buildings)
-        {
-            var f = entry.Value;
             var cur = f.transform.position;
             f.transform.position = new Vector3(cur.x, heightFloat(cur.x / SCALE, cur.z / SCALE) + water.waterLevelFloat(cur.x / SCALE, cur.z / SCALE),
                                                cur.z);
         }
 
         // XXX just a hack for now XXX
-        foreach (var entry in buildings)
+        /*foreach (var entry in buildings)
         {
             if (!entry.Value.GetComponent<Forge>())
                 continue;
@@ -511,7 +455,75 @@ public class Terrain : MonoBehaviour
                 forge.producing = true;
                 forge.timer = 3.0f;
             }
+        }*/
+    }
+
+    public void moveFloaters()
+    {
+        foreach (var f in floaters)
+        {
+            f.GetComponent<Floater>().force = new Vector2(0, 0);
+            f.GetComponent<Floater>().buildingForce = new Vector2(0, 0);
         }
+        
+        foreach (var a in floaters)
+        {
+            var bc = a.GetComponent<BoxCollider>();
+            var c = Physics.OverlapBox(a.transform.position, bc.size, a.transform.rotation, 1 << 6);
+            if (c.Length > 0)
+            {
+                Debug.Assert(c.Length == 1); // we should be hitting at most one building
+                var b = c[0].gameObject;
+                if (a.transform.position == b.transform.position)
+                {
+                    var angle = Random.Range(0, 360);
+                    var mov = Quaternion.Euler(0, angle, 0) * new Vector3(0.05f, 0, 0);
+                    a.GetComponent<Floater>().buildingForce = new Vector2(mov.x, mov.z);
+                } else
+                {
+                    var rel = a.transform.position - b.transform.position;
+                    var val = rel.magnitude;
+                    var forceVal = 1 / val * 0.05f;
+                    a.GetComponent<Floater>().buildingForce = new Vector2(rel.x * forceVal, rel.z * forceVal);
+                }
+
+            }
+            
+            c = Physics.OverlapBox(a.transform.position, bc.size, a.transform.rotation, 1 << 7);
+            for (int i = 0; i < c.Length; i++)
+            {
+                Debug.Log($"i: {i}");
+                var b = c[i].gameObject;
+                if (a.transform.position == b.transform.position)
+                {
+                    var angle = Random.Range(0, 180);
+                    var mov = Quaternion.Euler(0, angle, 0) * new Vector3(0.1f, 0, 0);
+                    Debug.Log(mov);
+                    a.transform.position += mov;
+                    b.transform.position -= mov;
+                }
+                if ((a.transform.position - b.transform.position).magnitude < 0.5f)
+                {
+                    Debug.Log(a.transform.position);
+                    Debug.Log(b.transform.position);
+                    var rel = a.transform.position - b.transform.position;
+                    var val = rel.magnitude;
+                    Debug.Log(val);
+                    var forceVal = 1 / val * 0.01f;
+                    a.GetComponent<Floater>().force += new Vector2(rel.x * forceVal, rel.z * forceVal);
+                    b.GetComponent<Floater>().force -= new Vector2(rel.x * forceVal, rel.z * forceVal);
+                }
+            }
+        }
+
+        // fix the z of floaters
+        foreach (var f in floaters)
+        {
+            var cur = f.transform.position;
+            f.transform.position = new Vector3(cur.x, heightFloat(cur.x / SCALE, cur.z / SCALE) + water.waterLevelFloat(cur.x / SCALE, cur.z / SCALE),
+                                               cur.z);
+        }
+
     }
 
     public void Update()

@@ -37,12 +37,12 @@ public class Controls : MonoBehaviour
     public GameObject UIPanel;
     public GameObject tooltip;
     public GameObject detailsPanel;
-    public GameObject highlightPrefab;
+    
     public bool detailsPanelActive = false;
     public GameObject saveloadInfoPrefab;
     GameObject saveloadInfo = null;
 
-    public GameObject highlightQuad;
+    public GameObject highlight;
 
     public Texture2D mouseCursorLog;
 
@@ -68,11 +68,11 @@ public class Controls : MonoBehaviour
                 var go = UIPanel.transform.GetChild(i).gameObject;
                 UIElements[count] = go;
                 go.GetComponent<ToolbarItem>().updateLocation(count + 1);
-                go.GetComponent<ToolbarItem>().deactivate();
+                go.GetComponent<ToolbarItem>().deactivate(highlight);
                 count++;
             }
         currentToolbarItem = UIElements[0];
-        currentToolbarItem.GetComponent<ToolbarItem>().activate();
+        currentToolbarItem.GetComponent<ToolbarItem>().activate(highlight);
     }
 
     void Move(bool speedUp, Vector3 direction)
@@ -119,71 +119,63 @@ public class Controls : MonoBehaviour
         camera.transform.Rotate(-v, 0, 0);
     }
 
-    void hoverHighlight(GameObject target)
+    void RaycastToTerrainHover()
     {
-        return;
-        if (hoverPanel != null)
+        var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit, 200, 1 << 3))
         {
-            if (hoverPanel.GetComponent<param>().target == target)
+            if (hit.transform.gameObject.GetComponent<Terrain>() == null)
+            {
+                highlight.SetActive(false);
                 return;
-            Destroy(hoverPanel);
-            hoverPanel = null;
+            }
+            highlight.transform.position = hit.point;
+            if (currentToolbarItem.GetComponent<ToolbarItem>().greenGhost != null)
+            {
+                if (currentToolbarItem.GetComponent<ToolbarItem>().isLegalPlacement(highlight, terrain, hit.point))
+                {
+                    highlight.transform.Find("green").gameObject.SetActive(true);
+                    highlight.transform.Find("red").gameObject.SetActive(false);
+                }
+                else
+                {
+                    highlight.transform.Find("green").gameObject.SetActive(false);
+                    highlight.transform.Find("red").gameObject.SetActive(true);
+                }
+            }
+            highlight.SetActive(true);
+            return;
         }
-        hoverPanel = Instantiate(highlightPrefab);
-        hoverPanel.transform.position = new Vector3(target.transform.position.x, target.transform.position.y + 0.1f, target.transform.position.z);
-        hoverPanel.transform.localScale = new Vector3(3f, 3f, 3f);
-        hoverPanel.GetComponent<param>().target = target;
+        else
+        {
+            highlight.SetActive(false);
+        }
     }
 
-    void RaycastToTerrain(bool isClick, bool justHover=false, bool mod=false, float val=0)
+    void RaycastToTerrain(bool isClick, bool mod=false, float val=0)
     {
-        // XXX rework this part XXX
-        List<RaycastResult> res = new List<RaycastResult>();
-        var ped = new PointerEventData(eventSystem);
-        ped.position = Input.mousePosition;
-        UIPanel.GetComponent<GraphicRaycaster>().Raycast(ped, res);
-        if (res.Count > 0)
+        // XXX rework this part or more likely the whole function XXX
+        if (isClick)
         {
-            activateToolbarItem(res[0].gameObject);
-            return;
+            List<RaycastResult> res = new List<RaycastResult>();
+            var ped = new PointerEventData(eventSystem);
+            ped.position = Input.mousePosition;
+            UIPanel.GetComponent<GraphicRaycaster>().Raycast(ped, res);
+            if (res.Count > 0)
+            {
+                activateToolbarItem(res[0].gameObject);
+                return;
+            }
         }
 
         var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
-        if (justHover)
-        {
-            if (Physics.Raycast(ray, out hit, 200, 1 << 3))
-            {
-                if (hit.transform.gameObject.GetComponent<Terrain>() == null)
-                {
-                    highlightQuad.SetActive(false);
-                    return;
-                }
-                var x = (hit.triangleIndex / 2) % (Terrain.TERRAIN_SIZE - 1);
-                var y = (hit.triangleIndex / 2) / (Terrain.TERRAIN_SIZE - 1);
-
-                var z = terrain.height(x, y) + terrain.water.waterLevel[x + y * Terrain.TERRAIN_SIZE] + 0.1f;
-                highlightQuad.transform.position = new Vector3((x + 0.5f) * Terrain.SCALE, z, (y + 0.5f) * Terrain.SCALE);
-                highlightQuad.SetActive(true);
-                return;
-            }
-            else
-            {
-                highlightQuad.SetActive(false);
-            }
-            return;
-        }
-
         if (Physics.Raycast(ray, out hit, 200, 1 << 3)) {
-            if (hit.transform.gameObject.GetComponent<Terrain>() == null && !isClick && !justHover)
+            if (hit.transform.gameObject.GetComponent<Terrain>() == null && !isClick)
                 return;
-            if (hit.transform.gameObject.GetComponent<Terrain>() == null && justHover)
-            {
-                Debug.Log(hit.transform.gameObject);
-                hoverHighlight(hit.transform.gameObject);
-                return;
-            }
 
             var tree = hit.transform.gameObject.GetComponent<Tree>();
             if (tree)
@@ -213,9 +205,6 @@ public class Controls : MonoBehaviour
                 return;
             }
 
-            if (justHover)
-                return;
-
             var x = (hit.triangleIndex / 2) % (Terrain.TERRAIN_SIZE - 1);
             var y = (hit.triangleIndex / 2) / (Terrain.TERRAIN_SIZE - 1);
 
@@ -226,13 +215,13 @@ public class Controls : MonoBehaviour
                     setNullCursor();
                     terrain.spawnLog(x, y);
                 }
-                else if (toolSelected == ToolSelected.Miner)
-                    hit.transform.gameObject.GetComponent<Terrain>().spawnMiner(x, y);
+                else if (toolSelected == ToolSelected.Miner && currentToolbarItem.GetComponent<ToolbarItem>().isLegalPlacement(highlight, terrain, hit.point))
+                    terrain.spawnBuilding(terrain.minerPrefab, hit.point, highlight.transform.rotation);
                 else if (toolSelected == ToolSelected.Select)
                     terrain.interactWithTerrain(x, y);
                 //terrain.showTerrainInfo(camera, x, y);
-                else if (toolSelected == ToolSelected.Forge)
-                    hit.transform.gameObject.GetComponent<Terrain>().spawnForge(x, y);
+                else if (toolSelected == ToolSelected.Forge && currentToolbarItem.GetComponent<ToolbarItem>().isLegalPlacement(highlight, terrain, hit.point))
+                    terrain.spawnBuilding(terrain.forgePrefab, hit.point, highlight.transform.rotation);
                 else if (toolSelected == ToolSelected.Water)
                 {
                     var success = hit.transform.gameObject.GetComponent<Terrain>().spawnWaterPump(x, y);
@@ -288,10 +277,10 @@ public class Controls : MonoBehaviour
 
     void activateToolbarItem(GameObject obj)
     {
-        currentToolbarItem.GetComponent<ToolbarItem>().deactivate();
+        currentToolbarItem.GetComponent<ToolbarItem>().deactivate(highlight);
         currentToolbarItem = obj;
         var item = currentToolbarItem.GetComponent<ToolbarItem>();
-        item.activate();
+        item.activate(highlight);
         helperUI.GetComponent<Text>().text = item.helperText;
         toolSelected = item.tool;
     }
@@ -365,15 +354,13 @@ public class Controls : MonoBehaviour
                 RotateCam();
 
             if (Input.GetMouseButtonDown(0))
-                RaycastToTerrain(true, false);
+                RaycastToTerrain(true);
             if (Input.GetMouseButton(0))
-                RaycastToTerrain(false, false, Input.GetKey(KeyCode.LeftShift), Time.deltaTime);
+                RaycastToTerrain(false, Input.GetKey(KeyCode.LeftShift), Time.deltaTime);
             if (!Input.GetMouseButton(0) && !Input.GetMouseButton(1))
-                RaycastToTerrain(false, true);
+                RaycastToTerrainHover();
             if (Input.mouseScrollDelta.y != 0)
-            {
-                //Move(false, new Vector3(0, Input.mouseScrollDelta.y * -HEIGHT_SCROLL_SPEED, 0));
-            }
+                highlight.transform.rotation *= Quaternion.Euler(0, Input.mouseScrollDelta.y * 20, 0);
             if (Input.GetKey(KeyCode.Q))
                 Move(false, new Vector3(0, 1, 0));
             if (Input.GetKey(KeyCode.E))

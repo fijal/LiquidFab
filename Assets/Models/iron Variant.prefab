@@ -55,6 +55,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: iron Variant
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 9ecdf682743ce4b438f9b833b77d0615, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9ecdf682743ce4b438f9b833b77d0615, type: 3}
 --- !u!1 &3268394365505345989 stripped
@@ -75,3 +79,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   force: {x: 0, y: 0}
+--- !u!65 &-3416057969464975437
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3268394365505345989}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.17999999, y: 0.11207953, z: 0.09706372}
+  m_Center: {x: 0, y: 0.056039765, z: 0}
