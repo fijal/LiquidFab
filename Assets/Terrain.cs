@@ -34,12 +34,12 @@ public class Terrain : MonoBehaviour
     List<GameObject> logs;
     
     public Simulation s;
-    public Water water;
+    [HideInInspector] public Water water;
 
-    public float[] terrainHeight;
-    public float[] terrainKind;
-    public string gameToSave = "";
-    public string gameToLoad = "";
+    [HideInInspector] public float[] terrainHeight;
+    [HideInInspector] public float[] terrainKind;
+    [HideInInspector] public string gameToSave = "";
+    [HideInInspector] public string gameToLoad = "";
 
     Texture2D terrainKindTexture;
 

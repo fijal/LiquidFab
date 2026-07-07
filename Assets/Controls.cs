@@ -18,7 +18,8 @@ public enum ToolSelected
     Grass = 6,
     Sand = 7,
     Iron = 8,
-    PickedObject = 9
+    PickedObject = 9,
+    Assembler = 10
 }
 
 public class Controls : MonoBehaviour
