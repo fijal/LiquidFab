@@ -13,7 +13,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0b8cca9e402465749a1b984015256863, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -0.0086
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0b8cca9e402465749a1b984015256863, type: 3}
       propertyPath: m_LocalPosition.y
@@ -21,7 +21,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0b8cca9e402465749a1b984015256863, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 0.0028
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0b8cca9e402465749a1b984015256863, type: 3}
       propertyPath: m_LocalRotation.w
@@ -55,6 +55,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: gear Variant
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 0b8cca9e402465749a1b984015256863, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 4327947956648410552, guid: 0b8cca9e402465749a1b984015256863, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0b8cca9e402465749a1b984015256863, type: 3}
 --- !u!1 &4948385087014221290 stripped
@@ -73,8 +81,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.28, y: 0.04, z: 0.28}
-  m_Center: {x: 0.14, y: 0.02, z: 0.14}
+  m_Size: {x: 0.28455496, y: 0.04, z: 0.30929476}
+  m_Center: {x: -0.00048840046, y: 0.02, z: 0.00033386797}
 --- !u!114 &6850855427748351094
 MonoBehaviour:
   m_ObjectHideFlags: 0
