@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class Building : MonoBehaviour
 {
-    public Terrain terrain;
+    [HideInInspector] public Terrain terrain;
     public GameObject spawnPoint, pickupPoint;
     public Receipe selectedReceipe;
     int[] productsGathered;
-    public bool producing = false;
+    [HideInInspector] public bool producing = false;
     float buildTimer = 0;
 
     public void receipeProgress()

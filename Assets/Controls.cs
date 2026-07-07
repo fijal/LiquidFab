@@ -218,6 +218,8 @@ public class Controls : MonoBehaviour
                 }
                 else if (toolSelected == ToolSelected.Miner && currentToolbarItem.GetComponent<ToolbarItem>().isLegalPlacement(highlight, terrain, hit.point))
                     terrain.spawnMiner(hit.point, highlight.transform.rotation);
+                else if (toolSelected == ToolSelected.Assembler && currentToolbarItem.GetComponent<ToolbarItem>().isLegalPlacement(highlight, terrain, hit.point))
+                    terrain.spawnAssembler(hit.point, highlight.transform.rotation);
                 else if (toolSelected == ToolSelected.Select)
                     terrain.interactWithTerrain(x, y);
                 //terrain.showTerrainInfo(camera, x, y);

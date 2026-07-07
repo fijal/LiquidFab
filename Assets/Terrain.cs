@@ -25,7 +25,7 @@ public class Terrain : MonoBehaviour
     readonly MyJobRunner s_runner = new();
 
     public TextAsset terrainData;
-    public GameObject logPrefab, minerPrefab, forgePrefab, waterPumpPrefab, smokePrefab, ironPlatePrefab;
+    public GameObject logPrefab, minerPrefab, forgePrefab, assemblerPrefab, waterPumpPrefab, smokePrefab, ironPlatePrefab;
     public GameObject[] treePrefabs;
     public GameObject infoDialog;
     public Controls controls;
@@ -115,6 +115,13 @@ public class Terrain : MonoBehaviour
         var miner = spawnBuilding(minerPrefab, point, rot);
         miner.GetComponent<Building>().setReceipe(receipes.receipes[0]);
     }
+
+    public void spawnAssembler(Vector3 point, Quaternion rot)
+    {
+        var miner = spawnBuilding(assemblerPrefab, point, rot);
+        miner.GetComponent<Building>().setReceipe(receipes.receipes[2]);
+    }
+
 
     public void spawnForge(Vector3 point, Quaternion rot)
     {
