@@ -5,25 +5,32 @@ using UnityEngine;
 public class Forge : MonoBehaviour
 {
     public GameObject movingPart;
+    ParticleSystem smoke;
     float pos = 0;
 
-    public bool producing = false;
     public float timer;
+
+    void Start()
+    {
+        smoke = transform.Find("Smoke").gameObject.GetComponent<ParticleSystem>();
+    }
 
     void FixedUpdate()
     {
-        pos += Time.fixedDeltaTime;
-        var c = movingPart.transform.localPosition;
-        movingPart.transform.localPosition = new Vector3(c.x, 0.05f * (Mathf.Sin(pos / 3f) + 1.2f), c.z);
-
-        /*if (producing)
+        var state = GetComponent<Building>().state;
+        if (state == ProductionState.producing)
         {
-            timer -= Time.fixedDeltaTime;
-            if (timer <= 0)
-            {
-                producing = false;
-                GetComponent<Building>().terrain.spawnFloater(gameObject, GetComponent<Building>().terrain.ironPlatePrefab);
-            }
-        }*/
+            pos += Time.fixedDeltaTime;
+            var c = movingPart.transform.localPosition;
+            movingPart.transform.localPosition = new Vector3(c.x, 0.05f * (Mathf.Sin(pos / 1f) + 1.2f), c.z);
+        } else if (state == ProductionState.starting)
+        {
+            smoke.Play();
+            GetComponent<Building>().state = ProductionState.producing;
+        } else if (state == ProductionState.stopping)
+        {
+            smoke.Stop();
+            GetComponent<Building>().state = ProductionState.idle;
+        }
     }
 }

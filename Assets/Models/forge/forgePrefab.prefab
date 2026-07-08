@@ -187,7 +187,7 @@ MonoBehaviour:
   terrain: {fileID: 0}
   spawnPoint: {fileID: 1690091016797644781}
   pickupPoint: {fileID: 4755310138425417079}
-  producing: 0
+  state: 1
 --- !u!4 &692532096154450422 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 4035a0379e817c14f9890fdb4b5b3c34, type: 3}
@@ -247,6 +247,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2962304638282216216, guid: a28f463f0418d36429b86a53c1bac031, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2962304638282216217, guid: a28f463f0418d36429b86a53c1bac031, type: 3}
+      propertyPath: playOnAwake
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2962304638282216219, guid: a28f463f0418d36429b86a53c1bac031, type: 3}

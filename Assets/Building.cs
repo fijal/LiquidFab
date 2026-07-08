@@ -2,22 +2,30 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum ProductionState
+{
+    idle = 1,
+    starting = 2,
+    stopping = 3,
+    producing = 4
+}
+
 public class Building : MonoBehaviour
 {
     [HideInInspector] public Terrain terrain;
     public GameObject spawnPoint, pickupPoint;
     public Receipe selectedReceipe;
     int[] productsGathered;
-    [HideInInspector] public bool producing = false;
+    [HideInInspector] public ProductionState state = ProductionState.idle;
     float buildTimer = 0;
 
     public void receipeProgress()
     {
-        if (!producing)
+        if (state != ProductionState.producing)
         {
             if (productsGathered.Length == 0)
             {
-                producing = true;
+                state = ProductionState.starting;
                 buildTimer = selectedReceipe.time;
             }
             else
@@ -41,7 +49,7 @@ public class Building : MonoBehaviour
                 if (all)
                 {
                     buildTimer = selectedReceipe.time;
-                    producing = true;
+                    state = ProductionState.starting;
                 }
             }
         }
@@ -55,12 +63,12 @@ public class Building : MonoBehaviour
 
     public void FixedUpdate()
     {
-        if (producing)
+        if (state == ProductionState.producing)
         {
             buildTimer -= Time.fixedDeltaTime;
             if (buildTimer < 0)
             {
-                producing = false;
+                state = ProductionState.stopping;
                 var item = selectedReceipe.output.GetComponent<Item>();
                 terrain.spawnFloater(gameObject, item.prefab, item.tp);
                 setReceipe(selectedReceipe);
