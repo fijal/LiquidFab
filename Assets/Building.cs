@@ -39,7 +39,10 @@ public class Building : MonoBehaviour
                     if (productsGathered[j] < selectedReceipe.inputCounts[j])
                         all = false;
                 if (all)
+                {
+                    buildTimer = selectedReceipe.time;
                     producing = true;
+                }
             }
         }
     }

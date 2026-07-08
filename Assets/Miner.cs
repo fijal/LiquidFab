@@ -11,6 +11,6 @@ public class Miner : MonoBehaviour
     {
         pos += Time.deltaTime;
         var c = movingPart.transform.localPosition;
-        movingPart.transform.localPosition = new Vector3(c.x, 0.05f * (Mathf.Sin(pos / 3f) - 1), c.z);
+        movingPart.transform.localPosition = new Vector3(c.x, 0.1f * (Mathf.Sin(pos / 3f) - 1), c.z);
     }
 }
