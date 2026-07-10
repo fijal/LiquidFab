@@ -19,7 +19,8 @@ public enum ToolSelected
     Sand = 7,
     Iron = 8,
     PickedObject = 9,
-    Assembler = 10
+    Assembler = 10,
+    WaterWheel = 11,
 }
 
 public class Controls : MonoBehaviour
@@ -220,6 +221,8 @@ public class Controls : MonoBehaviour
                     terrain.spawnMiner(hit.point, highlight.transform.rotation);
                 else if (toolSelected == ToolSelected.Assembler && currentToolbarItem.GetComponent<ToolbarItem>().isLegalPlacement(highlight, terrain, hit.point))
                     terrain.spawnAssembler(hit.point, highlight.transform.rotation);
+                else if (toolSelected == ToolSelected.WaterWheel && currentToolbarItem.GetComponent<ToolbarItem>().isLegalPlacement(highlight, terrain, hit.point))
+                    terrain.spawnWaterWheel(hit.point, highlight.transform.rotation);
                 else if (toolSelected == ToolSelected.Select)
                     terrain.interactWithTerrain(x, y);
                 //terrain.showTerrainInfo(camera, x, y);

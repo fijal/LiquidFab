@@ -6,6 +6,7 @@ public class Floater : MonoBehaviour
 {
     public Vector2 force;
     public Vector2 buildingForce;
+    public Vector2 flowForce;
     public ItemType tp;
 
     void Start()
@@ -24,6 +25,7 @@ public class Floater : MonoBehaviour
             if (force.magnitude > 0.5f)
                 force = force.normalized * 0.5f;
             transform.position += new Vector3(force.x * Time.deltaTime, 0, force.y * Time.deltaTime);
+            transform.position += new Vector3(flowForce.x * Time.deltaTime, 0, flowForce.y * Time.deltaTime);
         }
     }
 }

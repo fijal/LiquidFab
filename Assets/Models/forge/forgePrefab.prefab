@@ -170,7 +170,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   movingPart: {fileID: 8500703525832256794}
-  producing: 0
   timer: 0
 --- !u!114 &7898808440106499930
 MonoBehaviour:
@@ -187,6 +186,7 @@ MonoBehaviour:
   terrain: {fileID: 0}
   spawnPoint: {fileID: 1690091016797644781}
   pickupPoint: {fileID: 4755310138425417079}
+  kind: 2
   state: 1
 --- !u!4 &692532096154450422 stripped
 Transform:

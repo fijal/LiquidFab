@@ -25,7 +25,7 @@ public class Terrain : MonoBehaviour
     readonly MyJobRunner s_runner = new();
 
     public TextAsset terrainData;
-    public GameObject logPrefab, minerPrefab, forgePrefab, assemblerPrefab, waterPumpPrefab, smokePrefab, ironPlatePrefab;
+    public GameObject logPrefab, minerPrefab, forgePrefab, assemblerPrefab, waterPumpPrefab, smokePrefab, ironPlatePrefab, waterWheelPrefab;
     public GameObject[] treePrefabs;
     public GameObject infoDialog;
     public Controls controls;
@@ -120,6 +120,11 @@ public class Terrain : MonoBehaviour
     {
         var miner = spawnBuilding(assemblerPrefab, point, rot);
         miner.GetComponent<Building>().setReceipe(receipes.receipes[2]);
+    }
+
+    public void spawnWaterWheel(Vector3 point, Quaternion rot)
+    {
+        spawnBuilding(waterWheelPrefab, point, rot);
     }
 
 
@@ -363,7 +368,7 @@ public class Terrain : MonoBehaviour
 
     public void interactWithTerrain(int x, int y)
     {
-        if (trees.ContainsKey(x + y * TERRAIN_SIZE))
+        /*if (trees.ContainsKey(x + y * TERRAIN_SIZE))
         {
             var tree = trees[x + y * TERRAIN_SIZE];
             if (tree.GetComponent<Tree>().age < Tree.MAX_AGE)
@@ -374,7 +379,8 @@ public class Terrain : MonoBehaviour
                 Destroy(tree);
                 controls.changeMouseCursorToLog();
             }
-        }
+        }*/
+        Debug.Log($"{water.flowX(x, y)} {water.flowY(x, y)}");
     }
 
 
@@ -459,6 +465,8 @@ public class Terrain : MonoBehaviour
         {
             f.GetComponent<Floater>().force = new Vector2(0, 0);
             f.GetComponent<Floater>().buildingForce = new Vector2(0, 0);
+            var pos = f.transform.position / Terrain.SCALE;
+            f.GetComponent<Floater>().flowForce = (new Vector2(water.flowX((int)pos.x, (int)pos.z), water.flowY((int)pos.x, (int)pos.z))) * 10;
         }
         
         foreach (var a in floaters)
@@ -560,6 +568,8 @@ public class Terrain : MonoBehaviour
             //water.waterSource[129 + 129 * TERRAIN_SIZE] = 1f;
             water.updateWaterSources();
             s.water.CopyFrom(water.waterLevel);
+            s.waterFlowX.CopyFrom(water.waterFlowX);
+            s.waterFlowY.CopyFrom(water.waterFlowY);
             s_runner.Start(this, ref s, () =>
             {
                 s.waterFlowX.CopyTo(water.waterFlowX);

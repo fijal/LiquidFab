@@ -248,22 +248,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.9780415, y: 0.7663493, z: 0.76405334}
   m_Center: {x: 0, y: 0.38317466, z: 0}
---- !u!114 &4232572958396140591
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6145486588847561356}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 26bbfd66ce0349c4187c92d8c205dc9a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  terrain: {fileID: 0}
-  spawnPoint: {fileID: 2170764419164249407}
-  pickupPoint: {fileID: 932202996722621235}
-  state: 1
 --- !u!114 &1406808867043611626
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -279,6 +263,23 @@ MonoBehaviour:
   gear1: {fileID: 1853181659928706374}
   gear2: {fileID: 592801239294143990}
   timer: 0
+--- !u!114 &4232572958396140591
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6145486588847561356}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26bbfd66ce0349c4187c92d8c205dc9a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  terrain: {fileID: 0}
+  spawnPoint: {fileID: 2170764419164249407}
+  pickupPoint: {fileID: 932202996722621235}
+  kind: 3
+  state: 1
 --- !u!4 &6774249273360891958 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a6e9b0d16de07ef4c9473e61a876b3a6, type: 3}

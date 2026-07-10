@@ -10,10 +10,19 @@ public enum ProductionState
     producing = 4
 }
 
+public enum BuildingKind
+{
+    miner = 1,
+    forge = 2,
+    assembler = 3,
+    waterWheel = 4
+}
+
 public class Building : MonoBehaviour
 {
     [HideInInspector] public Terrain terrain;
     public GameObject spawnPoint, pickupPoint;
+    public BuildingKind kind;
     public Receipe selectedReceipe;
     int[] productsGathered;
     [HideInInspector] public ProductionState state = ProductionState.idle;
@@ -21,6 +30,17 @@ public class Building : MonoBehaviour
 
     public void receipeProgress()
     {
+        if (kind == BuildingKind.waterWheel)
+        {
+            // XXX hack until we know how to do it better XXX
+            var force = 1.0f;
+            var x = (int)(transform.position.x / Terrain.SCALE)      ;
+            var y = (int)(transform.position.z / Terrain.SCALE);
+            terrain.water.waterFlowX[x + y * (Terrain.TERRAIN_SIZE + 1)] = Mathf.Sin(transform.localRotation.eulerAngles.y) * force;
+            terrain.water.waterFlowY[x + y * Terrain.TERRAIN_SIZE] = -Mathf.Cos(transform.localRotation.eulerAngles.y) * force;
+        }
+        if (productsGathered == null)
+            return; // non producing building
         if (state != ProductionState.producing)
         {
             if (productsGathered.Length == 0)

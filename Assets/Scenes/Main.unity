@@ -212,6 +212,7 @@ MonoBehaviour:
   waterPumpPrefab: {fileID: 919132149155446097, guid: 753cfc86f9e7d224095db4054dc2ac3b, type: 3}
   smokePrefab: {fileID: 2962304638282216219, guid: a28f463f0418d36429b86a53c1bac031, type: 3}
   ironPlatePrefab: {fileID: 898974361182709275, guid: f06735ab829bb0541b4edb1bccffa690, type: 3}
+  waterWheelPrefab: {fileID: 8964695145561224292, guid: c0e592d76b9a5124c9c3cf4db6f04057, type: 3}
   treePrefabs:
   - {fileID: 7519813975544404550, guid: 05ea3cfde14450645ab00fa2671e783b, type: 3}
   - {fileID: 1481673226186282464, guid: d4b1707da7080554bb3db9338bb5ae66, type: 3}
@@ -3927,7 +3928,7 @@ GameObject:
   - component: {fileID: 1908283754}
   - component: {fileID: 1908283756}
   m_Layer: 5
-  m_Name: Terrain
+  m_Name: WaterWheel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3975,7 +3976,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: f72957e2d282d3b4f9a2ac483521faab, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 3ced78b72d229b847b3d4603a92294f8, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -4005,14 +4006,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4677ed80b5f48414aba221d6031d342d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gray: {fileID: 21300000, guid: f72957e2d282d3b4f9a2ac483521faab, type: 3}
-  color: {fileID: 21300000, guid: 95c181dc872150445b78510a9dc6b17e, type: 3}
+  gray: {fileID: 21300000, guid: 3ced78b72d229b847b3d4603a92294f8, type: 3}
+  color: {fileID: 21300000, guid: a434f5578d440ad44ba0972c1a9fda66, type: 3}
   frame: {fileID: 21300000, guid: 2e392907453f286418844ca6ac017f5f, type: 3}
   frameActive: {fileID: 21300000, guid: aa105c82eef35cc43bdec130c9d9b786, type: 3}
-  greenGhost: {fileID: 0}
-  redGhost: {fileID: 0}
-  helperText: SHIFT to remove
-  tool: 2
+  greenGhost: {fileID: 8964695145561224292, guid: d8eab4aa2821a2447ba8603f8b530741, type: 3}
+  redGhost: {fileID: 8964695145561224292, guid: a1110142b9fa87d4bb5c601249e40120, type: 3}
+  helperText: 
+  tool: 11
   isClick: 0
 --- !u!1 &1931423981
 GameObject:
