@@ -36,8 +36,8 @@ public class Building : MonoBehaviour
             var force = 1.0f;
             var x = (int)(transform.position.x / Terrain.SCALE)      ;
             var y = (int)(transform.position.z / Terrain.SCALE);
-            terrain.water.waterFlowX[x + y * (Terrain.TERRAIN_SIZE + 1)] = Mathf.Sin(transform.localRotation.eulerAngles.y) * force;
-            terrain.water.waterFlowY[x + y * Terrain.TERRAIN_SIZE] = -Mathf.Cos(transform.localRotation.eulerAngles.y) * force;
+            terrain.water.waterFlowX[x + y * (Terrain.TERRAIN_SIZE + 1)] = -Mathf.Cos(Mathf.Deg2Rad * transform.localRotation.eulerAngles.y) * force;
+            terrain.water.waterFlowY[x + y * Terrain.TERRAIN_SIZE] = Mathf.Sin(Mathf.Deg2Rad * transform.localRotation.eulerAngles.y) * force;
         }
         if (productsGathered == null)
             return; // non producing building
@@ -50,7 +50,7 @@ public class Building : MonoBehaviour
             }
             else
             {
-                var c = Physics.OverlapBox(pickupPoint.transform.position, new Vector3(0.5f, 0.5f, 0.5f), pickupPoint.transform.rotation, 1 << 7);
+                var c = Physics.OverlapBox(pickupPoint.transform.position, new Vector3(0.3f, 0.3f, 0.3f), pickupPoint.transform.rotation, 1 << 7);
                 for (int i = 0; i < c.Length; ++i)
                 {
                     var tp = c[i].GetComponent<Floater>().tp;

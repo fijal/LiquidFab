@@ -380,7 +380,7 @@ public class Terrain : MonoBehaviour
                 controls.changeMouseCursorToLog();
             }
         }*/
-        Debug.Log($"{water.flowX(x, y)} {water.flowY(x, y)}");
+        Debug.Log($"{x} {y} {water.flowX(x, y)} {water.flowY(x, y)}");
     }
 
 
