@@ -132,7 +132,6 @@ public class Terrain : MonoBehaviour
         spawnBuilding(waterWheelPrefab, point, rot);
     }
 
-
     public void spawnForge(Vector3 point, Quaternion rot)
     {
         var forge = spawnBuilding(forgePrefab, point, rot);

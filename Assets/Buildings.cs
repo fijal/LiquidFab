@@ -34,5 +34,7 @@ public class Buildings : MonoBehaviour
         var ww = transform.Find("WaterWheel").gameObject;
         var waterWheelSpec = ww.GetComponent<BuildingSpec>();
         waterWheelSpec.behaviour = new WaterWheelBehaviour(waterWheelSpec, ww.GetComponent<WaterWheelSpec>());
+        var fenceSpec = transform.Find("Fence").gameObject.GetComponent<BuildingSpec>();
+        fenceSpec.behaviour = new FenceBehaviour(fenceSpec);
     }
 }

@@ -21,6 +21,7 @@ public enum ToolSelected
     PickedObject = 9,
     Assembler = 10,
     WaterWheel = 11,
+    Fence = 12,
 }
 
 
@@ -198,7 +199,7 @@ public class Controls : MonoBehaviour
                 else if (toolSelected == ToolSelected.Select)
                     terrain.interactWithTerrain(x, y);
                 //terrain.showTerrainInfo(camera, x, y);
-                else if (toolSelected == ToolSelected.Forge || toolSelected == ToolSelected.WaterWheel)
+                else if (toolSelected == ToolSelected.Forge || toolSelected == ToolSelected.WaterWheel || toolSelected == ToolSelected.Fence)
                     currentToolbarItem.GetComponent<ToolbarItem>().spec.behaviour.clickTerrain(highlight, terrain, hit.point);
                 else if (toolSelected == ToolSelected.Water)
                 {

@@ -202,6 +202,7 @@ Transform:
   - {fileID: 1416418945}
   - {fileID: 324435751}
   - {fileID: 827165165}
+  - {fileID: 403469717}
   m_Father: {fileID: 0}
   m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -452,7 +453,7 @@ GameObject:
   - component: {fileID: 235452410}
   - component: {fileID: 235452412}
   m_Layer: 5
-  m_Name: Water
+  m_Name: Fence
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -500,7 +501,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: e6e047fd0003e404fa353e13d4076f30, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 71845e6de96232f47bd719a16c487685, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -530,16 +531,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4677ed80b5f48414aba221d6031d342d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gray: {fileID: 21300000, guid: e6e047fd0003e404fa353e13d4076f30, type: 3}
-  color: {fileID: 21300000, guid: 0e8a08df8b91e8d40beb176f5c5434e3, type: 3}
+  gray: {fileID: 21300000, guid: 71845e6de96232f47bd719a16c487685, type: 3}
+  color: {fileID: 21300000, guid: 71845e6de96232f47bd719a16c487685, type: 3}
   frame: {fileID: 21300000, guid: 2e392907453f286418844ca6ac017f5f, type: 3}
   frameActive: {fileID: 21300000, guid: aa105c82eef35cc43bdec130c9d9b786, type: 3}
   greenGhost: {fileID: 0}
   redGhost: {fileID: 0}
   helperText: SHIFT to remove
-  tool: 1
+  tool: 12
   isClick: 1
-  spec: {fileID: 0}
+  spec: {fileID: 403469718}
 --- !u!1 &277933283
 GameObject:
   m_ObjectHideFlags: 0
@@ -921,6 +922,8 @@ MonoBehaviour:
   isGridBound: 0
   greenPrefab: {fileID: 6145486588847561356, guid: 5b1c0ef3f69eee547a063e56bb9ade13, type: 3}
   redPrefab: {fileID: 6145486588847561356, guid: e2959bde328b95349b5b64f3575173e5, type: 3}
+  colorIcon: {fileID: 0}
+  grayIcon: {fileID: 0}
 --- !u!1 &343552204
 GameObject:
   m_ObjectHideFlags: 0
@@ -1053,6 +1056,56 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &403469716
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 403469717}
+  - component: {fileID: 403469718}
+  m_Layer: 0
+  m_Name: Fence
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &403469717
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 403469716}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 181815194}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &403469718
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 403469716}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e917392f35467b4abefa6ec717d50af, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 7845330210799239007, guid: 01cf8020b5e9fe047b765e0860fd2fa2, type: 3}
+  isGridBound: 0
+  greenPrefab: {fileID: 6660944806714860949, guid: f85622947c20f5a4aa87d665dc76f28f, type: 3}
+  redPrefab: {fileID: 6069345571127595571, guid: 22848c9d7291f014f949aed7b0f05e2d, type: 3}
+  colorIcon: {fileID: 0}
+  grayIcon: {fileID: 0}
 --- !u!1 &415520853
 GameObject:
   m_ObjectHideFlags: 0
@@ -2171,8 +2224,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 8964695145561224292, guid: c0e592d76b9a5124c9c3cf4db6f04057, type: 3}
   isGridBound: 1
-  greenPrefab: {fileID: 931293409329543222, guid: dd3050eef44e49546b26469b30e33a36, type: 3}
-  redPrefab: {fileID: 7697105018639629865, guid: 310f65c5f680c3f47adf64f84b530134, type: 3}
+  greenPrefab: {fileID: 2040421907493963405, guid: ba18ea4cbeb93e141a4c2a2acc45d33d, type: 3}
+  redPrefab: {fileID: 9040639614481443269, guid: 08b5b2a3deb1f76478eee70be7b3712b, type: 3}
+  colorIcon: {fileID: 0}
+  grayIcon: {fileID: 0}
 --- !u!114 &827165167
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3283,6 +3338,8 @@ MonoBehaviour:
   isGridBound: 0
   greenPrefab: {fileID: 6445708950799606802, guid: 23897ae5b312a044180fc93c9c1be836, type: 3}
   redPrefab: {fileID: 6445708950799606802, guid: e0b0cd4b4a71f194a8d99e4e69a7d32f, type: 3}
+  colorIcon: {fileID: 0}
+  grayIcon: {fileID: 0}
 --- !u!1 &1432532390
 GameObject:
   m_ObjectHideFlags: 0
@@ -3800,7 +3857,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1708725562
 Transform:
   m_ObjectHideFlags: 0
@@ -4227,8 +4284,8 @@ MonoBehaviour:
   color: {fileID: 21300000, guid: a434f5578d440ad44ba0972c1a9fda66, type: 3}
   frame: {fileID: 21300000, guid: 2e392907453f286418844ca6ac017f5f, type: 3}
   frameActive: {fileID: 21300000, guid: aa105c82eef35cc43bdec130c9d9b786, type: 3}
-  greenGhost: {fileID: 931293409329543222, guid: dd3050eef44e49546b26469b30e33a36, type: 3}
-  redGhost: {fileID: 7697105018639629865, guid: 310f65c5f680c3f47adf64f84b530134, type: 3}
+  greenGhost: {fileID: 0}
+  redGhost: {fileID: 0}
   helperText: 
   tool: 11
   isClick: 0
@@ -4281,6 +4338,8 @@ MonoBehaviour:
   isGridBound: 0
   greenPrefab: {fileID: 204789440125068108, guid: 54c8ad369ad92ea4595adc664449bf45, type: 3}
   redPrefab: {fileID: 204789440125068108, guid: 8849d52aeb27bd44eae689d6d7de61af, type: 3}
+  colorIcon: {fileID: 0}
+  grayIcon: {fileID: 0}
 --- !u!1 &1931423981
 GameObject:
   m_ObjectHideFlags: 0
