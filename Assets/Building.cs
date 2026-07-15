@@ -33,11 +33,11 @@ public class Building : MonoBehaviour
         if (kind == BuildingKind.waterWheel)
         {
             // XXX hack until we know how to do it better XXX
-            var force = 1.0f;
+            var force = 0.3f;
             var x = (int)(transform.position.x / Terrain.SCALE)      ;
             var y = (int)(transform.position.z / Terrain.SCALE);
-            terrain.water.waterFlowX[x + y * (Terrain.TERRAIN_SIZE + 1)] = -Mathf.Cos(Mathf.Deg2Rad * transform.localRotation.eulerAngles.y) * force;
-            terrain.water.waterFlowY[x + y * Terrain.TERRAIN_SIZE] = Mathf.Sin(Mathf.Deg2Rad * transform.localRotation.eulerAngles.y) * force;
+            terrain.water.waterFlowX[x + y * (Terrain.TERRAIN_SIZE + 1)] = Mathf.Cos(Mathf.Deg2Rad * transform.localRotation.eulerAngles.y) * force;
+            terrain.water.waterFlowY[x + y * Terrain.TERRAIN_SIZE] = -Mathf.Sin(Mathf.Deg2Rad * transform.localRotation.eulerAngles.y) * force;
         }
         if (productsGathered == null)
             return; // non producing building

@@ -51,6 +51,11 @@ public class Terrain : MonoBehaviour
         return terrainHeight[x + y * TERRAIN_SIZE];
     }
 
+    public float heightWater(int x, int y)
+    {
+        return height(x, y) + water.waterLevel[x + y * TERRAIN_SIZE];
+    }
+
     public float heightFloat(float x, float y)
     {
         int ix = (int)x;

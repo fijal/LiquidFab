@@ -25,13 +25,14 @@ public class Buildings : MonoBehaviour
 
     void Start()
     {
-        for (int i = 0; i < transform.childCount; ++i)
-        {
-            var spec = transform.GetChild(i).gameObject.GetComponent<BuildingSpec>();
-            //var go = PrefabUtility.InstantiatePrefab(spec.prefab);
-            //spec.greenPrefab = go;
-            //recursivelyFixMaterial(go, greenTransparent);
-            //go.SetActive(false);
-        }
+        var forgeSpec = transform.Find("Forge").gameObject.GetComponent<BuildingSpec>();
+        forgeSpec.behaviour = new ForgeBehaviour(forgeSpec);
+        var minerSpec = transform.Find("Miner").gameObject.GetComponent<BuildingSpec>();
+        minerSpec.behaviour = new BuildingFreePlacement(minerSpec);
+        var assemblerSpec = transform.Find("Assembler").gameObject.GetComponent<BuildingSpec>();
+        assemblerSpec.behaviour = new BuildingFreePlacement(assemblerSpec);
+        var ww = transform.Find("WaterWheel").gameObject;
+        var waterWheelSpec = ww.GetComponent<BuildingSpec>();
+        waterWheelSpec.behaviour = new WaterWheelBehaviour(waterWheelSpec, ww.GetComponent<WaterWheelSpec>());
     }
 }

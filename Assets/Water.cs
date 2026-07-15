@@ -32,6 +32,19 @@ public class Water : MonoBehaviour
     
         waterSource = new Dictionary<int, float>();
     }
+
+    private void Update()
+    {
+        for (int x = 0; x < Terrain.TERRAIN_SIZE; x++)
+            for (int y = 0; y < Terrain.TERRAIN_SIZE; y++)
+            {
+                var z = terrain.height(x, y) + waterLevel[x + y * Terrain.TERRAIN_SIZE] + 0.5f;
+                Debug.DrawLine(new Vector3(x * Terrain.SCALE, z, y * Terrain.SCALE),
+                                new Vector3(x * Terrain.SCALE + flowX(x, y), z, y * Terrain.SCALE + flowY(x, y)));
+                // Debug.DrawLine(new Vector3(0, 0, 0), new Vector3(10, 10, 10));
+            }
+    }
+
     public float flowX(int x, int y)
     {
         return waterFlowX[x + y * (Terrain.TERRAIN_SIZE + 1)];

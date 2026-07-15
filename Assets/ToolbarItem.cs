@@ -10,6 +10,7 @@ public class ToolbarItem : MonoBehaviour
     public string helperText;
     public ToolSelected tool;
     public bool isClick = false; // whether it's a click or contiguous
+    public BuildingSpec spec;
     
     public void updateLocation(int location)
     {

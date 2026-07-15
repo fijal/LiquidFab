@@ -44,7 +44,7 @@ public class waterPump : MonoBehaviour
         var g = Instantiate(controls.detailsPanel);
         g.GetComponent<DetailsPanel>().controls = controls;
         g.GetComponent<DetailsPanel>().interactable = gameObject;
-        controls.detailsPanelActive = true;
+        controls.inOverlay = true;
     }
 
     public bool maybeConsumeLog()

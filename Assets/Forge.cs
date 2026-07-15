@@ -2,6 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public class ForgeBehaviour : BuildingFreePlacement
+{
+    public ForgeBehaviour(BuildingSpec spec) : base(spec)
+    {
+    }
+
+    public override void clickTerrain(GameObject highlight, Terrain terrain, Vector3 hitPoint)
+    {
+        terrain.spawnForge(hitPoint, highlight.transform.rotation);
+    }
+}
+
+
 public class Forge : MonoBehaviour
 {
     public GameObject movingPart;
