@@ -8,7 +8,7 @@ public class Log2 : MonoBehaviour
     public Vector2 force;
     Vector2 velocity;
 
-    const float REPULSIVE_MULTIPLIER = 0.1f;
+    const float REPULSIVE_MULTIPLIER = 0.2f;
     const float REPULSIVE_CAP = 1f;
     const float FLOW_FORCE = 1f;
 
@@ -32,7 +32,9 @@ public class Log2 : MonoBehaviour
         {
             velocity = flow * FLOW_FORCE;
             newPos = new Vector3(transform.position.x + velocity.x * Time.fixedDeltaTime, z,
-            transform.position.z + velocity.y * Time.fixedDeltaTime);
+                                 transform.position.z + velocity.y * Time.fixedDeltaTime);
+            if (terrain.water.waterLevelFloat(newPos.x, newPos.z) < 0.01f)
+                return; // don't move if we're about to leave water
         }
 
         /* when in free fall below the terrain or off to the sides */

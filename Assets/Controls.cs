@@ -13,13 +13,17 @@ public enum ToolSelected
     Water = 1,
     Terrain = 2,
     Log = 3,
-    Magnet = 4,
+    Forge = 4,
     Miner = 5,
     Grass = 6,
     Sand = 7,
     Iron = 8,
-    PickedObject = 9
+    PickedObject = 9,
+    Assembler = 10,
+    WaterWheel = 11,
+    Fence = 12,
 }
+
 
 public class Controls : MonoBehaviour
 {
@@ -37,13 +41,17 @@ public class Controls : MonoBehaviour
     public GameObject UIPanel;
     public GameObject tooltip;
     public GameObject detailsPanel;
-    public bool detailsPanelActive = false;
+    
+    public bool inOverlay = false;
     public GameObject saveloadInfoPrefab;
     GameObject saveloadInfo = null;
+    bool inProgress = false;
+
+    public GameObject highlight;
 
     public Texture2D mouseCursorLog;
 
-    GameObject currentToolbarItem;
+    GameObject currentToolbarItem, hoverPanel;
     ToolSelected toolSelected = ToolSelected.Select;
 
     Vector3 lastMousePos;
@@ -65,11 +73,11 @@ public class Controls : MonoBehaviour
                 var go = UIPanel.transform.GetChild(i).gameObject;
                 UIElements[count] = go;
                 go.GetComponent<ToolbarItem>().updateLocation(count + 1);
-                go.GetComponent<ToolbarItem>().deactivate();
+                go.GetComponent<ToolbarItem>().deactivate(highlight);
                 count++;
             }
         currentToolbarItem = UIElements[0];
-        currentToolbarItem.GetComponent<ToolbarItem>().activate();
+        currentToolbarItem.GetComponent<ToolbarItem>().activate(highlight);
     }
 
     void Move(bool speedUp, Vector3 direction)
@@ -116,25 +124,33 @@ public class Controls : MonoBehaviour
         camera.transform.Rotate(-v, 0, 0);
     }
 
+    void RaycastToTerrainHover()
+    {
+        if (currentToolbarItem.GetComponent<ToolbarItem>().spec == null)
+            return; // XXX not a building, probably goes away in the future
+        currentToolbarItem.GetComponent<ToolbarItem>().spec.behaviour.hoverOverTerrain(highlight, camera, terrain);
+    }
+
     void RaycastToTerrain(bool isClick, bool mod=false, float val=0)
     {
-        if (detailsPanelActive)
-            return;
-        List<RaycastResult> res = new List<RaycastResult>();
-        var ped = new PointerEventData(eventSystem);
-        ped.position = Input.mousePosition;
-        UIPanel.GetComponent<GraphicRaycaster>().Raycast(ped, res);
-        if (res.Count > 0)
+        // XXX rework this part or more likely the whole function XXX
+        if (isClick)
         {
-            activateToolbarItem(res[0].gameObject);
-            return;
+            List<RaycastResult> res = new List<RaycastResult>();
+            var ped = new PointerEventData(eventSystem);
+            ped.position = Input.mousePosition;
+            UIPanel.GetComponent<GraphicRaycaster>().Raycast(ped, res);
+            if (res.Count > 0)
+            {
+                activateToolbarItem(res[0].gameObject);
+                return;
+            }
         }
 
         var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, 200, 1 << 3))
-        {
+        if (Physics.Raycast(ray, out hit, 200, 1 << 3)) {
             if (hit.transform.gameObject.GetComponent<Terrain>() == null && !isClick)
                 return;
 
@@ -176,13 +192,15 @@ public class Controls : MonoBehaviour
                     setNullCursor();
                     terrain.spawnLog(x, y);
                 }
-                else if (toolSelected == ToolSelected.Miner)
-                    hit.transform.gameObject.GetComponent<Terrain>().spawnMiner(x, y);
+                else if (toolSelected == ToolSelected.Miner && currentToolbarItem.GetComponent<ToolbarItem>().isLegalPlacement(highlight, terrain, hit.point))
+                    terrain.spawnMiner(hit.point, highlight.transform.rotation);
+                else if (toolSelected == ToolSelected.Assembler && currentToolbarItem.GetComponent<ToolbarItem>().isLegalPlacement(highlight, terrain, hit.point))
+                    terrain.spawnAssembler(hit.point, highlight.transform.rotation);
                 else if (toolSelected == ToolSelected.Select)
                     terrain.interactWithTerrain(x, y);
                 //terrain.showTerrainInfo(camera, x, y);
-                else if (toolSelected == ToolSelected.Magnet)
-                    hit.transform.gameObject.GetComponent<Terrain>().spawnMagnet(x, y);
+                else if (toolSelected == ToolSelected.Forge || toolSelected == ToolSelected.WaterWheel || toolSelected == ToolSelected.Fence)
+                    currentToolbarItem.GetComponent<ToolbarItem>().spec.behaviour.clickTerrain(highlight, terrain, hit.point);
                 else if (toolSelected == ToolSelected.Water)
                 {
                     var success = hit.transform.gameObject.GetComponent<Terrain>().spawnWaterPump(x, y);
@@ -238,10 +256,10 @@ public class Controls : MonoBehaviour
 
     void activateToolbarItem(GameObject obj)
     {
-        currentToolbarItem.GetComponent<ToolbarItem>().deactivate();
+        currentToolbarItem.GetComponent<ToolbarItem>().deactivate(highlight);
         currentToolbarItem = obj;
         var item = currentToolbarItem.GetComponent<ToolbarItem>();
-        item.activate();
+        item.activate(highlight);
         helperUI.GetComponent<Text>().text = item.helperText;
         toolSelected = item.tool;
     }
@@ -272,9 +290,23 @@ public class Controls : MonoBehaviour
         saveloadInfo = null;
     }
 
+    public void showToolsOverlay()
+    {
+        //inOverlay = true;
+    }
+
     void Update()
     {
-        if (!detailsPanelActive && saveloadInfo == null)
+        if (timer > 0)
+        {
+            timer -= Time.deltaTime;
+            if (timer <= 0 && helperUI.GetComponent<Text>().text.StartsWith("WSAD"))
+                helperUI.GetComponent<Text>().text = "";
+        }
+        if (saveloadInfo != null)
+            return;
+
+        if (!inOverlay)
         {
             bool speedUp = false;
             if (Input.GetKey(KeyCode.LeftShift))
@@ -287,6 +319,18 @@ public class Controls : MonoBehaviour
                 Move(speedUp, new Vector3(-1, 0, 0));
             if (Input.GetKey(KeyCode.D))
                 Move(speedUp, new Vector3(1, 0, 0));
+
+            if (Input.GetMouseButtonDown(1))
+                StartRotatingCam();
+            if (Input.GetMouseButtonUp(1))
+                StopRotatingCam();
+            if (Input.GetMouseButton(1))
+                RotateCam();
+
+            if (Input.GetKey(KeyCode.Q)) {
+                showToolsOverlay();
+                return;
+            }
 
             if (Input.GetKeyDown(KeyCode.Alpha1))
                 activateToolbarItem(0);
@@ -307,37 +351,25 @@ public class Controls : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Alpha9))
                 activateToolbarItem(8);
 
-            if (Input.GetMouseButtonDown(1))
-                StartRotatingCam();
-            if (Input.GetMouseButtonUp(1))
-                StopRotatingCam();
-            if (Input.GetMouseButton(1))
-                RotateCam();
-
             if (Input.GetMouseButtonDown(0))
                 RaycastToTerrain(true);
             if (Input.GetMouseButton(0))
                 RaycastToTerrain(false, Input.GetKey(KeyCode.LeftShift), Time.deltaTime);
+            if (!Input.GetMouseButton(0) && !Input.GetMouseButton(1))
+                RaycastToTerrainHover();
             if (Input.mouseScrollDelta.y != 0)
-            {
-                //Move(false, new Vector3(0, Input.mouseScrollDelta.y * -HEIGHT_SCROLL_SPEED, 0));
-            }
-            if (Input.GetKey(KeyCode.Q))
+                if (currentToolbarItem.GetComponent<ToolbarItem>().spec != null)
+                    currentToolbarItem.GetComponent<ToolbarItem>().spec.behaviour.rotateHighlight(highlight, Input.mouseScrollDelta.y * 20);
+            if (Input.GetKey(KeyCode.Z))
                 Move(false, new Vector3(0, 1, 0));
-            if (Input.GetKey(KeyCode.E))
+            if (Input.GetKey(KeyCode.C))
                 Move(false, new Vector3(0, -1, 0));
-        }
-        if (Input.GetKey(KeyCode.Escape))
-            Application.Quit();
-        if (Input.GetKeyDown(KeyCode.F3))
-            SaveGame();
-        if (Input.GetKeyDown(KeyCode.F4))
-            LoadGame();
-        if (timer > 0)
-        {
-            timer -= Time.deltaTime;
-            if (timer <= 0 && helperUI.GetComponent<Text>().text.StartsWith("WSAD"))
-                helperUI.GetComponent<Text>().text = "";
+            if (Input.GetKey(KeyCode.Escape))
+                Application.Quit();
+            if (Input.GetKeyDown(KeyCode.F3))
+                SaveGame();
+            if (Input.GetKeyDown(KeyCode.F4))
+                LoadGame();
         }
     }
 

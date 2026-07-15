@@ -19,24 +19,27 @@ public class Terrain : MonoBehaviour
     public List<float> terrainUpdatesVal;
     Dictionary<int, GameObject> trees;
     Dictionary<int, GameObject> waterPumps;
+    HashSet<GameObject> buildings;
+    HashSet<GameObject> floaters;
 
     readonly MyJobRunner s_runner = new();
 
     public TextAsset terrainData;
-    public GameObject logPrefab, minerPrefab, magnetPrefab, waterPumpPrefab, smokePrefab;
+    public GameObject logPrefab, minerPrefab, forgePrefab, assemblerPrefab, waterPumpPrefab, smokePrefab, ironPlatePrefab, waterWheelPrefab;
     public GameObject[] treePrefabs;
     public GameObject infoDialog;
     public Controls controls;
+    public Receipes receipes;
 
     List<GameObject> logs;
-
+    
     public Simulation s;
-    public Water water;
+    [HideInInspector] public Water water;
 
-    public float[] terrainHeight;
-    public float[] terrainKind;
-    public string gameToSave = "";
-    public string gameToLoad = "";
+    [HideInInspector] public float[] terrainHeight;
+    [HideInInspector] public float[] terrainKind;
+    [HideInInspector] public string gameToSave = "";
+    [HideInInspector] public string gameToLoad = "";
 
     Texture2D terrainKindTexture;
 
@@ -46,6 +49,11 @@ public class Terrain : MonoBehaviour
     public float height(int x, int y)
     {
         return terrainHeight[x + y * TERRAIN_SIZE];
+    }
+
+    public float heightWater(int x, int y)
+    {
+        return height(x, y) + water.waterLevel[x + y * TERRAIN_SIZE];
     }
 
     public float heightFloat(float x, float y)
@@ -97,6 +105,49 @@ public class Terrain : MonoBehaviour
         trees[x + y * TERRAIN_SIZE] = go;
     }
 
+    public void spawnFloater(GameObject spawner, GameObject prefab, ItemType tp)
+    {
+        var go = Instantiate(prefab, transform);
+        Vector3 loc = spawner.GetComponent<Building>().spawnPoint.transform.position;
+        go.transform.position = loc + new Vector3(Random.Range(-0.1f, 0.1f), 0, Random.Range(-0.1f, 0.1f));
+        go.transform.rotation = Quaternion.Euler(0, Random.Range(0, 90), 0);
+        go.GetComponent<Floater>().tp = tp;
+        floaters.Add(go);
+    }
+
+    public void spawnMiner(Vector3 point, Quaternion rot)
+    {
+        var miner = spawnBuilding(minerPrefab, point, rot);
+        miner.GetComponent<Building>().setReceipe(receipes.receipes[0]);
+    }
+
+    public void spawnAssembler(Vector3 point, Quaternion rot)
+    {
+        var miner = spawnBuilding(assemblerPrefab, point, rot);
+        miner.GetComponent<Building>().setReceipe(receipes.receipes[2]);
+    }
+
+    public void spawnWaterWheel(Vector3 point, Quaternion rot)
+    {
+        spawnBuilding(waterWheelPrefab, point, rot);
+    }
+
+    public void spawnForge(Vector3 point, Quaternion rot)
+    {
+        var forge = spawnBuilding(forgePrefab, point, rot);
+        forge.GetComponent<Building>().setReceipe(receipes.receipes[1]);
+    }
+
+    public GameObject spawnBuilding(GameObject prefab, Vector3 point, Quaternion rot)
+    {
+        var go = Instantiate(prefab, transform);
+        go.transform.position = point;
+        go.transform.rotation = rot;
+        go.GetComponent<Building>().terrain = this;
+        buildings.Add(go);
+        return go;
+    }
+
     public GameObject spawnLog(int x, int y)
     {
         var go = Instantiate(logPrefab, transform);
@@ -104,20 +155,6 @@ public class Terrain : MonoBehaviour
         go.transform.position = new Vector3(x * SCALE, height(x, y), y * SCALE);
         go.transform.rotation = Quaternion.Euler(90, Random.Range(0, 90), 0);
         return go;
-    }
-
-    public void spawnMagnet(int x, int y)
-    {
-        var go = Instantiate(magnetPrefab, transform);
-        go.transform.position = new Vector3(x * SCALE, height(x, y), y * SCALE);
-        go.transform.rotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
-    }
-
-    public void spawnMiner(int x, int y)
-    {
-        var go = Instantiate(minerPrefab, transform);
-        go.transform.position = new Vector3(x * SCALE, height(x, y), y * SCALE);
-        go.transform.rotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
     }
 
     public waterPump spawnWaterPump(int x, int y)
@@ -167,17 +204,18 @@ public class Terrain : MonoBehaviour
 
     void recalculateMesh()
     {
-        var oldMesh = GetComponent<MeshFilter>().sharedMesh;
+        var oldMesh = GetComponent<MeshCollider>().sharedMesh;
         if (oldMesh == null)
         {
             Mesh mesh = createMesh();
             GetComponent<MeshFilter>().sharedMesh = mesh;
-            GetComponent<MeshCollider>().sharedMesh = mesh;
+            Mesh colliderMesh = createMesh(true);
+            GetComponent<MeshCollider>().sharedMesh = colliderMesh;
         }
         else
         {
             meshbaker_runner.Complete();
-            updateMesh(oldMesh);
+            updateMesh(oldMesh, true);
             updateTerrainKind();
             meshbaker.mesh_id = oldMesh.GetInstanceID();
             meshbaker_runner.Start(this, ref meshbaker, () =>
@@ -196,31 +234,49 @@ public class Terrain : MonoBehaviour
         for (int y = 0; y < TERRAIN_SIZE; y++)
             for (int x = 0; x < TERRAIN_SIZE; x++)
             {
-                terrainHeight[x + y * TERRAIN_SIZE] = (
-                    (float)((terrainDataBytes[index + 1] << 8) | terrainDataBytes[index]) / (1 << 16) * HEIGHT_SCALE * SCALE);
+                terrainHeight[x + y * TERRAIN_SIZE] = 0;
+                //terrainHeight[x + y * TERRAIN_SIZE] = (
+                //    (float)((terrainDataBytes[index + 1] << 8) | terrainDataBytes[index]) / (1 << 16) * HEIGHT_SCALE * SCALE);
                 index += 2;
             }
+
+        spawnHill(64, 64);
+        spawnHill(192, 64);
+        spawnHill(192, 192);
 
         terrainUpdatesX = new List<int>();
         terrainUpdatesY = new List<int>();
         terrainUpdatesVal = new List<float>();
 
         logs = new List<GameObject>();
-
-        recalculateMesh();
+        
+        water = transform.Find("Water").GetComponent<Water>();
+        //recalculateMesh();
         trees = new Dictionary<int, GameObject>();
-        populateTrees();
+        buildings = new HashSet<GameObject>();
+        floaters = new HashSet<GameObject>();
+        //populateTrees();
         createTerrainKindTexture();
 
-        water = transform.Find("Water").GetComponent<Water>();
         waterPumps = new Dictionary<int, GameObject>();
         s = new Simulation(TERRAIN_SIZE, TERRAIN_SIZE);
     }
 
+    void spawnHill(int x, int y)
+    {
+        for (int iy = y - 20; iy < y + 20; iy++)
+            for (int ix = x - 20; ix < x + 20; ix++)
+            {
+                float distance = Mathf.Sqrt((ix - x) * (ix - x) + (iy - y) * (iy - y));
+                //Debug.Log(distance / 40);
+                terrainHeight[ix + iy * TERRAIN_SIZE] = Mathf.Max(Mathf.Cos(distance / 20) * 10 - 5, 0);
+            }
+    }
+
     void populateTrees()
     {
-        for (int i = 0; i < 100; i++)
-            spawnTree(Random.Range(0, TERRAIN_SIZE - 1), Random.Range(0, TERRAIN_SIZE - 1), Tree.MAX_AGE, 4);
+        //for (int i = 0; i < 100; i++)
+        //    spawnTree(Random.Range(0, TERRAIN_SIZE - 1), Random.Range(0, TERRAIN_SIZE - 1), Tree.MAX_AGE, 4);
     }
 
     private void OnDestroy()
@@ -230,7 +286,7 @@ public class Terrain : MonoBehaviour
         s.Dispose();
     }
 
-    Mesh createMesh()
+    Mesh createMesh(bool isCollider = false)
     {
         mesh = new Mesh();
         mesh.MarkDynamic();
@@ -261,17 +317,19 @@ public class Terrain : MonoBehaviour
         mesh.vertices = vertices0;
         mesh.triangles = triangles;
         mesh.uv = uvs;
-        updateMesh(mesh);
+        updateMesh(mesh, isCollider);
         return mesh;
     }
 
-    void updateMesh(Mesh mesh)
+    void updateMesh(Mesh mesh, bool isCollider = false)
     {
         var vertices = new Vector3[TERRAIN_SIZE * TERRAIN_SIZE];
         for (int x = 0; x < TERRAIN_SIZE; ++x)
             for (int y = 0; y < TERRAIN_SIZE; ++y)
             {
                 var h = height(x, y);
+                if (isCollider)
+                    h += water.waterLevel[x + y * TERRAIN_SIZE];
                 vertices[x + y * TERRAIN_SIZE] = new Vector3(x * SCALE, h, y * SCALE);
             }
         mesh.vertices = vertices;
@@ -314,7 +372,7 @@ public class Terrain : MonoBehaviour
 
     public void interactWithTerrain(int x, int y)
     {
-        if (trees.ContainsKey(x + y * TERRAIN_SIZE))
+        /*if (trees.ContainsKey(x + y * TERRAIN_SIZE))
         {
             var tree = trees[x + y * TERRAIN_SIZE];
             if (tree.GetComponent<Tree>().age < Tree.MAX_AGE)
@@ -325,7 +383,8 @@ public class Terrain : MonoBehaviour
                 Destroy(tree);
                 controls.changeMouseCursorToLog();
             }
-        }
+        }*/
+        Debug.Log($"{x} {y} {water.flowX(x, y)} {water.flowY(x, y)}");
     }
 
 
@@ -359,9 +418,10 @@ public class Terrain : MonoBehaviour
             if (water.waterLevel[entry.Key] > 0.15f)
             {
                 Destroy(entry.Value);
-                //logs.Add(spawnLog(x, y));
+                logs.Add(spawnLog(x, y));
                 treesToRemove.Add(entry.Key);
-            } else
+            }
+            else
             {
                 s.subLevel[x + y * TERRAIN_SIZE] -= 0.003f;
                 if (s.subLevel[x + y * TERRAIN_SIZE] < 0)
@@ -371,7 +431,9 @@ public class Terrain : MonoBehaviour
         for (int i = 0; i < treesToRemove.Count; i++)
             trees.Remove(treesToRemove[i]);
 
-        for (int i = 0; i < logs.Count; i++)
+        moveFloaters();
+
+        /*for (int i = 0; i < logs.Count; i++)
             logs[i].GetComponent<Log2>().force = Vector3.zero;
 
         for (int i = 0; i < logs.Count; i++)
@@ -385,7 +447,94 @@ public class Terrain : MonoBehaviour
                     var forceVal = 1 / val;
                     logs[i].GetComponent<Log2>().force += new Vector2(rel.x * forceVal, rel.z * forceVal);
                     logs[j].GetComponent<Log2>().force -= new Vector2(rel.x * forceVal, rel.z * forceVal);
+                }*/
+
+        updateBuildings();
+    }
+
+    public void updateBuildings()
+    {
+        foreach (var f in buildings)
+        {
+            f.GetComponent<Building>().receipeProgress();
+            var cur = f.transform.position;
+            f.transform.position = new Vector3(cur.x, heightFloat(cur.x / SCALE, cur.z / SCALE) + water.waterLevelFloat(cur.x / SCALE, cur.z / SCALE),
+                                               cur.z);
+        }
+    }
+
+    public void moveFloaters()
+    {
+        foreach (var f in floaters)
+        {
+            f.GetComponent<Floater>().force = new Vector2(0, 0);
+            f.GetComponent<Floater>().buildingForce = new Vector2(0, 0);
+            var pos = f.transform.position / Terrain.SCALE;
+            f.GetComponent<Floater>().flowForce = (new Vector2(water.flowX((int)pos.x, (int)pos.z), water.flowY((int)pos.x, (int)pos.z))) * 10;
+        }
+        
+        foreach (var a in floaters)
+        {
+            var bc = a.GetComponent<BoxCollider>();
+            var c = Physics.OverlapBox(a.transform.position, bc.size, a.transform.rotation, 1 << 6);
+            if (c.Length > 0)
+            {
+                Debug.Assert(c.Length == 1); // we should be hitting at most one building
+                var b = c[0].gameObject;
+                if (a.transform.position == b.transform.position)
+                {
+                    var angle = Random.Range(0, 360);
+                    var mov = Quaternion.Euler(0, angle, 0) * new Vector3(0.05f, 0, 0);
+                    a.GetComponent<Floater>().buildingForce = new Vector2(mov.x, mov.z);
+                } else
+                {
+                    var rel = a.transform.position - b.transform.position;
+                    var val = rel.magnitude;
+                    var forceVal = 1 / val * 0.05f;
+                    a.GetComponent<Floater>().buildingForce = new Vector2(rel.x * forceVal, rel.z * forceVal);
                 }
+
+            }
+            
+            c = Physics.OverlapBox(a.transform.position, bc.size * 3, a.transform.rotation, 1 << 7);
+            for (int i = 0; i < c.Length; i++)
+            {
+                var b = c[i].gameObject;
+                if (a == b)
+                    continue;
+                if (a.transform.position == b.transform.position)
+                {
+                    var angle = Random.Range(0, 180);
+                    var mov = Quaternion.Euler(0, angle, 0) * new Vector3(0.1f, 0, 0);
+                    a.transform.position += mov;
+                    b.transform.position -= mov;
+                }
+                // XXX unnecessary? XXX
+                //if ((a.transform.position - b.transform.position).magnitude < 1f)
+                {
+                    var rel = a.transform.position - b.transform.position;
+                    var val = rel.magnitude;
+                    var forceVal = 1 / val * 0.01f;
+                    a.GetComponent<Floater>().force += new Vector2(rel.x * forceVal, rel.z * forceVal);
+                    b.GetComponent<Floater>().force -= new Vector2(rel.x * forceVal, rel.z * forceVal);
+                }
+            }
+        }
+
+        // fix the z of floaters
+        foreach (var f in floaters)
+        {
+            var cur = f.transform.position;
+            f.transform.position = new Vector3(cur.x, heightFloat(cur.x / SCALE, cur.z / SCALE) + water.waterLevelFloat(cur.x / SCALE, cur.z / SCALE),
+                                               cur.z);
+        }
+
+    }
+
+    public void removeFloater(GameObject floater)
+    {
+        floaters.Remove(floater);
+        Destroy(floater);
     }
 
     public void Update()
@@ -412,13 +561,19 @@ public class Terrain : MonoBehaviour
             {
                 var x = entry.Key % TERRAIN_SIZE;
                 var y = entry.Key / TERRAIN_SIZE;
-                if (entry.Value.GetComponent<waterPump>().fuelLevel > 0)
+                //if (entry.Value.GetComponent<waterPump>().fuelLevel > 0)
                     water.waterSource[x + y * TERRAIN_SIZE] = 0.25f;
-                else
-                    water.waterSource[x + y * TERRAIN_SIZE] = 0f;
+                //else
+                //    water.waterSource[x + y * TERRAIN_SIZE] = 0f;
             }
+            //water.waterSource[128 + 128 * TERRAIN_SIZE] = 1f;
+            //water.waterSource[129 + 128 * TERRAIN_SIZE] = 1f;
+            //water.waterSource[128 + 129 * TERRAIN_SIZE] = 1f;
+            //water.waterSource[129 + 129 * TERRAIN_SIZE] = 1f;
             water.updateWaterSources();
             s.water.CopyFrom(water.waterLevel);
+            s.waterFlowX.CopyFrom(water.waterFlowX);
+            s.waterFlowY.CopyFrom(water.waterFlowY);
             s_runner.Start(this, ref s, () =>
             {
                 s.waterFlowX.CopyTo(water.waterFlowX);

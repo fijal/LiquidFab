@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using UnityEngine;
 
@@ -26,10 +25,26 @@ public class Water : MonoBehaviour
         waterFlowX = new float[(Terrain.TERRAIN_SIZE + 1) * Terrain.TERRAIN_SIZE];
         waterFlowY = new float[(Terrain.TERRAIN_SIZE + 1) * Terrain.TERRAIN_SIZE];
 
+        for (int i = 0; i < Terrain.TERRAIN_SIZE * Terrain.TERRAIN_SIZE; i++)
+            waterLevel[i] = 1.0f;
+
         terrain = transform.parent.GetComponent<Terrain>();
     
         waterSource = new Dictionary<int, float>();
     }
+
+    private void Update()
+    {
+        for (int x = 0; x < Terrain.TERRAIN_SIZE; x++)
+            for (int y = 0; y < Terrain.TERRAIN_SIZE; y++)
+            {
+                var z = terrain.height(x, y) + waterLevel[x + y * Terrain.TERRAIN_SIZE] + 0.5f;
+                Debug.DrawLine(new Vector3(x * Terrain.SCALE, z, y * Terrain.SCALE),
+                                new Vector3(x * Terrain.SCALE + flowX(x, y), z, y * Terrain.SCALE + flowY(x, y)));
+                // Debug.DrawLine(new Vector3(0, 0, 0), new Vector3(10, 10, 10));
+            }
+    }
+
     public float flowX(int x, int y)
     {
         return waterFlowX[x + y * (Terrain.TERRAIN_SIZE + 1)];
