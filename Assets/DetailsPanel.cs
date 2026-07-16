@@ -15,7 +15,6 @@ public class DetailsPanel : MonoBehaviour
     public void close()
     {
         Destroy(gameObject);
-        controls.inOverlay = false;
     }
 
     public void Start()
