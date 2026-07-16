@@ -2,6 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public class AssemblerTool : BuildingFreePlacement
+{
+    public AssemblerTool(BuildingSpec spec) : base(spec)
+    {
+    }
+
+    public override void clickTerrain(GameObject highlight, Terrain terrain, Vector3 hitPoint)
+    {
+        terrain.spawnMiner(hitPoint, highlight.transform.rotation);
+    }
+}
+
 public class Assembler : MonoBehaviour
 {
     public GameObject gear1, gear2;

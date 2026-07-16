@@ -2,19 +2,37 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface BuildingBehaviour
-{
-    public void followHover(GameObject highlight, Vector3 hitPoint);
-    public void rotateHighlight(GameObject highlight, float amount);
-    public void clickTerrain(GameObject highlight, Terrain terrain, Vector3 hitPoint);
-    public bool isLegalPlacement(GameObject highlight, Terrain terrain, Vector3 point);
 
-    public void hoverOverTerrain(GameObject highlight, GameObject camera, Terrain terrain);
-}
-
-public class BuildingFreePlacement : BuildingBehaviour
+public class BuildingFreePlacement : ITool
 {
     public BuildingSpec spec;
+
+    public Sprite getGrayIcon()
+    {
+        return spec.grayIcon;
+    }
+
+    public Sprite getColorIcon()
+    {
+        return spec.colorIcon;
+    }
+
+    public void activate(GameObject highlight)
+    {
+        var green = Object.Instantiate<GameObject>(spec.greenPrefab, highlight.transform);
+        green.name = "green";
+        var red = Object.Instantiate<GameObject>(spec.redPrefab, highlight.transform);
+        red.name = "red";
+    }
+
+    public void deactivate(GameObject highlight)
+    {
+        if (highlight.transform.childCount > 0)
+        {
+            for (int i = 0; i < highlight.transform.childCount; i++)
+                Object.Destroy(highlight.transform.GetChild(i).gameObject);
+        }
+    }
 
     public BuildingFreePlacement(BuildingSpec spec)
     {
@@ -26,7 +44,7 @@ public class BuildingFreePlacement : BuildingBehaviour
         highlight.transform.position = hitPoint;
     }
 
-    public void rotateHighlight(GameObject highlight, float amount)
+    public void rotate(GameObject highlight, float amount)
     {
         highlight.transform.rotation *= Quaternion.Euler(0, amount, 0);
     }
@@ -80,12 +98,22 @@ public class BuildingFreePlacement : BuildingBehaviour
     }
 }
 
-public class BuildingGridPlacement : BuildingBehaviour
+public class BuildingGridPlacement : ITool
 {
     public BuildingSpec spec;
     int startX, startY;
     bool placing = false;
     List<GameObject> greenChain;
+
+    public Sprite getGrayIcon()
+    {
+        return spec.grayIcon;
+    }
+
+    public Sprite getColorIcon()
+    {
+        return spec.colorIcon;
+    }
 
     public virtual int GetMaxChainLength()
     {
@@ -96,6 +124,21 @@ public class BuildingGridPlacement : BuildingBehaviour
     public BuildingGridPlacement(BuildingSpec spec)
     {
         this.spec = spec;
+    }
+
+    public void activate(GameObject highlight)
+    {
+
+    }
+
+    public void deactivate(GameObject highlight)
+    {
+        placing = false;
+        if (highlight.transform.childCount > 0)
+        {
+            for (int i = 0; i < highlight.transform.childCount; i++)
+                Object.Destroy(highlight.transform.GetChild(i).gameObject);
+        }
     }
 
     public void followHover(GameObject highlight, Vector3 hitPoint)
@@ -165,7 +208,7 @@ public class BuildingGridPlacement : BuildingBehaviour
         }
     }
 
-    public void rotateHighlight(GameObject highlight, float amount)
+    public void rotate(GameObject highlight, float amount)
     {
     }
 
@@ -210,6 +253,5 @@ public class BuildingSpec : MonoBehaviour
     public GameObject prefab;
     public bool isGridBound = false;
     public GameObject greenPrefab, redPrefab;
-    public BuildingBehaviour behaviour;
     public Sprite colorIcon, grayIcon;
 }
