@@ -95,7 +95,6 @@ public class DismantleTool : ITool
             }
             currentObject = hit.transform.gameObject;
             recursivelyDisableMeshRendering(currentObject);
-            Debug.Log(currentObject.GetComponent<Building>().kind);
             var red = terrain.controls.tools.buildingMapping[currentObject.GetComponent<Building>().kind].getRedGhost();
             currentGhost = Object.Instantiate<GameObject>(red, currentObject.transform);
         } else if (currentObject != null)

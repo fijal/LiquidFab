@@ -483,8 +483,12 @@ public class Terrain : MonoBehaviour
                 // XXX the following assert is not always true, let's think about it
                 GameObject b = null;
                 for (int i = 0; i < c.Length; i++)
+                {
+                    if (c[i].gameObject.GetComponent<Building>() == null)
+                        Debug.Log(c[i].gameObject);
                     if (c[i].gameObject.GetComponent<Building>().kind != BuildingKind.waterWheel)
                         b = c[i].gameObject;
+                }
                 if (b != null)
                 {
                     if (a.transform.position == b.transform.position)
