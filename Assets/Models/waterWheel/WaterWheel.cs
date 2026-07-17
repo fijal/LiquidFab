@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WaterWheelBehaviour : BuildingGridPlacement
+public class WaterWheelTool : BuildingGridPlacement
 {
     WaterWheelSpec wheelSpec;
     const int MAX_CHAIN_LENGTH = 6;
@@ -12,7 +12,7 @@ public class WaterWheelBehaviour : BuildingGridPlacement
         return MAX_CHAIN_LENGTH;
     }
 
-    public WaterWheelBehaviour(BuildingSpec spec, WaterWheelSpec wheelSpec) : base(spec)
+    public WaterWheelTool(BuildingSpec spec, WaterWheelSpec wheelSpec) : base(spec)
     {
         this.wheelSpec = wheelSpec;
     }

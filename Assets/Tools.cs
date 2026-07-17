@@ -7,6 +7,7 @@ public interface ITool
 {
     public Sprite getGrayIcon();
     public Sprite getColorIcon();
+    public GameObject getRedGhost();
     public void activate(GameObject highlight);
     public void deactivate(GameObject highlight);
     public void hoverOverTerrain(GameObject highlight, GameObject camera, Terrain terrain);
@@ -17,6 +18,7 @@ public interface ITool
 public class Tools : MonoBehaviour
 {
     public Dictionary<string, ITool> allTools;
+    public Dictionary<BuildingKind, ITool> buildingMapping; // BuildingKind -> Tool
     
     void Start()
     {
@@ -33,9 +35,19 @@ public class Tools : MonoBehaviour
         
         var ww = transform.Find("WaterWheel").gameObject;
         var waterWheelSpec = ww.GetComponent<BuildingSpec>();
-        allTools["WaterWheel"] = new WaterWheelBehaviour(waterWheelSpec, ww.GetComponent<WaterWheelSpec>());
+        allTools["WaterWheel"] = new WaterWheelTool(waterWheelSpec, ww.GetComponent<WaterWheelSpec>());
         
         var fenceSpec = transform.Find("Fence").gameObject.GetComponent<BuildingSpec>();
         allTools["Fence"] = new FenceBehaviour(fenceSpec);
+
+        var dismantleSpec = transform.Find("Dismantle").gameObject.GetComponent<Dismantle>();
+        allTools["Dismantle"] = new DismantleTool(dismantleSpec);
+
+        buildingMapping = new Dictionary<BuildingKind, ITool>();
+        buildingMapping[BuildingKind.assembler] = allTools["Assembler"];
+        buildingMapping[BuildingKind.waterWheel] = allTools["WaterWheel"];
+        buildingMapping[BuildingKind.forge] = allTools["Forge"];
+        buildingMapping[BuildingKind.miner] = allTools["Miner"];
+        buildingMapping[BuildingKind.fence] = allTools["Fence"];
     }
 }

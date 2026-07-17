@@ -25,6 +25,7 @@ public class Terrain : MonoBehaviour
     readonly MyJobRunner s_runner = new();
 
     public TextAsset terrainData;
+    // XXX this should go away at some point XXX
     public GameObject logPrefab, minerPrefab, forgePrefab, assemblerPrefab, waterPumpPrefab, smokePrefab, ironPlatePrefab, waterWheelPrefab;
     public GameObject[] treePrefabs;
     public GameObject infoDialog;
@@ -480,19 +481,25 @@ public class Terrain : MonoBehaviour
             if (c.Length > 0)
             {
                 // XXX the following assert is not always true, let's think about it
-                //Debug.Assert(c.Length == 1); // we should be hitting at most one building
-                var b = c[0].gameObject;
-                if (a.transform.position == b.transform.position)
+                GameObject b = null;
+                for (int i = 0; i < c.Length; i++)
+                    if (c[i].gameObject.GetComponent<Building>().kind != BuildingKind.waterWheel)
+                        b = c[i].gameObject;
+                if (b != null)
                 {
-                    var angle = Random.Range(0, 360);
-                    var mov = Quaternion.Euler(0, angle, 0) * new Vector3(0.05f, 0, 0);
-                    a.GetComponent<Floater>().buildingForce = new Vector2(mov.x, mov.z);
-                } else
-                {
-                    var rel = a.transform.position - b.transform.position;
-                    var val = rel.magnitude;
-                    var forceVal = 1 / val * 0.05f;
-                    a.GetComponent<Floater>().buildingForce = new Vector2(rel.x * forceVal, rel.z * forceVal);
+                    if (a.transform.position == b.transform.position)
+                    {
+                        var angle = Random.Range(0, 360);
+                        var mov = Quaternion.Euler(0, angle, 0) * new Vector3(0.05f, 0, 0);
+                        a.GetComponent<Floater>().buildingForce = new Vector2(mov.x, mov.z);
+                    }
+                    else
+                    {
+                        var rel = a.transform.position - b.transform.position;
+                        var val = rel.magnitude;
+                        var forceVal = 1 / val * 0.05f;
+                        a.GetComponent<Floater>().buildingForce = new Vector2(rel.x * forceVal, rel.z * forceVal);
+                    }
                 }
 
             }
@@ -536,6 +543,12 @@ public class Terrain : MonoBehaviour
     {
         floaters.Remove(floater);
         Destroy(floater);
+    }
+
+    public void removeBuilding(GameObject building)
+    {
+        buildings.Remove(building);
+        Destroy(building);
     }
 
     public void Update()

@@ -122,5 +122,5 @@ MonoBehaviour:
   terrain: {fileID: 0}
   spawnPoint: {fileID: 0}
   pickupPoint: {fileID: 0}
-  kind: 0
+  kind: 5
   state: 1

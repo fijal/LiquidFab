@@ -10,7 +10,7 @@ public class AssemblerTool : BuildingFreePlacement
 
     public override void clickTerrain(GameObject highlight, Terrain terrain, Vector3 hitPoint)
     {
-        terrain.spawnMiner(hitPoint, highlight.transform.rotation);
+        terrain.spawnAssembler(hitPoint, highlight.transform.rotation);
     }
 }
 

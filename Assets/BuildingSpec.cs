@@ -17,6 +17,11 @@ public class BuildingFreePlacement : ITool
         return spec.colorIcon;
     }
 
+    public GameObject getRedGhost()
+    {
+        return spec.redPrefab;
+    }
+
     public void activate(GameObject highlight)
     {
         var green = Object.Instantiate<GameObject>(spec.greenPrefab, highlight.transform);
@@ -115,6 +120,11 @@ public class BuildingGridPlacement : ITool
         return spec.colorIcon;
     }
 
+    public GameObject getRedGhost()
+    {
+        return spec.redPrefab;
+    }
+
     public virtual int GetMaxChainLength()
     {
         Debug.Assert(false);
@@ -139,13 +149,6 @@ public class BuildingGridPlacement : ITool
             for (int i = 0; i < highlight.transform.childCount; i++)
                 Object.Destroy(highlight.transform.GetChild(i).gameObject);
         }
-    }
-
-    public void followHover(GameObject highlight, Vector3 hitPoint)
-    {
-        var x = (int)(hitPoint.x / Terrain.SCALE);
-        var y = (int)(hitPoint.z / Terrain.SCALE);
-        highlight.transform.position = new Vector3(x * Terrain.SCALE, hitPoint.y, y * Terrain.SCALE);
     }
 
     public void hoverOverTerrain(GameObject highlight, GameObject camera, Terrain terrain)
