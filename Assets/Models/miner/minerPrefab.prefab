@@ -94,26 +94,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2962304638282216217, guid: a28f463f0418d36429b86a53c1bac031, type: 3}
-      propertyPath: ColorModule.enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2962304638282216217, guid: a28f463f0418d36429b86a53c1bac031, type: 3}
-      propertyPath: ColorModule.gradient.maxGradient.atime1
-      value: 55705
-      objectReference: {fileID: 0}
-    - target: {fileID: 2962304638282216217, guid: a28f463f0418d36429b86a53c1bac031, type: 3}
-      propertyPath: ColorModule.gradient.maxGradient.atime2
-      value: 65535
-      objectReference: {fileID: 0}
-    - target: {fileID: 2962304638282216217, guid: a28f463f0418d36429b86a53c1bac031, type: 3}
-      propertyPath: ColorModule.gradient.maxGradient.key2.a
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2962304638282216217, guid: a28f463f0418d36429b86a53c1bac031, type: 3}
-      propertyPath: ColorModule.gradient.maxGradient.m_NumAlphaKeys
-      value: 3
-      objectReference: {fileID: 0}
     - target: {fileID: 2962304638282216219, guid: a28f463f0418d36429b86a53c1bac031, type: 3}
       propertyPath: m_Name
       value: Smoke
