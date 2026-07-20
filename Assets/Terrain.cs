@@ -480,7 +480,6 @@ public class Terrain : MonoBehaviour
             var c = Physics.OverlapBox(a.transform.position, bc.size, a.transform.rotation, 1 << 6);
             if (c.Length > 0)
             {
-                // XXX the following assert is not always true, let's think about it
                 GameObject b = null;
                 for (int i = 0; i < c.Length; i++)
                 {

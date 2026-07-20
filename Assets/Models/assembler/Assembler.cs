@@ -10,7 +10,8 @@ public class AssemblerTool : BuildingFreePlacement
 
     public override void clickTerrain(GameObject highlight, Terrain terrain, Vector3 hitPoint)
     {
-        terrain.spawnAssembler(hitPoint, highlight.transform.rotation);
+        if (isLegalPlacement(highlight, terrain, hitPoint))
+            terrain.spawnAssembler(hitPoint, highlight.transform.rotation);
     }
 }
 

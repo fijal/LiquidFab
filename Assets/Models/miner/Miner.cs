@@ -10,7 +10,8 @@ public class MinerTool : BuildingFreePlacement
 
     public override void clickTerrain(GameObject highlight, Terrain terrain, Vector3 hitPoint)
     {
-        terrain.spawnMiner(hitPoint, highlight.transform.rotation);
+        if (isLegalPlacement(highlight, terrain, hitPoint))
+            terrain.spawnMiner(hitPoint, highlight.transform.rotation);
     }
 }
 

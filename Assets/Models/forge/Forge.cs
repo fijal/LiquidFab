@@ -10,7 +10,8 @@ public class ForgeTool : BuildingFreePlacement
 
     public override void clickTerrain(GameObject highlight, Terrain terrain, Vector3 hitPoint)
     {
-        terrain.spawnForge(hitPoint, highlight.transform.rotation);
+        if (isLegalPlacement(highlight, terrain, hitPoint))
+            terrain.spawnForge(hitPoint, highlight.transform.rotation);
     }
 }
 
