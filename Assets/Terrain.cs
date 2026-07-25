@@ -686,7 +686,7 @@ public class Terrain : MonoBehaviour
 
     public bool load(string savefile)
     {
-        return;
+        return false;
         byte[] bytes = File.ReadAllBytes(savefile);
         var save = LiquidFab.Savegame.Savegame.GetRootAsSavegame(new ByteBuffer(bytes));
         if (save.Version != Controls.SAVEGAME_VERSION)
