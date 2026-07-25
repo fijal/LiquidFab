@@ -9,12 +9,8 @@ public class Water : MonoBehaviour
     public float[] waterLevel, waterFlowX, waterFlowY;
     
     const int WATER_SIZE_X = Terrain.TERRAIN_SIZE, WATER_SIZE_Y = Terrain.TERRAIN_SIZE;
-    public const float WATER_SOURCE_AMOUNT = 0.33f;
     Terrain terrain;
 
-    public GameObject waterSourcePrefab;
-    public Dictionary<int, float> waterSource;
-    
     void Start()
     {
         var mesh = new Mesh();
@@ -29,8 +25,6 @@ public class Water : MonoBehaviour
             waterLevel[i] = 1.0f;
         
         terrain = transform.parent.GetComponent<Terrain>();
-    
-        waterSource = new Dictionary<int, float>();
     }
 
     private void Update()
@@ -146,8 +140,6 @@ public class Water : MonoBehaviour
         // XXX this is done 10 times per second only if the background thread can keep up;
         // otherwise this is done less often.  We should probably do waterLevel[] +=
         // some value computed from how long it really was since the last time we were here
-        foreach (KeyValuePair<int, float> entry in waterSource)
-            waterLevel[entry.Key] += entry.Value;
 
         var m = 0f;
         for (int y = 0; y < WATER_SIZE_Y; y++)
