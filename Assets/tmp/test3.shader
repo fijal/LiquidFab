@@ -1,15 +1,12 @@
-    Shader "Unlit/test2"
+Shader "Unlit/test3"
 {
     Properties
     {
-        _MainColor ("Main color", Color) = (0.0, 0.0, 0.0, 1.0)
-        _Speed ("Speed", Float) = 20
-        _Width ("Width", Float) = 0.4
         _MainTex ("Texture", 2D) = "white" {}
     }
     SubShader
     {
-        Tags { "RenderType"="Transparent" }
+        Tags { "RenderType"="Opaque" }
         LOD 100
 
         Pass
@@ -35,10 +32,7 @@
                 float4 vertex : SV_POSITION;
             };
 
-            float4 _MainColor;
             sampler2D _MainTex;
-            float _Speed;
-            float _Width;
             float4 _MainTex_ST;
 
             v2f vert (appdata v)
@@ -46,28 +40,30 @@
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+                UNITY_TRANSFER_FOG(o,o.vertex);
                 return o;
             }
 
-            fixed4 frag (v2f i) : SV_Target
+            fixed4 frag(v2f i) : SV_Target
             {
-                // sample the texture
-                //fixed4 col = tex2D(_MainTex, i.uv);
-                float f;
-                if (i.uv.y > 0.5) {
-                    f = ((i.uv.x + i.uv.y) - _Time.x * _Speed - 2) % _Width;
-                    if (abs(f) > _Width / 2) {
-                        clip(-1);
-                    }
+                fixed4 col;
+                float x = sin((i.uv.x + _Time.w / 10) * 10 + 0.5) / 2 + 0.5;
+                float x2 = -sin((i.uv.x + _Time.w / 10) * 10 + 0.5) / 2 + 0.5;
+                if (x - i.uv.y < 0.01 && x - i.uv.y > -0.01) {
+                    col = fixed4(0.0, 1.0, 1.0, 1.0);
+                }
+                else if (x2 - i.uv.y < 0.01 && x2 - i.uv.y > -0.01) {
+                    col = fixed4(0.0, 1.0, 1.0, 1.0);
                 }
                 else {
-                    f = ((i.uv.x - i.uv.y) - _Time.x * _Speed - 2) % _Width;
-                    if (abs(f) < _Width / 2) {
-                        clip(-1);
-                    }
+                    clip(-1);
+                    //col = fixed4(1.0, 1.0, 1.0, 1.0);
                 }
-                //fixed4 col = (_MainColor.x, _MainColor.y, _MainColor.z, 1.0);
-                return _MainColor;
+                        // sample the texture
+                //fixed4 col = tex2D(_MainTex, i.uv);
+                // apply fog
+                //UNITY_APPLY_FOG(i.fogCoord, col);
+                return col;
             }
             ENDCG
         }

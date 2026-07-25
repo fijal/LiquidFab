@@ -27,7 +27,7 @@ public class Water : MonoBehaviour
 
         for (int i = 0; i < Terrain.TERRAIN_SIZE * Terrain.TERRAIN_SIZE; i++)
             waterLevel[i] = 1.0f;
-
+        
         terrain = transform.parent.GetComponent<Terrain>();
     
         waterSource = new Dictionary<int, float>();
@@ -53,6 +53,40 @@ public class Water : MonoBehaviour
     public float flowY(int x, int y)
     {
         return waterFlowY[x + y * Terrain.TERRAIN_SIZE];
+    }
+
+    public float flowXfloat(float x, float y)
+    {
+        int ix = (int)x;
+        if (ix < 0) ix = 0;
+        else if (ix >= WATER_SIZE_X) ix = WATER_SIZE_X - 1;
+        float xrem = x - (float)ix;
+        int iy = (int)y;
+        if (iy < 0) iy = 0;
+        else if (iy >= WATER_SIZE_Y - 1) iy = WATER_SIZE_Y - 2;
+        float yrem = y - (float)iy;
+        int i = ix + iy * (WATER_SIZE_X + 1);
+        return Mathf.Lerp(
+            Mathf.Lerp(waterFlowX[i], waterFlowX[i + 1], xrem),
+            Mathf.Lerp(waterFlowX[i + WATER_SIZE_X + 1], waterFlowX[i + 1 + WATER_SIZE_X + 1], xrem),
+            yrem);
+    }
+
+    public float flowYfloat(float x, float y)
+    {
+        int ix = (int)x;
+        if (ix < 0) ix = 0;
+        else if (ix >= WATER_SIZE_X - 1) ix = WATER_SIZE_X - 2;
+        float xrem = x - (float)ix;
+        int iy = (int)y;
+        if (iy < 0) iy = 0;
+        else if (iy >= WATER_SIZE_Y) iy = WATER_SIZE_Y - 1;
+        float yrem = y - (float)iy;
+        int i = ix + iy * WATER_SIZE_X;
+        return Mathf.Lerp(
+            Mathf.Lerp(waterFlowY[i], waterFlowY[i + 1], xrem),
+            Mathf.Lerp(waterFlowY[i + WATER_SIZE_X], waterFlowY[i + 1 + WATER_SIZE_X], xrem),
+            yrem);
     }
 
     public float waterLevelFloat(float x, float y)

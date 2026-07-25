@@ -18,7 +18,7 @@ public class Controls : MonoBehaviour
     const float MOUSE_ROTATE_SPEED = 1f;
     const float HEIGHT_SCROLL_SPEED = 5f;
 
-    string[] defaultToolSet = { "Dismantle", "Fence", "WaterWheel", "Forge", "Assembler", "Miner"};
+    string[] defaultToolSet = { "Dismantle", "Fence", "WaterWheel", "Forge", "Assembler", "Miner", "WaterPump"};
 
     GameObject[] UIElements;
     public EventSystem eventSystem;
@@ -40,6 +40,7 @@ public class Controls : MonoBehaviour
     
     Vector3 lastMousePos;
     float timer = 10.0f;
+    float delay = 0.3f;
 
     public const int SAVEGAME_VERSION = 6;
 
@@ -125,15 +126,44 @@ public class Controls : MonoBehaviour
         currentToolbarItem.GetComponent<ToolbarItem>().tool.hoverOverTerrain(highlight, camera, terrain);
     }
 
-    void RaycastToTerrain()
+    void RaycastToTerrainCont()
     {
-        if (currentToolbarItem == null)
+        if (currentToolbarItem != null)
             return;
         var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
+        if (Physics.Raycast(ray, out hit, 200, 1 << 3)) {
+            var go = Instantiate(terrain.doodad, terrain.gameObject.transform);
+            go.GetComponent<Floater>().terrain = terrain;
+            //go.GetComponent<MeshCollider>()
+            go.transform.position = new Vector3(hit.point.x, terrain.heightFloat(hit.point.x, hit.point.z) + 3.0f, hit.point.z);
+        }
+
+    }
+
+    void RaycastToTerrain()
+    {
+        if (currentToolbarItem == null)
+        {
+            var ray2 = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit2;
+
+            if (Physics.Raycast(ray2, out hit2, 200, 1 << 3))
+            {
+                var ix = hit2.point.x / Terrain.SCALE;
+                var iy = hit2.point.z / Terrain.SCALE;
+                Debug.Log(new Vector2(terrain.water.flowXfloat(ix, iy), terrain.water.flowYfloat(ix, iy)));
+            }
+            return;
+        }
+        var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+
         if (Physics.Raycast(ray, out hit, 200, 1 << 3))
+        {
             currentToolbarItem.GetComponent<ToolbarItem>().tool.clickTerrain(highlight, terrain, hit.point);
+        }
         // XXX rework this part or more likely the whole function XXX
         /*if (isClick)
         {
@@ -281,6 +311,7 @@ public class Controls : MonoBehaviour
 
     void Update()
     {
+        delay -= Time.deltaTime;
         if (timer > 0)
         {
             timer -= Time.deltaTime;
@@ -339,8 +370,14 @@ public class Controls : MonoBehaviour
 
             if (Input.GetMouseButtonDown(0))
                 RaycastToTerrain();
-            /*if (Input.GetMouseButton(0))
-                RaycastToTerrain(false, Input.GetKey(KeyCode.LeftShift), Time.deltaTime);*/
+            if (Input.GetMouseButton(0))
+            {
+                if (delay <= 0f)
+                {
+                    RaycastToTerrainCont();
+                    delay = 0.3f;
+                }
+            }
             if (!Input.GetMouseButton(0) && !Input.GetMouseButton(1))
                 RaycastToTerrainHover();
             if (Input.mouseScrollDelta.y != 0)

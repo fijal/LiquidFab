@@ -27,6 +27,7 @@ public class Terrain : MonoBehaviour
     public TextAsset terrainData;
     // XXX this should go away at some point XXX
     public GameObject logPrefab, minerPrefab, forgePrefab, assemblerPrefab, waterPumpPrefab, smokePrefab, ironPlatePrefab, waterWheelPrefab;
+    public GameObject doodad;
     public GameObject[] treePrefabs;
     public GameObject infoDialog;
     public Controls controls;
@@ -55,6 +56,11 @@ public class Terrain : MonoBehaviour
     public float heightWater(int x, int y)
     {
         return height(x, y) + water.waterLevel[x + y * TERRAIN_SIZE];
+    }
+
+    public float heightWaterFloat(float x, float y)
+    {
+        return heightFloat(x, y) + water.waterLevelFloat(x, y);
     }
 
     public float heightFloat(float x, float y)
@@ -113,6 +119,7 @@ public class Terrain : MonoBehaviour
         go.transform.position = loc + new Vector3(Random.Range(-0.1f, 0.1f), 0, Random.Range(-0.1f, 0.1f));
         go.transform.rotation = Quaternion.Euler(0, Random.Range(0, 90), 0);
         go.GetComponent<Floater>().tp = tp;
+        go.GetComponent<Floater>().terrain = this;
         floaters.Add(go);
     }
 
@@ -158,9 +165,10 @@ public class Terrain : MonoBehaviour
         return go;
     }
 
-    public waterPump spawnWaterPump(int x, int y)
+    public void spawnWaterPump(GameObject prefab, Vector3 point, Quaternion rot)
     {
-        foreach (var entry in waterPumps)
+        spawnBuilding(prefab, point, rot);
+        /*foreach (var entry in waterPumps)
         {
             var ex = entry.Key % TERRAIN_SIZE;
             var ey = entry.Key / TERRAIN_SIZE;
@@ -180,7 +188,7 @@ public class Terrain : MonoBehaviour
         wp.smoke.Stop();
         wp.basePos = heightFloat(x + 0.5f, y + 0.5f);
         waterPumps.Add(x + y * TERRAIN_SIZE, go);
-        return wp;
+        return wp;*/
     }
 
     public void changeTerrainKind(int x, int y, int kind)
@@ -329,6 +337,7 @@ public class Terrain : MonoBehaviour
             for (int y = 0; y < TERRAIN_SIZE; ++y)
             {
                 var h = height(x, y);
+                // XXX
                 if (isCollider)
                     h += water.waterLevel[x + y * TERRAIN_SIZE];
                 vertices[x + y * TERRAIN_SIZE] = new Vector3(x * SCALE, h, y * SCALE);
@@ -373,6 +382,7 @@ public class Terrain : MonoBehaviour
 
     public void interactWithTerrain(int x, int y)
     {
+
         /*if (trees.ContainsKey(x + y * TERRAIN_SIZE))
         {
             var tree = trees[x + y * TERRAIN_SIZE];
@@ -385,7 +395,7 @@ public class Terrain : MonoBehaviour
                 controls.changeMouseCursorToLog();
             }
         }*/
-        Debug.Log($"{x} {y} {water.flowX(x, y)} {water.flowY(x, y)}");
+        //Debug.Log($"{x} {y} {water.flowX(x, y)} {water.flowY(x, y)}");
     }
 
 
@@ -450,6 +460,15 @@ public class Terrain : MonoBehaviour
                     logs[j].GetComponent<Log2>().force -= new Vector2(rel.x * forceVal, rel.z * forceVal);
                 }*/
 
+        foreach (var f in buildings)
+        {
+            if (f.GetComponent<Building>().kind == BuildingKind.waterPump)
+            {
+                var x = (int)(f.transform.position.x / SCALE);
+                var y = (int)(f.transform.position.z / SCALE);
+                water.waterLevel[x + y * TERRAIN_SIZE] += 1.0f;
+            }
+        }
         updateBuildings();
     }
 
@@ -699,10 +718,10 @@ public class Terrain : MonoBehaviour
         for (int i = 0; i < wpLen; i++)
         {
             var wp = save.WaterPumps(i).Value;
-            var p = spawnWaterPump(wp.X, wp.Y);
+            /*var p = spawnWaterPump(wp.X, wp.Y);
             p.fuelLevel = wp.FuelLevel;
             p.logs = wp.Logs;
-            p.maybeConsumeLog();
+            p.maybeConsumeLog();*/
         }
         var buf = new float[TERRAIN_SIZE * TERRAIN_SIZE];
         for (int i = 0; i < TERRAIN_SIZE * TERRAIN_SIZE; ++i)

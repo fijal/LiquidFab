@@ -31,7 +31,7 @@ public class Log : MonoBehaviour
             // flow
             var flowForce = new Vector3(terrain.s.waterFlowX[(int)x + ((int)y) * Terrain.TERRAIN_SIZE], buoyancy,
                 terrain.s.waterFlowY[(int)x + ((int)y) * Terrain.TERRAIN_SIZE]) * 30;
-            rb.AddForceAtPosition((flowForce - rb.velocity) * frac * 3f/4,
+            rb.AddForceAtPosition((flowForce - rb.linearVelocity) * frac * 3f/4,
                 transform.position + bottom_direction * Mathf.Lerp(logHeight, 0f, frac),
                 ForceMode.Force);
         }

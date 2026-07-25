@@ -16,7 +16,8 @@ public enum BuildingKind
     forge = 2,
     assembler = 3,
     waterWheel = 4,
-    fence = 5
+    fence = 5,
+    waterPump = 6
 }
 
 public class Building : MonoBehaviour

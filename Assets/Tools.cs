@@ -43,11 +43,15 @@ public class Tools : MonoBehaviour
         var dismantleSpec = transform.Find("Dismantle").gameObject.GetComponent<Dismantle>();
         allTools["Dismantle"] = new DismantleTool(dismantleSpec);
 
+        var waterPumpSpec = transform.Find("WaterPump").gameObject.GetComponent<BuildingSpec>();
+        allTools["WaterPump"] = new WaterPumpTool(waterPumpSpec);
+
         buildingMapping = new Dictionary<BuildingKind, ITool>();
         buildingMapping[BuildingKind.assembler] = allTools["Assembler"];
         buildingMapping[BuildingKind.waterWheel] = allTools["WaterWheel"];
         buildingMapping[BuildingKind.forge] = allTools["Forge"];
         buildingMapping[BuildingKind.miner] = allTools["Miner"];
         buildingMapping[BuildingKind.fence] = allTools["Fence"];
+        buildingMapping[BuildingKind.waterPump] = allTools["WaterPump"];
     }
 }

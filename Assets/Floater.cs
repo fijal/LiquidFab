@@ -8,10 +8,36 @@ public class Floater : MonoBehaviour
     public Vector2 buildingForce;
     public Vector2 flowForce;
     public ItemType tp;
+    public Terrain terrain;
 
     void Start()
     {
         
+    }
+
+    private void FixedUpdate()
+    {
+        if (GetComponent<Rigidbody>() == null)
+            return;
+        var x = transform.position.x / Terrain.SCALE;
+        var y = transform.position.z / Terrain.SCALE;
+        var level = terrain.heightWaterFloat(x, y);
+        var sizeY = GetComponent<MeshCollider>().sharedMesh.bounds.extents.y;
+        if (transform.position.y - level < 0)
+        {
+            GetComponent<Rigidbody>().AddForce(new Vector3(0, 12f * Mathf.Max(1f, (transform.position.y - level) / sizeY), 0));
+            GetComponent<Rigidbody>().AddForce(new Vector3(0, -GetComponent<Rigidbody>().linearVelocity.y * 0.1f, 0));
+        }
+        var flowSpeed = new Vector3(terrain.water.flowXfloat(x, y), 0, terrain.water.flowYfloat(x, y));
+        var vel = GetComponent<Rigidbody>().linearVelocity;
+        vel = new Vector3(vel.x, 0, vel.z);
+        if (terrain.water.waterLevelFloat(x, y) > sizeY)
+        {
+            GetComponent<Rigidbody>().AddForce((flowSpeed - vel * 0.1f) * 1f);
+            //Debug.DrawLine(transform.position, transform.position + flowSpeed * 1f, Color.red);
+            //Debug.DrawLine(transform.position, transform.position + vel * 1f, Color.green);
+            //Debug.DrawLine(transform.position, transform.position + (flowSpeed - vel) * 1f, Color.red);
+        }
     }
 
     void Update()
