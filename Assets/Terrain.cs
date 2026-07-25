@@ -592,21 +592,7 @@ public class Terrain : MonoBehaviour
             runUpdates();
             s.terrain.CopyFrom(terrainHeight);
             recalculateMesh();
-            water.waterSource.Clear();
-            foreach (var entry in waterPumps)
-            {
-                var x = entry.Key % TERRAIN_SIZE;
-                var y = entry.Key / TERRAIN_SIZE;
-                //if (entry.Value.GetComponent<waterPump>().fuelLevel > 0)
-                    water.waterSource[x + y * TERRAIN_SIZE] = 0.25f;
-                //else
-                //    water.waterSource[x + y * TERRAIN_SIZE] = 0f;
-            }
-            //water.waterSource[128 + 128 * TERRAIN_SIZE] = 1f;
-            //water.waterSource[129 + 128 * TERRAIN_SIZE] = 1f;
-            //water.waterSource[128 + 129 * TERRAIN_SIZE] = 1f;
-            //water.waterSource[129 + 129 * TERRAIN_SIZE] = 1f;
-            water.updateWaterSources();
+            water.updateTerrainKind();
             s.water.CopyFrom(water.waterLevel);
             s.waterFlowX.CopyFrom(water.waterFlowX);
             s.waterFlowY.CopyFrom(water.waterFlowY);
@@ -630,6 +616,7 @@ public class Terrain : MonoBehaviour
 
     public void save(string filename)
     {
+        return; // broken and not working
         var builder = new FlatBufferBuilder(1024);
         
         LiquidFab.Savegame.Savegame.StartTreesVector(builder, trees.Count);
@@ -647,7 +634,7 @@ public class Terrain : MonoBehaviour
             var xy = entry.Key;
             var x = xy % TERRAIN_SIZE;
             var y = xy / TERRAIN_SIZE;
-            LiquidFab.Savegame.WaterPump.CreateWaterPump(builder, x, y, wp.fuelLevel, wp.logs);
+            //LiquidFab.Savegame.WaterPump.CreateWaterPump(builder, x, y, wp.fuelLevel, wp.logs);
         }
         VectorOffset waterPumpTable = builder.EndVector();
 

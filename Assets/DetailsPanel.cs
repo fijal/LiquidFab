@@ -24,7 +24,7 @@ public class DetailsPanel : MonoBehaviour
     public void FixedUpdate()
     {
         var wp = interactable.GetComponent<waterPump>();
-        fuelLevel.localScale = new Vector3(wp.fuelLevel / waterPump.MAX_FUEL, 1, 1);
-        logCount.text = $"{wp.logs}/5";
+        //fuelLevel.localScale = new Vector3(wp.fuelLevel / waterPump.MAX_FUEL, 1, 1);
+        //logCount.text = $"{wp.logs}/5";
     }
 }

@@ -135,7 +135,7 @@ public class Water : MonoBehaviour
         }
     }*/
 
-    public void updateWaterSources()
+    public void updateTerrainKind()
     {
         // XXX this is done 10 times per second only if the background thread can keep up;
         // otherwise this is done less often.  We should probably do waterLevel[] +=
