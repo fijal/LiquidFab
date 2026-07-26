@@ -136,8 +136,7 @@ public class Controls : MonoBehaviour
         if (Physics.Raycast(ray, out hit, 200, ColliderLayers.Water)) {
             var go = Instantiate(terrain.doodad, terrain.gameObject.transform);
             go.GetComponent<Floater>().terrain = terrain;
-            //go.GetComponent<MeshCollider>()
-            go.transform.position = new Vector3(hit.point.x, terrain.heightFloat(hit.point.x, hit.point.z) + 3.0f, hit.point.z);
+            go.transform.position = new Vector3(hit.point.x, terrain.heightFloat(hit.point.x / Terrain.SCALE, hit.point.z / Terrain.SCALE) + 3.0f, hit.point.z);
         }
 
     }
@@ -153,7 +152,6 @@ public class Controls : MonoBehaviour
             {
                 var ix = hit2.point.x / Terrain.SCALE;
                 var iy = hit2.point.z / Terrain.SCALE;
-                Debug.Log(new Vector2(terrain.water.flowXfloat(ix, iy), terrain.water.flowYfloat(ix, iy)));
             }
             return;
         }

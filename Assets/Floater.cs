@@ -23,7 +23,8 @@ public class Floater : MonoBehaviour
         var y = transform.position.z / Terrain.SCALE;
         var level = terrain.heightWaterFloat(x, y);
         var sizeY = 2 * GetComponent<MeshCollider>().sharedMesh.bounds.extents.y;
-        if (transform.position.y - level < 2 * sizeY)
+        var waterLevel = terrain.water.waterLevelFloat(x, y);
+        if (waterLevel > sizeY && transform.position.y - level < sizeY)
         {
             GetComponent<Rigidbody>().AddForce(new Vector3(0, 12f * Mathf.Max(1f, (transform.position.y - level) / 2 / sizeY), 0));
             GetComponent<Rigidbody>().AddForce(new Vector3(0, -GetComponent<Rigidbody>().linearVelocity.y * 10f, 0));
@@ -31,7 +32,7 @@ public class Floater : MonoBehaviour
         var flowSpeed = new Vector3(terrain.water.flowXfloat(x, y), 0, terrain.water.flowYfloat(x, y));
         var vel = GetComponent<Rigidbody>().linearVelocity;
         vel = new Vector3(vel.x, 0, vel.z);
-        if (terrain.water.waterLevelFloat(x, y) > sizeY)
+        if (waterLevel > sizeY)
         {
             GetComponent<Rigidbody>().AddForce((flowSpeed - vel * 0.1f) * 1f);
             //Debug.DrawLine(transform.position, transform.position + flowSpeed * 1f, Color.red);
@@ -42,7 +43,7 @@ public class Floater : MonoBehaviour
 
     void Update()
     {
-        if (buildingForce.magnitude > 0)
+        /*if (buildingForce.magnitude > 0)
         {
             transform.position += new Vector3(buildingForce.x * Time.deltaTime, 0, buildingForce.y * Time.deltaTime);
         }
@@ -52,6 +53,6 @@ public class Floater : MonoBehaviour
                 force = force.normalized * 0.5f;
             transform.position += new Vector3(force.x * Time.deltaTime, 0, force.y * Time.deltaTime);
             transform.position += new Vector3(flowForce.x * Time.deltaTime, 0, flowForce.y * Time.deltaTime);
-        }
+        }*/
     }
 }
