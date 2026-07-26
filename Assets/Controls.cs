@@ -37,6 +37,7 @@ public class Controls : MonoBehaviour
     public GameObject highlight;
 
     GameObject currentToolbarItem;
+    ITool currentTool;
     
     Vector3 lastMousePos;
     float timer = 10.0f;
@@ -57,6 +58,7 @@ public class Controls : MonoBehaviour
             go.transform.localPosition = new Vector3(-400 + i * 70, cur.y, cur.z);
             UIElements[i] = go;
         }
+        currentTool = tools.allTools["Select"];
         /*var count = 0;
         for (int i = 0; i < UIPanel.transform.childCount; ++i)
             if (UIPanel.transform.GetChild(i).GetComponent<ToolbarItem>() != null)
@@ -121,13 +123,12 @@ public class Controls : MonoBehaviour
 
     void RaycastToTerrainHover()
     {
-        if (currentToolbarItem == null)
-            return;
-        currentToolbarItem.GetComponent<ToolbarItem>().tool.hoverOverTerrain(highlight, camera, terrain);
+        currentTool.hoverOverTerrain(highlight, camera, terrain);
     }
 
     void RaycastToTerrainCont()
     {
+        return;
         if (currentToolbarItem != null)
             return;
         var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
@@ -143,7 +144,7 @@ public class Controls : MonoBehaviour
 
     void RaycastToTerrain()
     {
-        if (currentToolbarItem == null)
+        /*if (currentToolbarItem == null)
         {
             var ray2 = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
             RaycastHit hit2;
@@ -154,13 +155,13 @@ public class Controls : MonoBehaviour
                 var iy = hit2.point.z / Terrain.SCALE;
             }
             return;
-        }
+        }*/
         var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
         if (Physics.Raycast(ray, out hit, 200, ColliderLayers.Water))
         {
-            currentToolbarItem.GetComponent<ToolbarItem>().tool.clickTerrain(highlight, terrain, hit.point);
+            currentTool.clickTerrain(highlight, terrain, hit.point);
         }
         // XXX rework this part or more likely the whole function XXX
         /*if (isClick)
@@ -285,6 +286,7 @@ public class Controls : MonoBehaviour
         currentToolbarItem = obj;
         var item = currentToolbarItem.GetComponent<ToolbarItem>();
         item.activate(highlight, frameActive);
+        currentTool = item.tool;
     }
 
     void SaveGame()
@@ -343,7 +345,9 @@ public class Controls : MonoBehaviour
             if (Input.GetKey(KeyCode.Q)) {
                 if (currentToolbarItem != null)
                     currentToolbarItem.GetComponent<ToolbarItem>().deactivate(highlight, frameNotActive);
-                currentToolbarItem = null;
+                else
+                    currentTool.deactivate(highlight);
+                currentTool = tools.allTools["Select"];
                 return;
             }
 
@@ -379,8 +383,7 @@ public class Controls : MonoBehaviour
             if (!Input.GetMouseButton(0) && !Input.GetMouseButton(1))
                 RaycastToTerrainHover();
             if (Input.mouseScrollDelta.y != 0)
-                if (currentToolbarItem != null)
-                    currentToolbarItem.GetComponent<ToolbarItem>().tool.rotate(highlight, Input.mouseScrollDelta.y * 20);
+                currentTool.rotate(highlight, Input.mouseScrollDelta.y * 20);
             if (Input.GetKey(KeyCode.Z))
                 Move(false, new Vector3(0, 1, 0));
             if (Input.GetKey(KeyCode.C))

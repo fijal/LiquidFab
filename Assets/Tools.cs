@@ -46,6 +46,8 @@ public class Tools : MonoBehaviour
         var waterPumpSpec = transform.Find("WaterPump").gameObject.GetComponent<BuildingSpec>();
         allTools["WaterPump"] = new WaterPumpTool(waterPumpSpec);
 
+        allTools["Select"] = new SelectTool(transform.Find("Select").gameObject.GetComponent<Select>());
+
         buildingMapping = new Dictionary<BuildingKind, ITool>();
         buildingMapping[BuildingKind.assembler] = allTools["Assembler"];
         buildingMapping[BuildingKind.waterWheel] = allTools["WaterWheel"];

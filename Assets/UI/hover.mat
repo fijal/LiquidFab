@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: test
+  m_Name: hover
   m_Shader: {fileID: 4800000, guid: 3a6f5a1d374f547e0830ec0a3b52c551, type: 3}
   m_ValidKeywords: []
   m_InvalidKeywords: []

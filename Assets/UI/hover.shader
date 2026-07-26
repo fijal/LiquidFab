@@ -1,10 +1,9 @@
-Shader "Unlit/test"
+Shader "LiquidFab/hover"
 {
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
         _OutlineColor ("Outline color", Color) = (0.0, 0.0, 0.0, 1.0)
-        _Parameter("Parameter", float) = 0.0
     }
     SubShader
     {
@@ -34,8 +33,7 @@ Shader "Unlit/test"
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
-            float _Parameter;
-
+    
             v2f vert (appdata v)
             {
                 v2f o;
@@ -51,7 +49,7 @@ Shader "Unlit/test"
                 float x = i.uv.x - 0.5;
                 float y = i.uv.y - 0.5;
                 float v = x * x + y * y;
-                float angle = (_Parameter + atan2(x, y) + pi) % (pi / 8);
+                float angle = (_Time.w / 3.0 + atan2(x, y) + pi) % (pi / 8);
                 if (v > 0.35 * 0.35 || v < 0.2 * 0.2) {
                     clip(-1);
                 }
