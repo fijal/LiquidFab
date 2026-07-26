@@ -19,6 +19,7 @@ public class Terrain : MonoBehaviour
     public List<float> terrainUpdatesVal;
     Dictionary<int, GameObject> trees;
     Dictionary<int, GameObject> waterPumps;
+    HashSet<GameObject> sources;
     HashSet<GameObject> buildings;
     HashSet<GameObject> floaters;
 
@@ -26,7 +27,8 @@ public class Terrain : MonoBehaviour
 
     public TextAsset terrainData;
     // XXX this should go away at some point XXX
-    public GameObject logPrefab, minerPrefab, forgePrefab, assemblerPrefab, waterPumpPrefab, smokePrefab, ironPlatePrefab, waterWheelPrefab;
+    public GameObject logPrefab, waterPumpPrefab, smokePrefab, ironPlatePrefab, waterWheelPrefab;
+    public GameObject sourcePrefab;
     public GameObject doodad;
     public GameObject[] treePrefabs;
     public GameObject infoDialog;
@@ -112,10 +114,10 @@ public class Terrain : MonoBehaviour
         trees[x + y * TERRAIN_SIZE] = go;
     }
 
-    public void spawnFloater(GameObject spawner, GameObject prefab, ItemType tp)
+    public void spawnFloater(Vector3 loc, GameObject prefab, ItemType tp)
     {
         var go = Instantiate(prefab, transform);
-        Vector3 loc = spawner.GetComponent<Building>().spawnPoint.transform.position;
+        //Vector3 loc = spawner.GetComponent<Building>().spawnPoint.transform.position;
         go.transform.position = loc + new Vector3(Random.Range(-0.1f, 0.1f), 0, Random.Range(-0.1f, 0.1f));
         go.transform.rotation = Quaternion.Euler(0, Random.Range(0, 90), 0);
         go.GetComponent<Floater>().tp = tp;
@@ -123,13 +125,13 @@ public class Terrain : MonoBehaviour
         floaters.Add(go);
     }
 
-    public void spawnMiner(Vector3 point, Quaternion rot)
+    public void spawnMiner(GameObject minerPrefab, Vector3 point, Quaternion rot)
     {
         var miner = spawnBuilding(minerPrefab, point, rot);
         miner.GetComponent<Building>().setReceipe(receipes.receipes[0]);
     }
 
-    public void spawnAssembler(Vector3 point, Quaternion rot)
+    public void spawnAssembler(GameObject assemblerPrefab, Vector3 point, Quaternion rot)
     {
         var miner = spawnBuilding(assemblerPrefab, point, rot);
         miner.GetComponent<Building>().setReceipe(receipes.receipes[2]);
@@ -140,7 +142,7 @@ public class Terrain : MonoBehaviour
         spawnBuilding(waterWheelPrefab, point, rot);
     }
 
-    public void spawnForge(Vector3 point, Quaternion rot)
+    public void spawnForge(GameObject forgePrefab, Vector3 point, Quaternion rot)
     {
         var forge = spawnBuilding(forgePrefab, point, rot);
         forge.GetComponent<Building>().setReceipe(receipes.receipes[1]);
@@ -279,6 +281,9 @@ public class Terrain : MonoBehaviour
         createTerrainKindTexture();
 
         waterPumps = new Dictionary<int, GameObject>();
+        sources = new HashSet<GameObject>();
+        addSource(100, 100);
+        addSource(100, 200);
         s = new Simulation(TERRAIN_SIZE, TERRAIN_SIZE);
     }
 
@@ -291,6 +296,15 @@ public class Terrain : MonoBehaviour
                 //Debug.Log(distance / 40);
                 terrainHeight[ix + iy * TERRAIN_SIZE] = Mathf.Max(Mathf.Cos(distance / 20) * 10 - 5, 0);
             }
+    }
+
+    void addSource(float x, float y)
+    {
+        var go = Instantiate(sourcePrefab, transform);
+        // water level will fix itself next simulation frame 
+        go.transform.position = new Vector3(x * Terrain.SCALE, heightFloat(x, y) + 0.1f, y * Terrain.SCALE);
+        go.GetComponent<MineralSource>().terrain = this;
+        sources.Add(go);
     }
 
     void populateTrees()
@@ -481,6 +495,7 @@ public class Terrain : MonoBehaviour
             }
         }
         updateBuildings();
+        updateSources();
     }
 
     public void updateBuildings()
@@ -489,13 +504,23 @@ public class Terrain : MonoBehaviour
         {
             f.GetComponent<Building>().receipeProgress();
             var cur = f.transform.position;
-            f.transform.position = new Vector3(cur.x, heightFloat(cur.x / SCALE, cur.z / SCALE) + water.waterLevelFloat(cur.x / SCALE, cur.z / SCALE),
-                                               cur.z);
+            f.transform.position = new Vector3(cur.x, heightWaterFloat(cur.x / SCALE, cur.z / SCALE), cur.z);
+        }
+    }
+
+    public void updateSources()
+    {
+        foreach (var f in sources)
+        {
+            var cur = f.transform.position;
+            f.transform.position = new Vector3(cur.x, heightWaterFloat(cur.x / SCALE, cur.z / SCALE) + 0.1f, cur.z);
         }
     }
 
     public void moveFloaters()
     {
+        return;
+        // XXX this goes away completely with Rigidbody transition
         foreach (var f in floaters)
         {
             f.GetComponent<Floater>().force = new Vector2(0, 0);
@@ -697,7 +722,7 @@ public class Terrain : MonoBehaviour
 
     public bool load(string savefile)
     {
-        return false;
+        return false; // XXX broken and not working XXX
         byte[] bytes = File.ReadAllBytes(savefile);
         var save = LiquidFab.Savegame.Savegame.GetRootAsSavegame(new ByteBuffer(bytes));
         if (save.Version != Controls.SAVEGAME_VERSION)

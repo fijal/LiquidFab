@@ -17,7 +17,8 @@ public enum BuildingKind
     assembler = 3,
     waterWheel = 4,
     fence = 5,
-    waterPump = 6
+    waterPump = 6,
+    mainBase = 7
 }
 
 public class Building : MonoBehaviour
@@ -93,7 +94,8 @@ public class Building : MonoBehaviour
             {
                 state = ProductionState.stopping;
                 var item = selectedReceipe.output.GetComponent<Item>();
-                terrain.spawnFloater(gameObject, item.prefab, item.tp);
+                Debug.Assert(false); // XXX fix the next line
+                //terrain.spawnFloater(gameObject, item.prefab, item.tp);
                 setReceipe(selectedReceipe);
                 receipeProgress(); // run one gathering of resources
             }
