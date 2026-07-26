@@ -9,4 +9,25 @@ using UnityEngine;
  * 1 << 6 - Buildings
  * 1 << 7 - Floaters
  * 1 << 8 - Buildings no floater collision
+ * 
+ * Terrain has two colliders - one for normal behavior, Terrain, one for clicking and finding out where to place
+ * buildings, TerrainWithWater
+ * 
+ * Several invariants have to be preserved, notably:
+ * - all buildings are either Buildings or BuildingsNoFloater
  */
+
+public class ColliderLayers
+{
+    public const int Terrain = 1 << 3;
+    public const int Water = 1 << 4;
+    public const int UI = 1 << 5;
+    public const int Buildings = 1 << 6;
+    public const int Floaters = 1 << 7;
+    public const int BuildingsNoFloater = 1 << 8;
+
+    public void checkConstraints()
+    {
+
+    }
+}

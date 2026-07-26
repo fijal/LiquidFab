@@ -52,7 +52,8 @@ public class Building : MonoBehaviour
             }
             else
             {
-                var c = Physics.OverlapBox(pickupPoint.transform.position, new Vector3(0.3f, 0.3f, 0.3f), pickupPoint.transform.rotation, 1 << 7);
+                var c = Physics.OverlapBox(pickupPoint.transform.position, new Vector3(0.3f, 0.3f, 0.3f), pickupPoint.transform.rotation,
+                                           ColliderLayers.Floaters);
                 for (int i = 0; i < c.Length; ++i)
                 {
                     var tp = c[i].GetComponent<Floater>().tp;

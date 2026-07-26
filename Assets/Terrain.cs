@@ -214,7 +214,8 @@ public class Terrain : MonoBehaviour
     void recalculateMesh()
     {
         var oldMesh = GetComponent<MeshCollider>().sharedMesh;
-        if (oldMesh == null)
+        Debug.Assert(oldMesh != null);
+        /*if (oldMesh == null)
         {
             Mesh mesh = createMesh();
             GetComponent<MeshFilter>().sharedMesh = mesh;
@@ -222,16 +223,16 @@ public class Terrain : MonoBehaviour
             GetComponent<MeshCollider>().sharedMesh = colliderMesh;
         }
         else
-        {
+        {*/
             meshbaker_runner.Complete();
-            updateMesh(oldMesh, true);
+            updateMesh(oldMesh);
             updateTerrainKind();
             meshbaker.mesh_id = oldMesh.GetInstanceID();
             meshbaker_runner.Start(this, ref meshbaker, () =>
             {
                 GetComponent<MeshCollider>().sharedMesh = oldMesh;
             });
-        }
+        //}
     }
 
     void Start()
@@ -260,7 +261,9 @@ public class Terrain : MonoBehaviour
         logs = new List<GameObject>();
         
         water = transform.Find("Water").GetComponent<Water>();
-        //recalculateMesh();
+        Mesh mesh = createMesh();
+        GetComponent<MeshFilter>().sharedMesh = mesh;
+        GetComponent<MeshCollider>().sharedMesh = mesh;
         trees = new Dictionary<int, GameObject>();
         buildings = new HashSet<GameObject>();
         floaters = new HashSet<GameObject>();
@@ -295,7 +298,7 @@ public class Terrain : MonoBehaviour
         s.Dispose();
     }
 
-    Mesh createMesh(bool isCollider = false)
+    public Mesh createMesh(bool isCollider = false)
     {
         mesh = new Mesh();
         mesh.MarkDynamic();
@@ -330,7 +333,7 @@ public class Terrain : MonoBehaviour
         return mesh;
     }
 
-    void updateMesh(Mesh mesh, bool isCollider = false)
+    public void updateMesh(Mesh mesh, bool isCollider = false)
     {
         var vertices = new Vector3[TERRAIN_SIZE * TERRAIN_SIZE];
         for (int x = 0; x < TERRAIN_SIZE; ++x)
@@ -496,7 +499,7 @@ public class Terrain : MonoBehaviour
         foreach (var a in floaters)
         {
             var bc = a.GetComponent<BoxCollider>();
-            var c = Physics.OverlapBox(a.transform.position, bc.size, a.transform.rotation, 1 << 6);
+            var c = Physics.OverlapBox(a.transform.position, bc.size, a.transform.rotation, ColliderLayers.Buildings);
             if (c.Length > 0)
             {
                 GameObject b = null;
@@ -526,7 +529,7 @@ public class Terrain : MonoBehaviour
 
             }
             
-            c = Physics.OverlapBox(a.transform.position, bc.size * 3, a.transform.rotation, 1 << 7);
+            c = Physics.OverlapBox(a.transform.position, bc.size * 3, a.transform.rotation, ColliderLayers.Floaters);
             for (int i = 0; i < c.Length; i++)
             {
                 var b = c[i].gameObject;
@@ -604,6 +607,7 @@ public class Terrain : MonoBehaviour
                 var d = infoDialog.GetComponent<Dialog>();
                 subLevel = s.subLevel[d.x + d.y * TERRAIN_SIZE];
                 water.updateWaterTexture(s.water);
+                updateMesh(water.GetComponent<MeshCollider>().sharedMesh, true);
                 s.water.CopyTo(water.waterLevel);
             });
             lastUpdate = 0.1f;

@@ -84,7 +84,7 @@ public class DismantleTool : ITool
         var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, 200, 1 << 6))
+        if (Physics.Raycast(ray, out hit, 200, ColliderLayers.Buildings | ColliderLayers.BuildingsNoFloater))
         {
             if (currentObject == hit.transform.gameObject)
                 return;

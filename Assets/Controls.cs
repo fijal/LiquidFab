@@ -133,7 +133,7 @@ public class Controls : MonoBehaviour
         var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, 200, 1 << 3)) {
+        if (Physics.Raycast(ray, out hit, 200, ColliderLayers.Water)) {
             var go = Instantiate(terrain.doodad, terrain.gameObject.transform);
             go.GetComponent<Floater>().terrain = terrain;
             //go.GetComponent<MeshCollider>()
@@ -149,7 +149,7 @@ public class Controls : MonoBehaviour
             var ray2 = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
             RaycastHit hit2;
 
-            if (Physics.Raycast(ray2, out hit2, 200, 1 << 3))
+            if (Physics.Raycast(ray2, out hit2, 200, ColliderLayers.Water))
             {
                 var ix = hit2.point.x / Terrain.SCALE;
                 var iy = hit2.point.z / Terrain.SCALE;
@@ -160,7 +160,7 @@ public class Controls : MonoBehaviour
         var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, 200, 1 << 3))
+        if (Physics.Raycast(ray, out hit, 200, ColliderLayers.Water))
         {
             currentToolbarItem.GetComponent<ToolbarItem>().tool.clickTerrain(highlight, terrain, hit.point);
         }

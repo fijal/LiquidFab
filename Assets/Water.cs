@@ -25,6 +25,7 @@ public class Water : MonoBehaviour
             waterLevel[i] = 1.0f;
         
         terrain = transform.parent.GetComponent<Terrain>();
+        GetComponent<MeshCollider>().sharedMesh = terrain.createMesh(true);
     }
 
     private void Update()
@@ -98,11 +99,6 @@ public class Water : MonoBehaviour
             Mathf.Lerp(waterLevel[i], waterLevel[i + 1], xrem),
             Mathf.Lerp(waterLevel[i + WATER_SIZE_X], waterLevel[i + 1 + WATER_SIZE_X], xrem),
             yrem);
-    }
-
-    public void addPumpAsWaterSource(int x, int y)
-    {
-
     }
 
     /*public void modifyWaterSource(int x, int y, bool mod, float val)

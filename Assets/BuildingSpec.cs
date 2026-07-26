@@ -63,7 +63,8 @@ public class BuildingFreePlacement : ITool
     {
         if (terrain.water.waterLevelFloat(point.x / Terrain.SCALE, point.z / Terrain.SCALE) < 0.1f)
             return false;
-        var col = Physics.OverlapBox(point, spec.greenPrefab.GetComponent<BoxCollider>().size, highlight.transform.rotation, 1 << 6);
+        var col = Physics.OverlapBox(point, spec.greenPrefab.GetComponent<BoxCollider>().size, highlight.transform.rotation,
+                                     ColliderLayers.Buildings | ColliderLayers.BuildingsNoFloater);
         if (col.Length > 0)
             return false;
         return true;
@@ -74,14 +75,9 @@ public class BuildingFreePlacement : ITool
         var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, 200, 1 << 3))
+        if (Physics.Raycast(ray, out hit, 200, ColliderLayers.Water))
         {
-            if (hit.transform.gameObject.GetComponent<Terrain>() == null)
-            {
-                highlight.SetActive(false);
-                return;
-            }
-
+            Debug.Assert(hit.transform.gameObject.GetComponent<Water>() != null);
             followHover(highlight, hit.point);
             if (isLegalPlacement(highlight, terrain, hit.point))
             {
@@ -158,7 +154,7 @@ public class BuildingGridPlacement : ITool
         var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, 200, 1 << 3))
+        if (Physics.Raycast(ray, out hit, 200, ColliderLayers.Water))
         {
             var curX = (int)(hit.point.x / Terrain.SCALE);
             var curY = (int)(hit.point.z / Terrain.SCALE);
