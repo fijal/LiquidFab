@@ -22,11 +22,11 @@ public class Floater : MonoBehaviour
         var x = transform.position.x / Terrain.SCALE;
         var y = transform.position.z / Terrain.SCALE;
         var level = terrain.heightWaterFloat(x, y);
-        var sizeY = GetComponent<MeshCollider>().sharedMesh.bounds.extents.y;
-        if (transform.position.y - level < 0)
+        var sizeY = 2 * GetComponent<MeshCollider>().sharedMesh.bounds.extents.y;
+        if (transform.position.y - level < 2 * sizeY)
         {
-            GetComponent<Rigidbody>().AddForce(new Vector3(0, 12f * Mathf.Max(1f, (transform.position.y - level) / sizeY), 0));
-            GetComponent<Rigidbody>().AddForce(new Vector3(0, -GetComponent<Rigidbody>().linearVelocity.y * 0.1f, 0));
+            GetComponent<Rigidbody>().AddForce(new Vector3(0, 12f * Mathf.Max(1f, (transform.position.y - level) / 2 / sizeY), 0));
+            GetComponent<Rigidbody>().AddForce(new Vector3(0, -GetComponent<Rigidbody>().linearVelocity.y * 10f, 0));
         }
         var flowSpeed = new Vector3(terrain.water.flowXfloat(x, y), 0, terrain.water.flowYfloat(x, y));
         var vel = GetComponent<Rigidbody>().linearVelocity;
