@@ -208,31 +208,39 @@ public class Terrain : MonoBehaviour
             Physics.BakeMesh(mesh_id, convex: false);
         }
     }
-    MeshBaker meshbaker;
+    MeshBaker meshbaker, waterBaker;
     readonly MyJobRunner meshbaker_runner = new();
+    readonly MyJobRunner waterbaker_runner = new();
+
 
     void recalculateMesh()
     {
         var oldMesh = GetComponent<MeshCollider>().sharedMesh;
         Debug.Assert(oldMesh != null);
-        /*if (oldMesh == null)
+        
+        meshbaker_runner.Complete();
+        updateMesh(oldMesh);
+        updateTerrainKind();
+        meshbaker.mesh_id = oldMesh.GetInstanceID();
+        meshbaker_runner.Start(this, ref meshbaker, () =>
         {
-            Mesh mesh = createMesh();
-            GetComponent<MeshFilter>().sharedMesh = mesh;
-            Mesh colliderMesh = createMesh(true);
-            GetComponent<MeshCollider>().sharedMesh = colliderMesh;
-        }
-        else
-        {*/
-            meshbaker_runner.Complete();
-            updateMesh(oldMesh);
-            updateTerrainKind();
-            meshbaker.mesh_id = oldMesh.GetInstanceID();
-            meshbaker_runner.Start(this, ref meshbaker, () =>
-            {
-                GetComponent<MeshCollider>().sharedMesh = oldMesh;
-            });
-        //}
+            GetComponent<MeshCollider>().sharedMesh = oldMesh;
+        });
+    }
+
+    void recalculateWaterMesh()
+    {
+        var oldMesh = water.GetComponent<MeshCollider>().sharedMesh;
+        Debug.Assert(oldMesh != null);
+
+        waterbaker_runner.Complete();
+        updateMesh(oldMesh, true);
+        water.updateTerrainKind();
+        waterBaker.mesh_id = oldMesh.GetInstanceID();
+        waterbaker_runner.Start(this, ref waterBaker, () =>
+        {
+            water.GetComponent<MeshCollider>().sharedMesh = oldMesh;
+        });
     }
 
     void Start()
@@ -294,6 +302,7 @@ public class Terrain : MonoBehaviour
     private void OnDestroy()
     {
         meshbaker_runner.Dispose();
+        waterbaker_runner.Dispose();
         s_runner.Dispose();
         s.Dispose();
     }
@@ -340,7 +349,6 @@ public class Terrain : MonoBehaviour
             for (int y = 0; y < TERRAIN_SIZE; ++y)
             {
                 var h = height(x, y);
-                // XXX
                 if (isCollider)
                     h += water.waterLevel[x + y * TERRAIN_SIZE];
                 vertices[x + y * TERRAIN_SIZE] = new Vector3(x * SCALE, h, y * SCALE);
@@ -595,7 +603,7 @@ public class Terrain : MonoBehaviour
             runUpdates();
             s.terrain.CopyFrom(terrainHeight);
             recalculateMesh();
-            water.updateTerrainKind();
+            recalculateWaterMesh();
             s.water.CopyFrom(water.waterLevel);
             s.waterFlowX.CopyFrom(water.waterFlowX);
             s.waterFlowY.CopyFrom(water.waterFlowY);
@@ -607,7 +615,6 @@ public class Terrain : MonoBehaviour
                 var d = infoDialog.GetComponent<Dialog>();
                 subLevel = s.subLevel[d.x + d.y * TERRAIN_SIZE];
                 water.updateWaterTexture(s.water);
-                updateMesh(water.GetComponent<MeshCollider>().sharedMesh, true);
                 s.water.CopyTo(water.waterLevel);
             });
             lastUpdate = 0.1f;

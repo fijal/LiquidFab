@@ -7,6 +7,7 @@ public class GhostSupport : MonoBehaviour
 {
 }
 
+#if UNITY_EDITOR
 [CustomEditor(typeof(GhostSupport))]
 public class GhostEditor : Editor
 {
@@ -39,3 +40,4 @@ public class GhostEditor : Editor
         }
     }
 }
+#endif
