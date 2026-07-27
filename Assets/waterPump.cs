@@ -8,10 +8,9 @@ public class WaterPumpTool : BuildingFreePlacement
     {
     }
 
-    public override void clickTerrain(GameObject highlight, Terrain terrain, Vector3 hitPoint)
+    public override void placeBuilding(GameObject highlight, Terrain terrain, Vector3 hitPoint)
     {
-        if (isLegalPlacement(highlight, terrain, hitPoint))
-            terrain.spawnWaterPump(spec.prefab, hitPoint, highlight.transform.rotation);
+        terrain.spawnWaterPump(spec.prefab, hitPoint, highlight.transform.rotation);
     }
 
     public override bool isLegalPlacement(GameObject highlight, Terrain terrain, Vector3 point)

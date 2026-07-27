@@ -21,7 +21,7 @@ public class DismantleTool : ITool
     {
     }
 
-    public void clickTerrain(GameObject highlight, Terrain terrain, Vector3 hitPoint)
+    public void click(GameObject highlight, GameObject camera, Terrain terrain)
     {
         if (currentObject == null)
             return;

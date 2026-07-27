@@ -11,7 +11,7 @@ public interface ITool
     public void activate(GameObject highlight);
     public void deactivate(GameObject highlight);
     public void hoverOverTerrain(GameObject highlight, GameObject camera, Terrain terrain);
-    public void clickTerrain(GameObject highlight, Terrain terrain, Vector3 hitPoint);
+    public void click(GameObject highlight, GameObject camera, Terrain terrain);
     public void rotate(GameObject highlight, float amount);
 }
 

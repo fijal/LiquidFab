@@ -32,8 +32,7 @@ public class Controls : MonoBehaviour
     
     public GameObject saveloadInfoPrefab;
     GameObject saveloadInfo = null;
-    bool inProgress = false;
-
+    
     public GameObject highlight;
 
     GameObject currentToolbarItem;
@@ -59,6 +58,7 @@ public class Controls : MonoBehaviour
             UIElements[i] = go;
         }
         currentTool = tools.allTools["Select"];
+        currentTool.activate(highlight);
         /*var count = 0;
         for (int i = 0; i < UIPanel.transform.childCount; ++i)
             if (UIPanel.transform.GetChild(i).GetComponent<ToolbarItem>() != null)
@@ -156,13 +156,9 @@ public class Controls : MonoBehaviour
             }
             return;
         }*/
-        var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-
-        if (Physics.Raycast(ray, out hit, 200, ColliderLayers.Water))
-        {
-            currentTool.clickTerrain(highlight, terrain, hit.point);
-        }
+        currentTool.click(highlight, camera, terrain);
+        //    currentTool.clickTerrain(highlight, terrain, hit.point);
+        
         // XXX rework this part or more likely the whole function XXX
         /*if (isClick)
         {
@@ -348,6 +344,7 @@ public class Controls : MonoBehaviour
                 else
                     currentTool.deactivate(highlight);
                 currentTool = tools.allTools["Select"];
+                currentTool.activate(highlight);
                 return;
             }
 

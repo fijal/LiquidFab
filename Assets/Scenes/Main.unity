@@ -210,6 +210,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   selectPrefab: {fileID: 3094803362374459386, guid: 90f7c714b4ca10740b38b6b7cbf603d4, type: 3}
+  rock: {fileID: 21300000, guid: ce00a89da07ae644aba3487e8ef7132f, type: 3}
+  baseCursor: {fileID: 21300000, guid: 1002a3036a8dbe74b9e3ce8a2439f57e, type: 3}
 --- !u!1 &109201425
 GameObject:
   m_ObjectHideFlags: 0

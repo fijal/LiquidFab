@@ -54,7 +54,19 @@ public class BuildingFreePlacement : ITool
         highlight.transform.rotation *= Quaternion.Euler(0, amount, 0);
     }
 
-    public virtual void clickTerrain(GameObject highlight, Terrain terrain, Vector3 hitPoint)
+    public void click(GameObject highlight, GameObject camera, Terrain terrain)
+    {
+        var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit, 200, ColliderLayers.Water))
+        {
+            if (isLegalPlacement(highlight, terrain, hit.point))
+                placeBuilding(highlight, terrain, hit.point);
+        }
+    }
+
+    public virtual void placeBuilding(GameObject highlight, Terrain terrain, Vector3 hitPoint)
     {
         Debug.Assert(false);
     }
@@ -211,28 +223,35 @@ public class BuildingGridPlacement : ITool
     {
     }
 
-    public void clickTerrain(GameObject highlight, Terrain terrain, Vector3 hitPoint)
+    public void click(GameObject highlight, GameObject camera, Terrain terrain)
     {
-        if (!placing)
+        var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit, 200, ColliderLayers.Water))
         {
-            placing = true;
-            startX = (int)(hitPoint.x / Terrain.SCALE);
-            startY = (int)(hitPoint.z / Terrain.SCALE);
-            greenChain = new List<GameObject>();
-            var go = Object.Instantiate<GameObject>(spec.greenPrefab, highlight.transform);
-            go.transform.rotation = Quaternion.Euler(0, 90, 0);
-            go.transform.position = new Vector3(startX * Terrain.SCALE, terrain.heightWater(startX, startY), startY * Terrain.SCALE);
-            greenChain.Add(go);
-        }
-        else
-        {
-            placing = false;
-            for (int i = 0; i < greenChain.Count; ++i)
+            // XXX sure
+            if (!placing)
             {
-                spawnObject(terrain, greenChain[i].transform.position, greenChain[i].transform.rotation);
-                Object.Destroy(greenChain[i]);
+                placing = true;
+                startX = (int)(hit.point.x / Terrain.SCALE);
+                startY = (int)(hit.point.z / Terrain.SCALE);
+                greenChain = new List<GameObject>();
+                var go = Object.Instantiate<GameObject>(spec.greenPrefab, highlight.transform);
+                go.transform.rotation = Quaternion.Euler(0, 90, 0);
+                go.transform.position = new Vector3(startX * Terrain.SCALE, terrain.heightWater(startX, startY), startY * Terrain.SCALE);
+                greenChain.Add(go);
             }
-            greenChain = null;
+            else
+            {
+                placing = false;
+                for (int i = 0; i < greenChain.Count; ++i)
+                {
+                    spawnObject(terrain, greenChain[i].transform.position, greenChain[i].transform.rotation);
+                    Object.Destroy(greenChain[i]);
+                }
+                greenChain = null;
+            }
         }
     }
 
