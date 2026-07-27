@@ -45,7 +45,7 @@ public class SelectTool : ITool
             if (Physics.Raycast(ray, out hit, 200, ColliderLayers.Water))
             {
                 inventory.RemoveAt(inventory.Count - 1);
-                var loc = new Vector3(hit.point.x, terrain.heightWaterFloat(hit.point.x / Terrain.SCALE, hit.point.z / Terrain.SCALE) + 3.0f, hit.point.z);
+                var loc = new Vector3(hit.point.x, terrain.heightWaterFloat(hit.point.x / Terrain.SCALE, hit.point.z / Terrain.SCALE) + 1.0f, hit.point.z);
                 terrain.spawnFloater(loc, spec.rockPrefab, ItemType.Rock);
                 updateCursor();
             }
