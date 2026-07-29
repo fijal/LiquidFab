@@ -94,8 +94,7 @@ public class Building : MonoBehaviour
             {
                 state = ProductionState.stopping;
                 var item = selectedReceipe.output.GetComponent<Item>();
-                Debug.Assert(false); // XXX fix the next line
-                //terrain.spawnFloater(gameObject, item.prefab, item.tp);
+                terrain.spawnFloater(spawnPoint.transform.position, item.prefab, item.tp);
                 setReceipe(selectedReceipe);
                 receipeProgress(); // run one gathering of resources
             }

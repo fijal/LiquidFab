@@ -20,24 +20,24 @@ public class Receipe
     }
 }
 
-public class Receipes : MonoBehaviour
+public class Items : MonoBehaviour
 {
-    public Item[] items;
+    public Dictionary<ItemType, Item> items;
     public Receipe[] receipes;
 
     public void Start()
     {
-        items = new Item[transform.childCount + 1];
+        items = new Dictionary<ItemType, Item>();
         for (int i = 0; i < transform.childCount; i++)
         {
             var item = transform.GetChild(i).gameObject.GetComponent<Item>();
-            items[(int)item.tp] = item;
+            items[item.tp] = item;
         }
 
         receipes = new Receipe[3];
-        var iron = items[(int)ItemType.Iron].GetComponent<Item>();
-        var ironPlate = items[(int)ItemType.IronPlate].GetComponent<Item>();
-        var gear = items[(int)ItemType.Gear].GetComponent<Item>();
+        var iron = items[ItemType.Iron].GetComponent<Item>();
+        var ironPlate = items[ItemType.IronPlate].GetComponent<Item>();
+        var gear = items[ItemType.Gear].GetComponent<Item>();
 
         receipes[0] = new Receipe(new Item[]{ }, new int[] { }, iron, 1, 3.0f);
         receipes[1] = new Receipe(new Item[] { iron }, new int[] { 1 }, ironPlate, 1, 3.0f);

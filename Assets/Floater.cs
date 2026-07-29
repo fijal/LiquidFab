@@ -4,9 +4,6 @@ using UnityEngine;
 
 public class Floater : MonoBehaviour
 {
-    public Vector2 force;
-    public Vector2 buildingForce;
-    public Vector2 flowForce;
     public ItemType tp;
     public Terrain terrain;
 
@@ -22,7 +19,11 @@ public class Floater : MonoBehaviour
         var x = transform.position.x / Terrain.SCALE;
         var y = transform.position.z / Terrain.SCALE;
         var level = terrain.heightWaterFloat(x, y);
-        var sizeY = 2 * GetComponent<MeshCollider>().sharedMesh.bounds.extents.y;
+        float sizeY;
+        if (GetComponent<MeshCollider>() != null)
+            sizeY = 2 * GetComponent<MeshCollider>().sharedMesh.bounds.extents.y;
+        else
+            sizeY = GetComponent<BoxCollider>().size.y;
         var waterLevel = terrain.water.waterLevelFloat(x, y);
         if (waterLevel > sizeY && transform.position.y - level < sizeY)
         {
@@ -43,16 +44,5 @@ public class Floater : MonoBehaviour
 
     void Update()
     {
-        /*if (buildingForce.magnitude > 0)
-        {
-            transform.position += new Vector3(buildingForce.x * Time.deltaTime, 0, buildingForce.y * Time.deltaTime);
-        }
-        else
-        {
-            if (force.magnitude > 0.5f)
-                force = force.normalized * 0.5f;
-            transform.position += new Vector3(force.x * Time.deltaTime, 0, force.y * Time.deltaTime);
-            transform.position += new Vector3(flowForce.x * Time.deltaTime, 0, flowForce.y * Time.deltaTime);
-        }*/
     }
 }

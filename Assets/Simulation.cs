@@ -257,7 +257,7 @@ public struct Simulation : IJob
                     seepage = 0.00005f;
 
                 // XXX <tmp>
-                seepage = 0;
+                //seepage = 0;
                 // XXX </tmp>
 
                 CheckFinite(seepage);

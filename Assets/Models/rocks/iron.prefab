@@ -110,7 +110,7 @@ Rigidbody:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 256
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 1
@@ -152,8 +152,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17e460912fc130a41b37f71ce23cb77d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  force: {x: 0, y: 0}
-  buildingForce: {x: 0, y: 0}
-  flowForce: {x: 0, y: 0}
   tp: 0
   terrain: {fileID: 0}

@@ -33,7 +33,7 @@ public class Terrain : MonoBehaviour
     public GameObject[] treePrefabs;
     public GameObject infoDialog;
     public Controls controls;
-    public Receipes receipes;
+    public Items items;
 
     List<GameObject> logs;
     
@@ -128,13 +128,13 @@ public class Terrain : MonoBehaviour
     public void spawnMiner(GameObject minerPrefab, Vector3 point, Quaternion rot)
     {
         var miner = spawnBuilding(minerPrefab, point, rot);
-        miner.GetComponent<Building>().setReceipe(receipes.receipes[0]);
+        miner.GetComponent<Building>().setReceipe(items.receipes[0]);
     }
 
     public void spawnAssembler(GameObject assemblerPrefab, Vector3 point, Quaternion rot)
     {
         var miner = spawnBuilding(assemblerPrefab, point, rot);
-        miner.GetComponent<Building>().setReceipe(receipes.receipes[2]);
+        miner.GetComponent<Building>().setReceipe(items.receipes[2]);
     }
 
     public void spawnWaterWheel(Vector3 point, Quaternion rot)
@@ -145,7 +145,7 @@ public class Terrain : MonoBehaviour
     public void spawnForge(GameObject forgePrefab, Vector3 point, Quaternion rot)
     {
         var forge = spawnBuilding(forgePrefab, point, rot);
-        forge.GetComponent<Building>().setReceipe(receipes.receipes[1]);
+        forge.GetComponent<Building>().setReceipe(items.receipes[1]);
     }
 
     public GameObject spawnBuilding(GameObject prefab, Vector3 point, Quaternion rot)
@@ -170,27 +170,6 @@ public class Terrain : MonoBehaviour
     public void spawnWaterPump(GameObject prefab, Vector3 point, Quaternion rot)
     {
         spawnBuilding(prefab, point, rot);
-        /*foreach (var entry in waterPumps)
-        {
-            var ex = entry.Key % TERRAIN_SIZE;
-            var ey = entry.Key / TERRAIN_SIZE;
-            if (Mathf.Abs(x - ex) < 5 && Mathf.Abs(y - ey) < 5)
-                return null;
-        }
-        var go = Instantiate(waterPumpPrefab, transform);
-        go.layer = 3;
-        go.AddComponent<BoxCollider>();
-        go.transform.position = new Vector3((x + 0.5f) * SCALE, heightFloat(x + 0.5f, y + 0.5f), (y + 0.5f) * SCALE);
-        go.transform.rotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
-        var smoke = Instantiate(smokePrefab, go.transform);
-        smoke.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
-        smoke.transform.localPosition = new Vector3(0.03f, 0.8f, 0.2f);
-        var wp = go.AddComponent<waterPump>();
-        wp.smoke = smoke.GetComponent<ParticleSystem>();
-        wp.smoke.Stop();
-        wp.basePos = heightFloat(x + 0.5f, y + 0.5f);
-        waterPumps.Add(x + y * TERRAIN_SIZE, go);
-        return wp;*/
     }
 
     public void changeTerrainKind(int x, int y, int kind)
@@ -284,6 +263,10 @@ public class Terrain : MonoBehaviour
         sources = new HashSet<GameObject>();
         addSource(100, 100);
         addSource(100, 200);
+
+        var baseObject = transform.Find("base").gameObject;
+        buildings.Add(baseObject);
+
         s = new Simulation(TERRAIN_SIZE, TERRAIN_SIZE);
     }
 
@@ -467,24 +450,6 @@ public class Terrain : MonoBehaviour
         for (int i = 0; i < treesToRemove.Count; i++)
             trees.Remove(treesToRemove[i]);
 
-        moveFloaters();
-
-        /*for (int i = 0; i < logs.Count; i++)
-            logs[i].GetComponent<Log2>().force = Vector3.zero;
-
-        for (int i = 0; i < logs.Count; i++)
-            for (int j = 0; j < logs.Count; j++)
-                if (i != j)
-                {
-                    var rel = logs[i].transform.position - logs[j].transform.position;
-                    var val = rel.sqrMagnitude;
-                    if (val < 0.005f * 0.005f)
-                        val = 0.005f * 0.005f;
-                    var forceVal = 1 / val;
-                    logs[i].GetComponent<Log2>().force += new Vector2(rel.x * forceVal, rel.z * forceVal);
-                    logs[j].GetComponent<Log2>().force -= new Vector2(rel.x * forceVal, rel.z * forceVal);
-                }*/
-
         foreach (var f in buildings)
         {
             if (f.GetComponent<Building>().kind == BuildingKind.waterPump)
@@ -515,86 +480,6 @@ public class Terrain : MonoBehaviour
             var cur = f.transform.position;
             f.transform.position = new Vector3(cur.x, heightWaterFloat(cur.x / SCALE, cur.z / SCALE) + 0.1f, cur.z);
         }
-    }
-
-    public void moveFloaters()
-    {
-        return;
-        // XXX this goes away completely with Rigidbody transition
-        foreach (var f in floaters)
-        {
-            f.GetComponent<Floater>().force = new Vector2(0, 0);
-            f.GetComponent<Floater>().buildingForce = new Vector2(0, 0);
-            var pos = f.transform.position / Terrain.SCALE;
-            f.GetComponent<Floater>().flowForce = (new Vector2(water.flowX((int)pos.x, (int)pos.z), water.flowY((int)pos.x, (int)pos.z))) * 10;
-        }
-        
-        foreach (var a in floaters)
-        {
-            var bc = a.GetComponent<BoxCollider>();
-            var c = Physics.OverlapBox(a.transform.position, bc.size, a.transform.rotation, ColliderLayers.Buildings);
-            if (c.Length > 0)
-            {
-                GameObject b = null;
-                for (int i = 0; i < c.Length; i++)
-                {
-                    if (c[i].gameObject.GetComponent<Building>() == null)
-                        Debug.Log(c[i].gameObject);
-                    if (c[i].gameObject.GetComponent<Building>().kind != BuildingKind.waterWheel)
-                        b = c[i].gameObject;
-                }
-                if (b != null)
-                {
-                    if (a.transform.position == b.transform.position)
-                    {
-                        var angle = Random.Range(0, 360);
-                        var mov = Quaternion.Euler(0, angle, 0) * new Vector3(0.05f, 0, 0);
-                        a.GetComponent<Floater>().buildingForce = new Vector2(mov.x, mov.z);
-                    }
-                    else
-                    {
-                        var rel = a.transform.position - b.transform.position;
-                        var val = rel.magnitude;
-                        var forceVal = 1 / val * 0.05f;
-                        a.GetComponent<Floater>().buildingForce = new Vector2(rel.x * forceVal, rel.z * forceVal);
-                    }
-                }
-
-            }
-            
-            c = Physics.OverlapBox(a.transform.position, bc.size * 3, a.transform.rotation, ColliderLayers.Floaters);
-            for (int i = 0; i < c.Length; i++)
-            {
-                var b = c[i].gameObject;
-                if (a == b)
-                    continue;
-                if (a.transform.position == b.transform.position)
-                {
-                    var angle = Random.Range(0, 180);
-                    var mov = Quaternion.Euler(0, angle, 0) * new Vector3(0.1f, 0, 0);
-                    a.transform.position += mov;
-                    b.transform.position -= mov;
-                }
-                // XXX unnecessary? XXX
-                //if ((a.transform.position - b.transform.position).magnitude < 1f)
-                {
-                    var rel = a.transform.position - b.transform.position;
-                    var val = rel.magnitude;
-                    var forceVal = 1 / val * 0.01f;
-                    a.GetComponent<Floater>().force += new Vector2(rel.x * forceVal, rel.z * forceVal);
-                    b.GetComponent<Floater>().force -= new Vector2(rel.x * forceVal, rel.z * forceVal);
-                }
-            }
-        }
-
-        // fix the z of floaters
-        foreach (var f in floaters)
-        {
-            var cur = f.transform.position;
-            f.transform.position = new Vector3(cur.x, heightFloat(cur.x / SCALE, cur.z / SCALE) + water.waterLevelFloat(cur.x / SCALE, cur.z / SCALE),
-                                               cur.z);
-        }
-
     }
 
     public void removeFloater(GameObject floater)
