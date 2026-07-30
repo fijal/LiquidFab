@@ -7,11 +7,6 @@ public class AssemblerTool : BuildingFreePlacement
     public AssemblerTool(BuildingSpec spec) : base(spec)
     {
     }
-
-    public override void placeBuilding(GameObject highlight, Terrain terrain, Vector3 hitPoint)
-    {
-        terrain.spawnAssembler(spec.prefab, hitPoint, highlight.transform.rotation);
-    }
 }
 
 public class Assembler : MonoBehaviour

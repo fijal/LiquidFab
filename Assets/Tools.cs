@@ -15,6 +15,29 @@ public interface ITool
     public void rotate(GameObject highlight, float amount);
 }
 
+public class Receipe
+{
+    public Dictionary<ItemType, int> inputs;
+    public Dictionary<ItemType, int> outputs;
+    public float time;
+
+    public Receipe(Dictionary<ItemType, int> inputs, Dictionary<ItemType, int> outputs, float time)
+    {
+        this.inputs = inputs;
+        this.outputs = outputs;
+        this.time = time;
+    }
+}
+
+/*[CustomEditor(typeof(Receipe))]
+public class ReceipeEditor : Editor
+{
+    public override void OnInspectorGUI()
+    {
+        base.OnInspectorGUI();
+    }
+}*/
+
 public class Tools : MonoBehaviour
 {
     public Dictionary<string, ITool> allTools;
@@ -25,6 +48,14 @@ public class Tools : MonoBehaviour
         allTools = new Dictionary<string, ITool>();
 
         var forgeSpec = transform.Find("Forge").gameObject.GetComponent<BuildingSpec>();
+        forgeSpec.buildingCost = new Dictionary<ItemType, int>();
+        forgeSpec.buildingCost[ItemType.IronPlate] = 2;
+        forgeSpec.buildingCost[ItemType.Gear] = 1;
+        forgeSpec.receipes = new Receipe[2];
+        forgeSpec.receipes[0] = new Receipe(new Dictionary<ItemType, int> { { ItemType.Iron, 1 } }, new Dictionary<ItemType, int> { { ItemType.IronPlate, 1 } },
+                                            3.0f);
+        forgeSpec.receipes[1] = new Receipe(new Dictionary<ItemType, int> { { ItemType.Rock, 1 } }, new Dictionary<ItemType, int>(), 1.0f);
+
         allTools["Forge"] = new ForgeTool(forgeSpec);
 
         var minerSpec = transform.Find("Miner").gameObject.GetComponent<BuildingSpec>();

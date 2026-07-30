@@ -7,11 +7,6 @@ public class MinerTool : BuildingFreePlacement
     public MinerTool(BuildingSpec spec) : base(spec)
     {
     }
-
-    public override void placeBuilding(GameObject highlight, Terrain terrain, Vector3 hitPoint)
-    {
-        terrain.spawnMiner(spec.prefab, hitPoint, highlight.transform.rotation);
-    }
 }
 
 public class Miner : MonoBehaviour

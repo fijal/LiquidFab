@@ -125,27 +125,9 @@ public class Terrain : MonoBehaviour
         floaters.Add(go);
     }
 
-    public void spawnMiner(GameObject minerPrefab, Vector3 point, Quaternion rot)
-    {
-        var miner = spawnBuilding(minerPrefab, point, rot);
-        miner.GetComponent<Building>().setReceipe(items.receipes[0]);
-    }
-
-    public void spawnAssembler(GameObject assemblerPrefab, Vector3 point, Quaternion rot)
-    {
-        var miner = spawnBuilding(assemblerPrefab, point, rot);
-        miner.GetComponent<Building>().setReceipe(items.receipes[2]);
-    }
-
     public void spawnWaterWheel(Vector3 point, Quaternion rot)
     {
         spawnBuilding(waterWheelPrefab, point, rot);
-    }
-
-    public void spawnForge(GameObject forgePrefab, Vector3 point, Quaternion rot)
-    {
-        var forge = spawnBuilding(forgePrefab, point, rot);
-        forge.GetComponent<Building>().setReceipe(items.receipes[1]);
     }
 
     public GameObject spawnBuilding(GameObject prefab, Vector3 point, Quaternion rot)

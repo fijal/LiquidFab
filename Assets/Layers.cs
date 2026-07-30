@@ -26,8 +26,8 @@ public class ColliderLayers
     public const int Floaters = 1 << 7;
     public const int BuildingsNoFloater = 1 << 8;
 
-    public void checkConstraints()
+    public static int AllBuildings
     {
-
+        get => Buildings | BuildingsNoFloater;
     }
 }

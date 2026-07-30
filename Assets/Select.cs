@@ -22,16 +22,6 @@ public class SelectTool : ITool
         inventory = new List<ItemType>();
     }
 
-    void updateCursor()
-    {
-        var cursor = new Texture2D(48, 48, TextureFormat.RGBA32, false);
-        cursor.alphaIsTransparency = true;
-        cursor.CopyPixels(spec.baseCursor, 0, 0, 0, 0, 48, 48, 0, 0, 0);
-        for (int i = 0; i < inventory.Count; ++i)
-            Graphics.CopyTexture(spec.rock.texture, 0, 0, 0, 0, 16, 12, cursor, 0, 0, i * 5, 0);
-        Cursor.SetCursor(cursor, new Vector2(0, 0), CursorMode.Auto);
-    }
-
     void addInventoryItem(Item itemSpec, int pos)
     {
         var go = Object.Instantiate<GameObject>(spec.iconPrefab, spec.handInventory.transform);
@@ -98,7 +88,11 @@ public class SelectTool : ITool
         var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, 200, ColliderLayers.Floaters))
+        // XXX this logic is all slightly wrong and for some reason hoverPrefab has strange axis, but I gonna ignore it
+        var mask = ColliderLayers.Floaters;
+        if (inventory.Count > 0)
+            mask |= ColliderLayers.AllBuildings;
+        if (Physics.Raycast(ray, out hit, 200, mask))
         {
             var go = hit.transform.gameObject;
             if (go == selectedObject)
@@ -108,7 +102,10 @@ public class SelectTool : ITool
             if (hover != null)
                 Object.Destroy(hover);
             hover = Object.Instantiate<GameObject>(spec.selectPrefab, go.transform);
-            hover.transform.position = go.transform.position;
+            var cur = go.transform.position;
+            var mesh = go.GetComponent<MeshFilter>().sharedMesh;
+            var size = Mathf.Max(mesh.bounds.extents.x, mesh.bounds.extents.z);
+            hover.transform.localScale = new Vector3(size * 4, size * 4, size * 4);
             hover.transform.rotation = Quaternion.Euler(90, 0, 0);
             selectedObject = go;
         } else

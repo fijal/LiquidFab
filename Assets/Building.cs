@@ -44,7 +44,7 @@ public class Building : MonoBehaviour
         }
         if (productsGathered == null)
             return; // non producing building
-        if (state != ProductionState.producing)
+        /*if (state != ProductionState.producing)
         {
             if (productsGathered.Length == 0)
             {
@@ -76,13 +76,13 @@ public class Building : MonoBehaviour
                     state = ProductionState.starting;
                 }
             }
-        }
+        }*/
     }
 
     public void setReceipe(Receipe receipe)
     {
         selectedReceipe = receipe;
-        productsGathered = new int[receipe.inputs.Length];
+        //productsGathered = new int[receipe.inputs.Length];
     }
 
     public void FixedUpdate()
@@ -93,8 +93,8 @@ public class Building : MonoBehaviour
             if (buildTimer < 0)
             {
                 state = ProductionState.stopping;
-                var item = selectedReceipe.output.GetComponent<Item>();
-                terrain.spawnFloater(spawnPoint.transform.position, item.prefab, item.tp);
+                //var item = selectedReceipe.output.GetComponent<Item>();
+                //terrain.spawnFloater(spawnPoint.transform.position, item.prefab, item.tp);
                 setReceipe(selectedReceipe);
                 receipeProgress(); // run one gathering of resources
             }

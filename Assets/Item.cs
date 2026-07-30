@@ -4,6 +4,7 @@ using UnityEngine;
 
 public enum ItemType
 {
+    None = 0,
     Iron = 1,
     IronPlate = 2,
     Gear = 3,

@@ -68,7 +68,7 @@ public class BuildingFreePlacement : ITool
 
     public virtual void placeBuilding(GameObject highlight, Terrain terrain, Vector3 hitPoint)
     {
-        Debug.Assert(false);
+        terrain.spawnBuilding(spec.prefab, hitPoint, highlight.transform.rotation);
     }
 
     public virtual bool isLegalPlacement(GameObject highlight, Terrain terrain, Vector3 point)
@@ -269,7 +269,9 @@ public class BuildingGridPlacement : ITool
 public class BuildingSpec : MonoBehaviour
 {
     public GameObject prefab;
-    public bool isGridBound = false;
     public GameObject greenPrefab, redPrefab;
     public Sprite colorIcon, grayIcon;
+
+    public Dictionary<ItemType, int> buildingCost;
+    public Receipe[] receipes;
 }

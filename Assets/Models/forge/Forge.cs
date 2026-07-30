@@ -7,11 +7,6 @@ public class ForgeTool : BuildingFreePlacement
     public ForgeTool(BuildingSpec spec) : base(spec)
     {
     }
-
-    public override void placeBuilding(GameObject highlight, Terrain terrain, Vector3 hitPoint)
-    {
-        terrain.spawnForge(spec.prefab, hitPoint, highlight.transform.rotation);
-    }
 }
 
 
