@@ -253,6 +253,7 @@ public class Controls : MonoBehaviour
         var sprite = tools.buildingMapping[building.GetComponent<Building>().kind].getColorIcon();
         var dets = buildingDetails.GetComponent<BuildingDetails>();
         dets.icon.sprite = sprite;
+        dets.populateReceipes(building.GetComponent<Building>().receipes, terrain.items);
     }
 
     void clickUI()

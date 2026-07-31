@@ -68,7 +68,7 @@ public class BuildingFreePlacement : ITool
 
     public virtual void placeBuilding(GameObject highlight, Terrain terrain, Vector3 hitPoint)
     {
-        terrain.spawnBuilding(spec.prefab, hitPoint, highlight.transform.rotation);
+        terrain.spawnBuilding(spec.prefab, hitPoint, highlight.transform.rotation, spec);
     }
 
     public virtual bool isLegalPlacement(GameObject highlight, Terrain terrain, Vector3 point)

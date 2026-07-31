@@ -26,10 +26,15 @@ public class Building : MonoBehaviour
     [HideInInspector] public Terrain terrain;
     public GameObject spawnPoint, pickupPoint;
     public BuildingKind kind;
-    public Receipe selectedReceipe;
+    public Receipe[] receipes;
     int[] productsGathered;
     [HideInInspector] public ProductionState state = ProductionState.idle;
     float buildTimer = 0;
+
+    public void populateFromSpec(BuildingSpec spec)
+    {
+        receipes = spec.receipes;
+    }
 
     public void receipeProgress()
     {
@@ -79,12 +84,6 @@ public class Building : MonoBehaviour
         }*/
     }
 
-    public void setReceipe(Receipe receipe)
-    {
-        selectedReceipe = receipe;
-        //productsGathered = new int[receipe.inputs.Length];
-    }
-
     public void FixedUpdate()
     {
         if (state == ProductionState.producing)
@@ -95,7 +94,7 @@ public class Building : MonoBehaviour
                 state = ProductionState.stopping;
                 //var item = selectedReceipe.output.GetComponent<Item>();
                 //terrain.spawnFloater(spawnPoint.transform.position, item.prefab, item.tp);
-                setReceipe(selectedReceipe);
+                //setReceipe(selectedReceipe);
                 receipeProgress(); // run one gathering of resources
             }
         }

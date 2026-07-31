@@ -130,13 +130,15 @@ public class Terrain : MonoBehaviour
         spawnBuilding(waterWheelPrefab, point, rot);
     }
 
-    public GameObject spawnBuilding(GameObject prefab, Vector3 point, Quaternion rot)
+    public GameObject spawnBuilding(GameObject prefab, Vector3 point, Quaternion rot, BuildingSpec spec=null)
     {
         var go = Instantiate(prefab, transform);
         go.transform.position = point;
         go.transform.rotation = rot;
         go.GetComponent<Building>().terrain = this;
         buildings.Add(go);
+        if (spec != null)
+            go.GetComponent<Building>().populateFromSpec(spec);   
         return go;
     }
 
