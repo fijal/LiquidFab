@@ -50,7 +50,7 @@ public class SelectTool : ITool
             addInventoryItem(terrain.items.items[tp], inventory.Count - 1);
         } else if (Physics.Raycast(ray, out hit, ColliderLayers.Depth, ColliderLayers.AllBuildings)) {
             if (inventory.Count == 0)
-                terrain.controls.showBuildingMenu();
+                terrain.controls.showBuildingMenu(hit.transform.gameObject);
             else
                 Debug.Log("clicked a building with inventory");
         }
@@ -106,9 +106,17 @@ public class SelectTool : ITool
                 Object.Destroy(hover);
             hover = Object.Instantiate<GameObject>(spec.selectPrefab, go.transform);
             var cur = go.transform.position;
-            var mesh = go.GetComponent<MeshFilter>().sharedMesh;
-            var size = Mathf.Max(mesh.bounds.extents.x, mesh.bounds.extents.z);
-            hover.transform.localScale = new Vector3(size * 4, size * 4, size * 4);
+            // XXX we need a better way to answer the question "how big is this building", for now a bunch of heuristics
+            if (go.GetComponent<MeshFilter>() != null)
+            {
+                var mesh = go.GetComponent<MeshFilter>().sharedMesh;
+                var size = Mathf.Max(mesh.bounds.extents.x, mesh.bounds.extents.z);
+                hover.transform.localScale = new Vector3(size * 4, size * 4, size * 4);
+            } else if (go.GetComponent<BoxCollider>() != null) {
+                var x = go.GetComponent<BoxCollider>().bounds.extents;
+                var size = Mathf.Max(x.x, x.y, x.z);
+                hover.transform.localScale = new Vector3(size * 4, size * 4, size * 4);
+            }
             hover.transform.rotation = Quaternion.Euler(90, 0, 0);
             selectedObject = go;
         } else

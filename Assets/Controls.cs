@@ -28,6 +28,7 @@ public class Controls : MonoBehaviour
     public GameObject detailsPanel;
     public Tools tools;
     public GameObject toolbarItemPrefab;
+    public GameObject buildingDetails;
     public Sprite frameActive, frameNotActive;
     
     public GameObject saveloadInfoPrefab;
@@ -41,6 +42,7 @@ public class Controls : MonoBehaviour
     Vector3 lastMousePos;
     float timer = 10.0f;
     float delay = 0.3f;
+    bool inUI = false;
 
     public const int SAVEGAME_VERSION = 6;
 
@@ -124,22 +126,6 @@ public class Controls : MonoBehaviour
     void RaycastToTerrainHover()
     {
         currentTool.hoverOverTerrain(highlight, camera, terrain);
-    }
-
-    void RaycastToTerrainCont()
-    {
-        return;
-        if (currentToolbarItem != null)
-            return;
-        var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-
-        if (Physics.Raycast(ray, out hit, 200, ColliderLayers.Water)) {
-            var go = Instantiate(terrain.doodad, terrain.gameObject.transform);
-            go.GetComponent<Floater>().terrain = terrain;
-            go.transform.position = new Vector3(hit.point.x, terrain.heightFloat(hit.point.x / Terrain.SCALE, hit.point.z / Terrain.SCALE) + 3.0f, hit.point.z);
-        }
-
     }
 
     void RaycastToTerrain()
@@ -259,9 +245,26 @@ public class Controls : MonoBehaviour
         }*/
     }
 
-    public void showBuildingMenu()
+    public void showBuildingMenu(GameObject building)
     {
+        buildingDetails.SetActive(true);
+        inUI = true;
 
+        var sprite = tools.buildingMapping[building.GetComponent<Building>().kind].getColorIcon();
+        var dets = buildingDetails.GetComponent<BuildingDetails>();
+        dets.icon.sprite = sprite;
+    }
+
+    void clickUI()
+    {
+        List<RaycastResult> res = new List<RaycastResult>();
+        var ped = new PointerEventData(eventSystem);
+        ped.position = Input.mousePosition;
+        buildingDetails.GetComponent<GraphicRaycaster>().Raycast(ped, res);
+        if (res.Count == 0) {
+            inUI = false;
+            buildingDetails.SetActive(false);
+        }
     }
 
     public void showTooltip(string text)
@@ -322,7 +325,7 @@ public class Controls : MonoBehaviour
         if (saveloadInfo != null)
             return;
 
-        if (true)
+        if (!inUI)
         {
             bool speedUp = false;
             if (Input.GetKey(KeyCode.LeftShift))
@@ -343,7 +346,8 @@ public class Controls : MonoBehaviour
             if (Input.GetMouseButton(1))
                 RotateCam();
 
-            if (Input.GetKey(KeyCode.Q)) {
+            if (Input.GetKey(KeyCode.Q))
+            {
                 if (currentToolbarItem != null)
                     currentToolbarItem.GetComponent<ToolbarItem>().deactivate(highlight, frameNotActive);
                 else
@@ -374,14 +378,6 @@ public class Controls : MonoBehaviour
 
             if (Input.GetMouseButtonDown(0))
                 RaycastToTerrain();
-            if (Input.GetMouseButton(0))
-            {
-                if (delay <= 0f)
-                {
-                    RaycastToTerrainCont();
-                    delay = 0.3f;
-                }
-            }
             if (!Input.GetMouseButton(0) && !Input.GetMouseButton(1))
                 RaycastToTerrainHover();
             if (Input.mouseScrollDelta.y != 0)
@@ -396,6 +392,16 @@ public class Controls : MonoBehaviour
                 SaveGame();
             if (Input.GetKeyDown(KeyCode.F4))
                 LoadGame();
+        }
+        else
+        {
+            if (Input.GetKey(KeyCode.Q))
+            {
+                inUI = false;
+                buildingDetails.SetActive(false);
+            }
+            if (Input.GetMouseButtonDown(0))
+                clickUI();
         }
     }
 
