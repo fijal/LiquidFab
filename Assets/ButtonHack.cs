@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class ButtonHack : MonoBehaviour
@@ -23,5 +24,6 @@ public class ButtonHack : MonoBehaviour
             GetComponent<Button>().colors = colors;
             isClicked = true;
         }
+        EventSystem.current.SetSelectedGameObject(null);
     }
 }
