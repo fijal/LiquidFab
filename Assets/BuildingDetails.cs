@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -32,9 +33,16 @@ public class BuildingDetails : MonoBehaviour
 
     public void populateReceipes(Receipe[] receipes, Items items)
     {
+        // clean old receipes, quite a bit ugly, instantiating new buildingDetailsPanel each time might be better
+        var panel = transform.Find("Panel");
+        for (int i = 0; i < panel.childCount; ++i)
+        {
+            if (panel.GetChild(i).GetComponent<Button>() != null)
+                Destroy(panel.GetChild(i).gameObject);
+        }
         for (int i = 0; i < receipes.Length; i++)
         {
-            var r = Instantiate(receipePrefab, transform.Find("Panel"));
+            var r = Instantiate(receipePrefab, panel);
             var b = r.transform.localPosition.y;
             r.transform.localPosition = new Vector3(r.transform.localPosition.x, b - i * RECEIPE_GAP, 1);
             var rec = receipes[i];
@@ -43,6 +51,7 @@ public class BuildingDetails : MonoBehaviour
             arrow.anchoredPosition = new Vector3(x, arrow.anchoredPosition.y);
             x += (int)arrow.rect.xMax;
             populateIngredients(rec.outputs, r, items, x);
+            arrow.Find("ArrowText").GetComponent<TMP_Text>().text = rec.time.ToString("0.0") + "s";
         }
     }
 }

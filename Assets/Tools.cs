@@ -54,7 +54,7 @@ public class Tools : MonoBehaviour
         forgeSpec.receipes = new Receipe[2];
         forgeSpec.receipes[0] = new Receipe(new Dictionary<ItemType, int> { { ItemType.Iron, 1 } }, new Dictionary<ItemType, int> { { ItemType.IronPlate, 1 } },
                                             3.0f);
-        forgeSpec.receipes[1] = new Receipe(new Dictionary<ItemType, int> { { ItemType.Rock, 1 } }, new Dictionary<ItemType, int>(), 1.0f);
+        forgeSpec.receipes[1] = new Receipe(new Dictionary<ItemType, int> { { ItemType.Rock, 1 } }, new Dictionary<ItemType, int>(), 1.5f);
 
         allTools["Forge"] = new ForgeTool(forgeSpec);
 
@@ -62,6 +62,11 @@ public class Tools : MonoBehaviour
         allTools["Miner"] = new MinerTool(minerSpec);
         
         var assemblerSpec = transform.Find("Assembler").gameObject.GetComponent<BuildingSpec>();
+
+        assemblerSpec.receipes = new Receipe[1];
+        assemblerSpec.receipes[0] = new Receipe(new Dictionary<ItemType, int> { { ItemType.Gear, 1 }, { ItemType.IronPlate, 2 } },
+            new Dictionary<ItemType, int> { { ItemType.IronPlate, 1 }, { ItemType.Gear, 2 } }, 2.0f);
+
         allTools["Assembler"] = new AssemblerTool(assemblerSpec);
         
         var ww = transform.Find("WaterWheel").gameObject;
