@@ -23,7 +23,7 @@ public class BuildingDetails : MonoBehaviour
         for (i = 0; i < l.Length; i++)
         {
             var item = Instantiate(itemPrefab, parent.transform);
-            item.transform.localPosition = new Vector3(x, item.transform.localPosition.y, 1);
+            (item.transform as RectTransform).anchoredPosition = new Vector2(x, (item.transform as RectTransform).anchoredPosition.y);
             item.GetComponent<Image>().sprite = items.items[l[i]].icon;
             x += INGREDIENT_SIZE;
         }
@@ -39,6 +39,10 @@ public class BuildingDetails : MonoBehaviour
             r.transform.localPosition = new Vector3(r.transform.localPosition.x, b - i * RECEIPE_GAP, 1);
             var rec = receipes[i];
             var x = populateIngredients(rec.inputs, r, items, 0);
+            var arrow = r.transform.Find("Arrow") as RectTransform;
+            arrow.anchoredPosition = new Vector3(x, arrow.anchoredPosition.y);
+            x += (int)arrow.rect.xMax;
+            populateIngredients(rec.outputs, r, items, x);
         }
     }
 }
