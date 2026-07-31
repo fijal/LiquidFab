@@ -259,6 +259,11 @@ public class Controls : MonoBehaviour
         }*/
     }
 
+    public void showBuildingMenu()
+    {
+
+    }
+
     public void showTooltip(string text)
     {
         tooltip.GetComponent<TMP_Text>().text = text;

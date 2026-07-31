@@ -19,6 +19,8 @@ using UnityEngine;
 
 public class ColliderLayers
 {
+    public const float Depth = 200; // no idea if this is reasonable, but let's use a common constant
+
     public const int Terrain = 1 << 3;
     public const int Water = 1 << 4;
     public const int UI = 1 << 5;

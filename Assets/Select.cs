@@ -48,6 +48,11 @@ public class SelectTool : ITool
             inventory.Add(tp);
             terrain.removeFloater(hit.transform.gameObject);
             addInventoryItem(terrain.items.items[tp], inventory.Count - 1);
+        } else if (Physics.Raycast(ray, out hit, ColliderLayers.Depth, ColliderLayers.AllBuildings)) {
+            if (inventory.Count == 0)
+                terrain.controls.showBuildingMenu();
+            else
+                Debug.Log("clicked a building with inventory");
         }
         else if (inventory.Count > 0)
         {
@@ -89,10 +94,8 @@ public class SelectTool : ITool
         RaycastHit hit;
 
         // XXX this logic is all slightly wrong and for some reason hoverPrefab has strange axis, but I gonna ignore it
-        var mask = ColliderLayers.Floaters;
-        if (inventory.Count > 0)
-            mask |= ColliderLayers.AllBuildings;
-        if (Physics.Raycast(ray, out hit, 200, mask))
+        var mask = ColliderLayers.Floaters | ColliderLayers.AllBuildings;
+        if (Physics.Raycast(ray, out hit, ColliderLayers.Depth, mask))
         {
             var go = hit.transform.gameObject;
             if (go == selectedObject)
