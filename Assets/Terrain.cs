@@ -644,7 +644,7 @@ public class Terrain : MonoBehaviour
     {
         foreach (var t in FindObjectsOfType<Transform>())
         {
-            if (t.position.sqrMagnitude > 2000f*2000f)
+            if (t.position.sqrMagnitude > 20000f*20000f)
             {
                 Debug.LogAssertion("TOO FAR AWAY: " + t.gameObject.name, t.gameObject);
                 Debug.DebugBreak();
