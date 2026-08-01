@@ -8,6 +8,9 @@ public class ButtonHack : MonoBehaviour
     public Building building;
     public int receipeIndex;
 
+    RectTransform progress;
+    float timer;
+
     public void disableButton()
     {
         var colors = GetComponent<Button>().colors;
@@ -35,5 +38,17 @@ public class ButtonHack : MonoBehaviour
         else
             enableButton();
         EventSystem.current.SetSelectedGameObject(null);
+    }
+
+    void Start()
+    {
+        var bar = transform.Find("ProgressBar");
+        progress = bar.Find("Progress") as RectTransform;
+    }
+
+    void Update()
+    {
+        timer += Time.deltaTime;
+        //progress.anchorMax = new Vector2(timer % 1.0f, 1.0f);
     }
 }
