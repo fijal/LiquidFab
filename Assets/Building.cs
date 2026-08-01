@@ -27,6 +27,8 @@ public class Building : MonoBehaviour
     public GameObject spawnPoint, pickupPoint;
     public BuildingKind kind;
     public Receipe[] receipes;
+    public bool[] receipesEnabled;
+    public Dictionary<ItemType, int> inventory;
     int[] productsGathered;
     [HideInInspector] public ProductionState state = ProductionState.idle;
     float buildTimer = 0;
@@ -34,6 +36,14 @@ public class Building : MonoBehaviour
     public void populateFromSpec(BuildingSpec spec)
     {
         receipes = spec.receipes;
+        receipesEnabled = new bool[receipes.Length];
+        inventory = new Dictionary<ItemType, int>();
+        for (int i = 0; i < receipes.Length; i++)
+        {
+            receipesEnabled[i] = true;
+            foreach (var item in receipes[i].inputs.Keys)
+                inventory[item] = 0;
+        }
     }
 
     public void receipeProgress()

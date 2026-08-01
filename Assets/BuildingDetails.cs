@@ -31,7 +31,7 @@ public class BuildingDetails : MonoBehaviour
         return x;
     }
 
-    public void populateReceipes(Receipe[] receipes, Items items)
+    public void populateReceipes(Building building, Items items)
     {
         // clean old receipes, quite a bit ugly, instantiating new buildingDetailsPanel each time might be better
         var panel = transform.Find("Panel");
@@ -40,12 +40,16 @@ public class BuildingDetails : MonoBehaviour
             if (panel.GetChild(i).GetComponent<Button>() != null)
                 Destroy(panel.GetChild(i).gameObject);
         }
-        for (int i = 0; i < receipes.Length; i++)
+        for (int i = 0; i < building.receipes.Length; i++)
         {
             var r = Instantiate(receipePrefab, panel);
+            r.GetComponent<ButtonHack>().building = building;
+            r.GetComponent<ButtonHack>().receipeIndex = i;
+            if (building.receipesEnabled[i])
+                r.GetComponent<ButtonHack>().enableButton();
             var b = r.transform.localPosition.y;
             r.transform.localPosition = new Vector3(r.transform.localPosition.x, b - i * RECEIPE_GAP, 1);
-            var rec = receipes[i];
+            var rec = building.receipes[i];
             var x = populateIngredients(rec.inputs, r, items, 0);
             var arrow = r.transform.Find("Arrow") as RectTransform;
             arrow.anchoredPosition = new Vector3(x, arrow.anchoredPosition.y);
