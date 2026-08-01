@@ -26,6 +26,7 @@ public class BuildingDetails : MonoBehaviour
             var item = Instantiate(itemPrefab, parent.transform);
             (item.transform as RectTransform).anchoredPosition = new Vector2(x, (item.transform as RectTransform).anchoredPosition.y);
             item.GetComponent<Image>().sprite = items.items[l[i]].icon;
+            item.transform.Find("ItemText").GetComponent<TMP_Text>().text = ingredients[l[i]].ToString();
             x += INGREDIENT_SIZE;
         }
         return x;
