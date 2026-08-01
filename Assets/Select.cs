@@ -26,7 +26,7 @@ public class SelectTool : ITool
     {
         var go = Object.Instantiate<GameObject>(spec.iconPrefab, spec.handInventory.transform);
         go.GetComponent<Image>().sprite = itemSpec.icon;
-        go.transform.localPosition = new Vector3(10 + pos * 20, -20, 0);
+        go.transform.localPosition = new Vector3(10 + pos * 40, -40, 0);
         //spec.handInventory
     }
 

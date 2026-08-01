@@ -264,7 +264,7 @@ public class Controls : MonoBehaviour
         buildingDetails.GetComponent<GraphicRaycaster>().Raycast(ped, res);
         if (res.Count == 0) {
             inUI = false;
-            buildingDetails.SetActive(false);
+            buildingDetails.GetComponent<BuildingDetails>().deactivate();
         }
     }
 
@@ -399,7 +399,7 @@ public class Controls : MonoBehaviour
             if (Input.GetKey(KeyCode.Q))
             {
                 inUI = false;
-                buildingDetails.SetActive(false);
+                buildingDetails.GetComponent<BuildingDetails>().deactivate();
             }
             if (Input.GetMouseButtonDown(0))
                 clickUI();
