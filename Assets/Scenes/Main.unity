@@ -1337,6 +1337,53 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 492150967}
   m_CullTransparentMesh: 1
+--- !u!1 &575014184
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 575014185}
+  - component: {fileID: 575014186}
+  m_Layer: 0
+  m_Name: CopperPlate
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &575014185
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 575014184}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1432532392}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &575014186
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 575014184}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f7039536151aaa48bf87b0da3975375, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 5874249009195408302, guid: 945531188b7dc3d49ad6fc77a95fb5b5, type: 3}
+  icon: {fileID: 21300000, guid: 8e710366f6a816f4bba52430070b4209, type: 3}
+  tp: 5
 --- !u!1 &576806778
 GameObject:
   m_ObjectHideFlags: 0
@@ -2755,6 +2802,7 @@ Transform:
   - {fileID: 1994222644}
   - {fileID: 24961154}
   - {fileID: 1525245488}
+  - {fileID: 575014185}
   - {fileID: 1560993814}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -3183,7 +3231,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 5471750415368775541, guid: 989249dfe7329714d9168c92d963d043, type: 3}
   icon: {fileID: 21300000, guid: ce00a89da07ae644aba3487e8ef7132f, type: 3}
-  tp: 5
+  tp: 6
 --- !u!1 &1625717972
 GameObject:
   m_ObjectHideFlags: 0
@@ -3506,6 +3554,7 @@ MonoBehaviour:
   kind: 7
   receipesEnabled: 
   state: 1
+  ui: {fileID: 0}
 --- !u!1 &1710034361
 GameObject:
   m_ObjectHideFlags: 0

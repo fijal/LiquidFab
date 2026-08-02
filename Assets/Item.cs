@@ -9,7 +9,8 @@ public enum ItemType
     IronPlate = 2,
     Gear = 3,
     Copper = 4,
-    Rock = 5
+    CopperPlate = 5,
+    Rock = 6
 }
 
 public class Item : MonoBehaviour

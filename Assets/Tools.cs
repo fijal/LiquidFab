@@ -51,10 +51,13 @@ public class Tools : MonoBehaviour
         forgeSpec.buildingCost = new Dictionary<ItemType, int>();
         forgeSpec.buildingCost[ItemType.IronPlate] = 2;
         forgeSpec.buildingCost[ItemType.Gear] = 1;
-        forgeSpec.receipes = new Receipe[2];
+        forgeSpec.receipes = new Receipe[3];
         forgeSpec.receipes[0] = new Receipe(new Dictionary<ItemType, int> { { ItemType.Iron, 1 } }, new Dictionary<ItemType, int> { { ItemType.IronPlate, 1 } },
-                                            3.0f);
-        forgeSpec.receipes[1] = new Receipe(new Dictionary<ItemType, int> { { ItemType.Rock, 1 } }, new Dictionary<ItemType, int>(), 1.5f);
+                                            5.0f);
+        forgeSpec.receipes[1] = new Receipe(new Dictionary<ItemType, int> { { ItemType.Copper, 1 } }, new Dictionary<ItemType, int> { { ItemType.CopperPlate, 1 } },
+                                            5.0f);
+
+        forgeSpec.receipes[2] = new Receipe(new Dictionary<ItemType, int> { { ItemType.Rock, 1 } }, new Dictionary<ItemType, int>(), 3f);
 
         allTools["Forge"] = new ForgeTool(forgeSpec);
 

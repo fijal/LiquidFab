@@ -1,0 +1,16 @@
+* write a bunch of asserts
+* enabling/disabling receipes
+* bugs around inventory being on the hand
+* drop inventory directly into the building
+* construction of buildings
+* play around with initial setup of resources
+* miners etc.
+* add more products
+* improve assembler
+
+Later:
+
+* tech tree
+* save/load
+* splash screen
+* logo

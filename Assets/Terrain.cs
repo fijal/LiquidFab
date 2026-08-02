@@ -114,9 +114,10 @@ public class Terrain : MonoBehaviour
         trees[x + y * TERRAIN_SIZE] = go;
     }
 
-    public void spawnFloater(Vector3 loc, GameObject prefab, ItemType tp)
+    public void spawnFloater(Vector3 loc, ItemType tp)
     {
-        var go = Instantiate(prefab, transform);
+        var itemSpec = items.items[tp];
+        var go = Instantiate(itemSpec.prefab, transform);
         //Vector3 loc = spawner.GetComponent<Building>().spawnPoint.transform.position;
         go.transform.position = loc + new Vector3(Random.Range(-0.1f, 0.1f), 0, Random.Range(-0.1f, 0.1f));
         go.transform.rotation = Quaternion.Euler(0, Random.Range(0, 90), 0);

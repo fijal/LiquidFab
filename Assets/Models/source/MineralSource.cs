@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class MineralSource : MonoBehaviour
 {
-    public GameObject rock, iron, copper;
     public Terrain terrain;
 
     const float INTERVAL = 3.0f;
@@ -23,14 +22,14 @@ public class MineralSource : MonoBehaviour
             cur = new Vector3(cur.x, terrain.heightFloat(cur.x / Terrain.SCALE, cur.z / Terrain.SCALE), cur.z);
             if (r < 0.1f)
             {
-                terrain.spawnFloater(cur, iron, ItemType.Iron);
+                terrain.spawnFloater(cur, ItemType.Iron);
             } else if (r < 0.2f)
             {
-                terrain.spawnFloater(cur, copper, ItemType.Copper);
+                terrain.spawnFloater(cur, ItemType.Copper);
             }
             else
             {
-                terrain.spawnFloater(cur, rock, ItemType.Rock);
+                terrain.spawnFloater(cur, ItemType.Rock);
             }
         }
     }

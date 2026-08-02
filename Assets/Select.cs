@@ -61,8 +61,7 @@ public class SelectTool : ITool
                 var tp = inventory[inventory.Count - 1];
                 inventory.RemoveAt(inventory.Count - 1);
                 var loc = new Vector3(hit.point.x, terrain.heightWaterFloat(hit.point.x / Terrain.SCALE, hit.point.z / Terrain.SCALE) + 1.0f, hit.point.z);
-                var itemSpec = terrain.items.items[tp];
-                terrain.spawnFloater(loc, itemSpec.prefab, tp);
+                terrain.spawnFloater(loc, tp);
                 removeInventoryItem();
             }
         }

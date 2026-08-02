@@ -157,9 +157,8 @@ public class Building : MonoBehaviour
                 state = ProductionState.stopping;
                 var items = receipes[currentReceipe].outputs;
                 foreach (var itemTp in items) {
-                    var item = terrain.items.items[itemTp.Key];
                     for (var i = 0; i < itemTp.Value; i++)
-                        terrain.spawnFloater(spawnPoint.transform.position, item.prefab, itemTp.Key);
+                        terrain.spawnFloater(spawnPoint.transform.position, itemTp.Key);
                 }
                 checkNextReceipe();
             }
