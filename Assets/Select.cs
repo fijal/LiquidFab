@@ -52,7 +52,18 @@ public class SelectTool : ITool
             if (inventory.Count == 0)
                 terrain.controls.showBuildingMenu(hit.transform.gameObject);
             else
-                Debug.Log("clicked a building with inventory");
+            {
+                var b = hit.transform.GetComponent<Building>();
+                var tp = inventory[inventory.Count - 1];
+                if (!b.isValidIngredient(tp))
+                    terrain.controls.showTooltip("Not a valid ingredient");
+                else
+                {
+                    removeInventoryItem();
+                    inventory.RemoveAt(inventory.Count - 1);
+                    b.addInventory(tp);
+                }
+            }
         }
         else if (inventory.Count > 0)
         {
@@ -64,6 +75,10 @@ public class SelectTool : ITool
                 terrain.spawnFloater(loc, tp);
                 removeInventoryItem();
             }
+        } else
+        {
+            //Debug.Log("clicked nothing");
+            
         }
 
     }
@@ -135,6 +150,4 @@ public class Select : MonoBehaviour
 {
     public GameObject selectPrefab, rockPrefab;
     public GameObject handInventory, iconPrefab;
-    public Sprite rock;
-    public Texture2D baseCursor;
 }

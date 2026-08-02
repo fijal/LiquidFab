@@ -24,11 +24,10 @@ public class Controls : MonoBehaviour
     public EventSystem eventSystem;
     public GameObject helperUI;
     public GameObject UIPanel;
-    public GameObject tooltip;
     public GameObject detailsPanel;
     public Tools tools;
     public GameObject toolbarItemPrefab;
-    public GameObject buildingDetails;
+    public GameObject buildingDetails, tooltipPrefab;
     public Sprite frameActive, frameNotActive;
     
     public GameObject saveloadInfoPrefab;
@@ -270,12 +269,9 @@ public class Controls : MonoBehaviour
 
     public void showTooltip(string text)
     {
-        tooltip.GetComponent<TMP_Text>().text = text;
-        var rt = tooltip.GetComponent<RectTransform>();
-        rt.anchoredPosition = new Vector2(Input.mousePosition.x, Input.mousePosition.y + 30);
-        tooltip.SetActive(true);
-        tooltip.GetComponent<Tooltip>().fadeTimer = 0.0f;
-        tooltip.GetComponent<TMP_Text>().color = new Color(1, 1, 1, 1);
+        var tooltip = Object.Instantiate<GameObject>(tooltipPrefab);
+        tooltip.transform.Find("Text").position = Input.mousePosition;
+        tooltip.transform.Find("Text").GetComponent<TMP_Text>().text = text;
     }
 
     void activateToolbarItem(int index)

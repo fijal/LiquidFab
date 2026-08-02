@@ -90,39 +90,18 @@ public class Building : MonoBehaviour
             return; // non producing building
         if (state != ProductionState.producing)
             checkNextReceipe();
-        /*if (state != ProductionState.producing)
-        {
-            if (productsGathered.Length == 0)
-            {
-                state = ProductionState.starting;
-                buildTimer = selectedReceipe.time;
-            }
-            else
-            {
-                var c = Physics.OverlapBox(pickupPoint.transform.position, new Vector3(0.3f, 0.3f, 0.3f), pickupPoint.transform.rotation,
-                                           ColliderLayers.Floaters);
-                for (int i = 0; i < c.Length; ++i)
-                {
-                    var tp = c[i].GetComponent<Floater>().tp;
-                    for (int j = 0; j < productsGathered.Length; ++j)
-                        if (productsGathered[j] < selectedReceipe.inputCounts[j] && selectedReceipe.inputs[j].tp == tp)
-                        {
-                            productsGathered[j]++;
-                            terrain.removeFloater(c[i].gameObject);
-                        }
-                }
-                // check if we have all
-                var all = true;
-                for (int j = 0; j < productsGathered.Length; ++j)
-                    if (productsGathered[j] < selectedReceipe.inputCounts[j])
-                        all = false;
-                if (all)
-                {
-                    buildTimer = selectedReceipe.time;
-                    state = ProductionState.starting;
-                }
-            }
-        }*/
+    }
+
+    public bool isValidIngredient(ItemType tp)
+    {
+        if (inventory == null)
+            return false;
+        return inventory.ContainsKey(tp) && inventory[tp] < MAX_INGREDIENTS;
+    }
+
+    public void addInventory(ItemType tp)
+    {
+        inventory[tp] += 1;
     }
 
     void checkForIngredients()
@@ -160,6 +139,8 @@ public class Building : MonoBehaviour
                     for (var i = 0; i < itemTp.Value; i++)
                         terrain.spawnFloater(spawnPoint.transform.position, itemTp.Key);
                 }
+                if (ui)
+                    ui.notifyReceipeProgress(currentReceipe, 0);
                 checkNextReceipe();
             }
         }

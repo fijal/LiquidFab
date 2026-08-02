@@ -1,4 +1,5 @@
-* write a bunch of asserts
+* write a bunch of asserts for items            DONE
+* write a bunch of asserts for buildings
 * enabling/disabling receipes
 * bugs around inventory being on the hand
 * drop inventory directly into the building
