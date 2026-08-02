@@ -29,9 +29,9 @@ public class Building : MonoBehaviour
     public Receipe[] receipes;
     public bool[] receipesEnabled;
     public Dictionary<ItemType, int> inventory;
-    int[] productsGathered;
     [HideInInspector] public ProductionState state = ProductionState.idle;
     float buildTimer = 0;
+    int currentReceipe = -1;
     [HideInInspector] public BuildingDetails ui;
 
     const int MAX_INGREDIENTS = 10;
@@ -49,6 +49,32 @@ public class Building : MonoBehaviour
         }
     }
 
+    void checkNextReceipe()
+    {
+        for (int i = 0; i < receipes.Length; ++i)
+        {
+            var all = true;
+            foreach (var ing in receipes[i].inputs)
+                if (inventory[ing.Key] < ing.Value)
+                {
+                    all = false;
+                    break;
+                }
+            if (all)
+            {
+                currentReceipe = i;
+                foreach (var ing in receipes[i].inputs)
+                    inventory[ing.Key] -= ing.Value;
+                if (ui != null)
+                    ui.notifyInventoryChange();
+                buildTimer = receipes[i].time;
+                if (state != ProductionState.producing)
+                    state = ProductionState.starting;
+                break;
+            }
+        }
+    }
+
     public void receipeProgress()
     {
         if (kind == BuildingKind.waterWheel)
@@ -60,8 +86,10 @@ public class Building : MonoBehaviour
             terrain.water.waterFlowX[x + y * (Terrain.TERRAIN_SIZE + 1)] = Mathf.Cos(Mathf.Deg2Rad * transform.localRotation.eulerAngles.y) * force;
             terrain.water.waterFlowY[x + y * Terrain.TERRAIN_SIZE] = -Mathf.Sin(Mathf.Deg2Rad * transform.localRotation.eulerAngles.y) * force;
         }
-        if (productsGathered == null)
+        if (receipes == null)
             return; // non producing building
+        if (state != ProductionState.producing)
+            checkNextReceipe();
         /*if (state != ProductionState.producing)
         {
             if (productsGathered.Length == 0)
@@ -115,20 +143,26 @@ public class Building : MonoBehaviour
     }
     public void FixedUpdate()
     {
-        if (receipes != null)
-            checkForIngredients(); // producing building
-        /*if (state == ProductionState.producing)
+        if (receipes == null)
+            return;
+        checkForIngredients();
+        receipeProgress();
+        if (state == ProductionState.producing)
         {
             buildTimer -= Time.fixedDeltaTime;
+            if (ui)
+                ui.notifyReceipeProgress(currentReceipe, 1.0f - buildTimer / receipes[currentReceipe].time);
             if (buildTimer < 0)
             {
                 state = ProductionState.stopping;
-                //var item = selectedReceipe.output.GetComponent<Item>();
-                //terrain.spawnFloater(spawnPoint.transform.position, item.prefab, item.tp);
-                //setReceipe(selectedReceipe);
-                receipeProgress(); // run one gathering of resources
+                var items = receipes[currentReceipe].outputs;
+                foreach (var itemTp in items) {
+                    var item = terrain.items.items[itemTp.Key];
+                    for (var i = 0; i < itemTp.Value; i++)
+                        terrain.spawnFloater(spawnPoint.transform.position, item.prefab, itemTp.Key);
+                }
+                checkNextReceipe();
             }
         }
-        */
     }
 }

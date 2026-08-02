@@ -7,6 +7,7 @@ public class BuildingDetails : MonoBehaviour
 {
     public Image icon;
     public GameObject receipePrefab, itemPrefab, framedItemPrefab;
+    GameObject[] buttons;
     Building building;
     Items items;
 
@@ -50,6 +51,11 @@ public class BuildingDetails : MonoBehaviour
         }
     }
 
+    public void notifyReceipeProgress(int currentReceipe, float progress)
+    {
+        (buttons[currentReceipe].transform as RectTransform).anchorMax = new Vector2(progress, 1.0f);
+    }
+
     public void populateReceipes(Building building, Items items)
     {
         this.building = building;
@@ -63,9 +69,11 @@ public class BuildingDetails : MonoBehaviour
                 Destroy(panel.GetChild(i).gameObject);
         }
         notifyInventoryChange();
+        buttons = new GameObject[building.receipes.Length];
         for (int i = 0; i < building.receipes.Length; i++)
         {
             var r = Instantiate(receipePrefab, panel);
+            buttons[i] = r.transform.Find("ProgressBar").Find("Progress").gameObject;
             r.GetComponent<ButtonHack>().building = building;
             r.GetComponent<ButtonHack>().receipeIndex = i;
             if (building.receipesEnabled[i])
