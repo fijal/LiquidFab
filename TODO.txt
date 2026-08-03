@@ -2,15 +2,17 @@
 * write a bunch of asserts for buildings
 * enabling/disabling receipes
 * bugs around inventory being on the hand
-* drop inventory directly into the building
+* drop inventory directly into the building     DONE
 * construction of buildings
 * play around with initial setup of resources
 * miners etc.
 * add more products
-* improve assembler
+* improve assembler model
+* water wheel and fence free placement
 
 Later:
 
+* f1 for help
 * tech tree
 * save/load
 * splash screen

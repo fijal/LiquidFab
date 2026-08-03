@@ -35,7 +35,7 @@ public class SelectTool : ITool
         Object.Destroy(spec.handInventory.transform.GetChild(spec.handInventory.transform.childCount - 1).gameObject);
     }
 
-    public void click(GameObject highlight, GameObject camera, Terrain terrain)
+    public void click(GameObject highlight, GameObject camera, Terrain terrain, bool modifier=false)
     {
         var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
@@ -54,14 +54,29 @@ public class SelectTool : ITool
             else
             {
                 var b = hit.transform.GetComponent<Building>();
+                var c = hit.transform.GetComponent<Construction>();
                 var tp = inventory[inventory.Count - 1];
-                if (!b.isValidIngredient(tp))
-                    terrain.controls.showTooltip("Not a valid ingredient");
-                else
+                if (b != null)
                 {
-                    removeInventoryItem();
-                    inventory.RemoveAt(inventory.Count - 1);
-                    b.addInventory(tp);
+                    // XXX can this be done through an interface?
+                    if (!b.isValidIngredient(tp))
+                        terrain.controls.showTooltip("Not a valid ingredient");
+                    else
+                    {
+                        removeInventoryItem();
+                        inventory.RemoveAt(inventory.Count - 1);
+                        b.addInventory(tp);
+                    }
+                } else
+                {
+                    if (!c.isValidIngredient(tp))
+                        terrain.controls.showTooltip("Not a valid construction item");
+                    else
+                    {
+                        removeInventoryItem();
+                        inventory.RemoveAt(inventory.Count - 1);
+                        c.addInventory(tp, terrain);
+                    }
                 }
             }
         }

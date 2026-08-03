@@ -9,6 +9,7 @@ public class BuildingDetails : MonoBehaviour
     public GameObject receipePrefab, itemPrefab, framedItemPrefab;
     GameObject[] buttons;
     Building building;
+    Construction construction;
     Items items;
 
     const float RECEIPE_GAP = 120;
@@ -35,18 +36,21 @@ public class BuildingDetails : MonoBehaviour
         return x;
     }
 
-    public void notifyInventoryChange()
+    public void notifyInventoryChange(Dictionary<ItemType, int> inventory, Dictionary<ItemType, int> totalInventory=null)
     {
         var ingPanel = transform.Find("Panel").Find("IngredientPanel");
         for (int i = 0; i < ingPanel.childCount; ++i)
             Destroy(ingPanel.GetChild(i).gameObject);
         var x = 0;
-        foreach (var ing in building.inventory)
+        foreach (var ing in inventory)
         {
             var item = Instantiate(framedItemPrefab, ingPanel);
             item.transform.Find("Item").GetComponent<Image>().sprite = items.items[ing.Key].icon;
             (item.transform as RectTransform).anchoredPosition = new Vector2(x, (item.transform as RectTransform).anchoredPosition.y);
-            item.transform.Find("Text").GetComponent<TMP_Text>().text = ing.Value.ToString() + "/10";
+            int max = 10;
+            if (totalInventory != null)
+                max = totalInventory[ing.Key];
+            item.transform.Find("Text").GetComponent<TMP_Text>().text = ing.Value.ToString() + "/" + max.ToString();
             x += INGREDIENT_SIZE + 10;
         }
     }
@@ -56,6 +60,25 @@ public class BuildingDetails : MonoBehaviour
         (buttons[currentReceipe].transform as RectTransform).anchorMax = new Vector2(progress, 1.0f);
     }
 
+    public void populateConstruction(Construction construction, Items items)
+    {
+        this.items = items;
+        var panel = transform.Find("Panel");
+        panel.Find("IngredientText").GetComponent<TMP_Text>().text = "Construction materials:";
+        panel.Find("ReceipeText").GetComponent<TMP_Text>().text = "";
+        notifyInventoryChange(construction.inventory, construction.cost);
+        cleanReceipes(panel);
+    }
+
+    void cleanReceipes(Transform panel)
+    {
+        for (int i = 0; i < panel.childCount; ++i)
+        {
+            if (panel.GetChild(i).GetComponent<Button>() != null)
+                Destroy(panel.GetChild(i).gameObject);
+        }
+    }
+
     public void populateReceipes(Building building, Items items)
     {
         this.building = building;
@@ -63,12 +86,10 @@ public class BuildingDetails : MonoBehaviour
         building.ui = this;
         // clean old receipes, quite a bit ugly, instantiating new buildingDetailsPanel each time might be better
         var panel = transform.Find("Panel");
-        for (int i = 0; i < panel.childCount; ++i)
-        {
-            if (panel.GetChild(i).GetComponent<Button>() != null)
-                Destroy(panel.GetChild(i).gameObject);
-        }
-        notifyInventoryChange();
+        panel.Find("IngredientText").GetComponent<TMP_Text>().text = "Ingredients:";
+        panel.Find("ReceipeText").GetComponent<TMP_Text>().text = "Receipes:";
+        cleanReceipes(panel);
+        notifyInventoryChange(building.inventory);
         buttons = new GameObject[building.receipes.Length];
         for (int i = 0; i < building.receipes.Length; i++)
         {
@@ -93,6 +114,7 @@ public class BuildingDetails : MonoBehaviour
     public void deactivate()
     {
         gameObject.SetActive(false);
-        building.ui = null;
+        if (building != null)
+            building.ui = null;
     }
 }

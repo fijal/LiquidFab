@@ -141,7 +141,7 @@ public class Controls : MonoBehaviour
             }
             return;
         }*/
-        currentTool.click(highlight, camera, terrain);
+        currentTool.click(highlight, camera, terrain, Input.GetKey(KeyCode.LeftShift));
         //    currentTool.clickTerrain(highlight, terrain, hit.point);
         
         // XXX rework this part or more likely the whole function XXX
@@ -249,10 +249,13 @@ public class Controls : MonoBehaviour
         buildingDetails.SetActive(true);
         inUI = true;
 
-        var sprite = tools.buildingMapping[building.GetComponent<Building>().kind].getColorIcon();
+        var sprite = tools.buildingMapping[BuildingHelper.getKind(building)].getColorIcon();
         var dets = buildingDetails.GetComponent<BuildingDetails>();
         dets.icon.sprite = sprite;
-        dets.populateReceipes(building.GetComponent<Building>(), terrain.items);
+        if (building.GetComponent<Building>() != null)
+            dets.populateReceipes(building.GetComponent<Building>(), terrain.items);
+        else
+            dets.populateConstruction(building.GetComponent<Construction>(), terrain.items);
     }
 
     void clickUI()

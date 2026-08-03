@@ -316,9 +316,6 @@ MonoBehaviour:
   rockPrefab: {fileID: 5471750415368775541, guid: 989249dfe7329714d9168c92d963d043, type: 3}
   handInventory: {fileID: 1086571876}
   iconPrefab: {fileID: 1145880847442602357, guid: ce4ab81b3b5e3b24ca94b407c0738f49, type: 3}
-  tooltipPrefab: {fileID: 1659216617767196216, guid: 5509e2b3f1a4a8648a77bcc869d4e4dd, type: 3}
-  rock: {fileID: 21300000, guid: b797cc14554d4954e842f1ad3703bfe2, type: 3}
-  baseCursor: {fileID: 2800000, guid: 1002a3036a8dbe74b9e3ce8a2439f57e, type: 3}
 --- !u!1 &69481721
 GameObject:
   m_ObjectHideFlags: 0
@@ -812,6 +809,7 @@ MonoBehaviour:
   prefab: {fileID: 6145486588847561356, guid: 90c23489a4166454cb3e087645e3b13b, type: 3}
   greenPrefab: {fileID: 6145486588847561356, guid: 5b1c0ef3f69eee547a063e56bb9ade13, type: 3}
   redPrefab: {fileID: 6145486588847561356, guid: e2959bde328b95349b5b64f3575173e5, type: 3}
+  whitePrefab: {fileID: 0}
   colorIcon: {fileID: 21300000, guid: 846de218d74e13141920e21611b36f74, type: 3}
   grayIcon: {fileID: 21300000, guid: d1d8aae6e4f9ba04d83db790b2e21efc, type: 3}
 --- !u!1 &344351240
@@ -857,7 +855,7 @@ GameObject:
   - component: {fileID: 357572171}
   - component: {fileID: 357572170}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: IngredientText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -879,8 +877,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -192.69, y: -292.69}
-  m_SizeDelta: {x: 86.6277, y: 26.997}
+  m_AnchoredPosition: {x: -162.18927, y: -292.69}
+  m_SizeDelta: {x: 147.6292, y: 26.997}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &357572170
 MonoBehaviour:
@@ -948,7 +946,7 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_TextWrappingMode: 1
+  m_TextWrappingMode: 0
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
   m_linkedTextComponent: {fileID: 0}
@@ -1031,6 +1029,7 @@ MonoBehaviour:
   prefab: {fileID: 7845330210799239007, guid: 01cf8020b5e9fe047b765e0860fd2fa2, type: 3}
   greenPrefab: {fileID: 6660944806714860949, guid: f85622947c20f5a4aa87d665dc76f28f, type: 3}
   redPrefab: {fileID: 6069345571127595571, guid: 22848c9d7291f014f949aed7b0f05e2d, type: 3}
+  whitePrefab: {fileID: 0}
   colorIcon: {fileID: 21300000, guid: 71845e6de96232f47bd719a16c487685, type: 3}
   grayIcon: {fileID: 21300000, guid: 71845e6de96232f47bd719a16c487685, type: 3}
 --- !u!1 &441154184
@@ -1158,6 +1157,7 @@ MonoBehaviour:
   prefab: {fileID: 394459174120429782, guid: 9d7bf26c26aac7743834ab47eb54d23c, type: 3}
   greenPrefab: {fileID: 3027851121116065823, guid: a0a5a9f7a469b7f45be46ce9e1e537b3, type: 3}
   redPrefab: {fileID: 6894959070816017002, guid: 4381ebf8891384f4eb07c4f9935c0a14, type: 3}
+  whitePrefab: {fileID: 0}
   colorIcon: {fileID: 21300000, guid: 850734b6876fe144cbd31e6732122074, type: 3}
   grayIcon: {fileID: 21300000, guid: 850734b6876fe144cbd31e6732122074, type: 3}
 --- !u!1 &492150967
@@ -1597,7 +1597,7 @@ GameObject:
   - component: {fileID: 803171547}
   - component: {fileID: 803171546}
   m_Layer: 5
-  m_Name: Text (TMP) (1)
+  m_Name: ReceipeText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1772,6 +1772,7 @@ MonoBehaviour:
   prefab: {fileID: 8964695145561224292, guid: c0e592d76b9a5124c9c3cf4db6f04057, type: 3}
   greenPrefab: {fileID: 2040421907493963405, guid: ba18ea4cbeb93e141a4c2a2acc45d33d, type: 3}
   redPrefab: {fileID: 9040639614481443269, guid: 08b5b2a3deb1f76478eee70be7b3712b, type: 3}
+  whitePrefab: {fileID: 0}
   colorIcon: {fileID: 21300000, guid: a434f5578d440ad44ba0972c1a9fda66, type: 3}
   grayIcon: {fileID: 21300000, guid: 3ced78b72d229b847b3d4603a92294f8, type: 3}
 --- !u!114 &827165167
@@ -2502,6 +2503,7 @@ MonoBehaviour:
   prefab: {fileID: 6445708950799606802, guid: 4d70d99bd010e6c4eab7f03c4cf9fd25, type: 3}
   greenPrefab: {fileID: 6445708950799606802, guid: 23897ae5b312a044180fc93c9c1be836, type: 3}
   redPrefab: {fileID: 6445708950799606802, guid: e0b0cd4b4a71f194a8d99e4e69a7d32f, type: 3}
+  whitePrefab: {fileID: 0}
   colorIcon: {fileID: 21300000, guid: 28f225c9d9cefb049b3509502e03d716, type: 3}
   grayIcon: {fileID: 21300000, guid: 6315459d1ac57ed48b984f5dc86a7975, type: 3}
 --- !u!1 &1432532390
@@ -2652,7 +2654,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 825e05782506aa5409d5a8c20de11735, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1752865891852905145, guid: 825e05782506aa5409d5a8c20de11735, type: 3}
       propertyPath: m_Layer
@@ -2786,7 +2788,6 @@ MonoBehaviour:
   eventSystem: {fileID: 756172571}
   helperUI: {fileID: 202777019}
   UIPanel: {fileID: 1629515862}
-  tooltip: {fileID: 0}
   detailsPanel: {fileID: 5774552571651377798, guid: 857616e76cab946d8a1f175d4d976056, type: 3}
   tools: {fileID: 181815195}
   toolbarItemPrefab: {fileID: 4173872222273218390, guid: f68224fb9c4fb404d84cfe8447cacb7a, type: 3}
@@ -3426,6 +3427,7 @@ MonoBehaviour:
   prefab: {fileID: 204789440125068108, guid: 60397e3623af9a0408c9b492dc7cf67e, type: 3}
   greenPrefab: {fileID: 204789440125068108, guid: 54c8ad369ad92ea4595adc664449bf45, type: 3}
   redPrefab: {fileID: 204789440125068108, guid: 8849d52aeb27bd44eae689d6d7de61af, type: 3}
+  whitePrefab: {fileID: 204789440125068108, guid: b3a0a786b7f4e5740b3454e5efff99da, type: 3}
   colorIcon: {fileID: 21300000, guid: e489ba2588d5df6439a49a471fe768a8, type: 3}
   grayIcon: {fileID: 21300000, guid: 9d63c247344ef224d9092969b1f4edc3, type: 3}
 --- !u!1 &1931423981

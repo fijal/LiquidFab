@@ -21,6 +21,16 @@ public enum BuildingKind
     mainBase = 7
 }
 
+public class BuildingHelper
+{
+    public static BuildingKind getKind(GameObject go)
+    {
+        if (go.GetComponent<Building>() != null)
+            return go.GetComponent<Building>().kind;
+        return go.GetComponent<Construction>().kind;
+    }
+}
+
 public class Building : MonoBehaviour
 {
     [HideInInspector] public Terrain terrain;
@@ -66,7 +76,7 @@ public class Building : MonoBehaviour
                 foreach (var ing in receipes[i].inputs)
                     inventory[ing.Key] -= ing.Value;
                 if (ui != null)
-                    ui.notifyInventoryChange();
+                    ui.notifyInventoryChange(inventory);
                 buildTimer = receipes[i].time;
                 if (state != ProductionState.producing)
                     state = ProductionState.starting;
@@ -116,7 +126,7 @@ public class Building : MonoBehaviour
                 Destroy(c[i].gameObject);
                 inventory[tp] += 1;
                 if (ui != null)
-                    ui.notifyInventoryChange();
+                    ui.notifyInventoryChange(inventory);
             }
         }
     }

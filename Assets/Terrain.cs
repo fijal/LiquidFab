@@ -136,10 +136,15 @@ public class Terrain : MonoBehaviour
         var go = Instantiate(prefab, transform);
         go.transform.position = point;
         go.transform.rotation = rot;
-        go.GetComponent<Building>().terrain = this;
+        if (go.GetComponent<Building>() != null)
+            go.GetComponent<Building>().terrain = this;
         buildings.Add(go);
-        if (spec != null)
-            go.GetComponent<Building>().populateFromSpec(spec);   
+        if (spec != null) {
+            if (go.GetComponent<Building>() != null)
+                go.GetComponent<Building>().populateFromSpec(spec);
+            else
+                go.GetComponent<Construction>().populateFromSpec(spec);
+        }
         return go;
     }
 
@@ -246,8 +251,10 @@ public class Terrain : MonoBehaviour
 
         waterPumps = new Dictionary<int, GameObject>();
         sources = new HashSet<GameObject>();
-        addSource(100, 100);
-        addSource(100, 200);
+        addMineralSource(100, 100);
+        addMineralSource(104, 120);
+        addMineralSource(120, 115);
+        addMineralSource(100, 200);
 
         var baseObject = transform.Find("base").gameObject;
         buildings.Add(baseObject);
@@ -266,7 +273,7 @@ public class Terrain : MonoBehaviour
             }
     }
 
-    void addSource(float x, float y)
+    void addMineralSource(float x, float y)
     {
         var go = Instantiate(sourcePrefab, transform);
         // water level will fix itself next simulation frame 
@@ -437,7 +444,7 @@ public class Terrain : MonoBehaviour
 
         foreach (var f in buildings)
         {
-            if (f.GetComponent<Building>().kind == BuildingKind.waterPump)
+            if (BuildingHelper.getKind(f) == BuildingKind.waterPump)
             {
                 var x = (int)(f.transform.position.x / SCALE);
                 var y = (int)(f.transform.position.z / SCALE);
@@ -452,7 +459,6 @@ public class Terrain : MonoBehaviour
     {
         foreach (var f in buildings)
         {
-            f.GetComponent<Building>().receipeProgress();
             var cur = f.transform.position;
             f.transform.position = new Vector3(cur.x, heightWaterFloat(cur.x / SCALE, cur.z / SCALE), cur.z);
         }

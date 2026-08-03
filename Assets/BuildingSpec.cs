@@ -54,7 +54,7 @@ public class BuildingFreePlacement : ITool
         highlight.transform.rotation *= Quaternion.Euler(0, amount, 0);
     }
 
-    public void click(GameObject highlight, GameObject camera, Terrain terrain)
+    public void click(GameObject highlight, GameObject camera, Terrain terrain, bool modifier=false)
     {
         var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
@@ -62,13 +62,23 @@ public class BuildingFreePlacement : ITool
         if (Physics.Raycast(ray, out hit, 200, ColliderLayers.Water))
         {
             if (isLegalPlacement(highlight, terrain, hit.point))
-                placeBuilding(highlight, terrain, hit.point);
+            {
+                if (modifier)
+                    placeBuilding(highlight, terrain, hit.point);
+                else
+                    placeConstruction(highlight, terrain, hit.point);
+            }
         }
     }
 
     public virtual void placeBuilding(GameObject highlight, Terrain terrain, Vector3 hitPoint)
     {
         terrain.spawnBuilding(spec.prefab, hitPoint, highlight.transform.rotation, spec);
+    }
+
+    public void placeConstruction(GameObject highlight, Terrain terrain, Vector3 hitPoint)
+    {
+        terrain.spawnBuilding(spec.whitePrefab, hitPoint, highlight.transform.rotation, spec);
     }
 
     public virtual bool isLegalPlacement(GameObject highlight, Terrain terrain, Vector3 point)
@@ -223,7 +233,7 @@ public class BuildingGridPlacement : ITool
     {
     }
 
-    public void click(GameObject highlight, GameObject camera, Terrain terrain)
+    public void click(GameObject highlight, GameObject camera, Terrain terrain, bool modifier = false)
     {
         var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
@@ -269,9 +279,9 @@ public class BuildingGridPlacement : ITool
 public class BuildingSpec : MonoBehaviour
 {
     public GameObject prefab;
-    public GameObject greenPrefab, redPrefab;
+    public GameObject greenPrefab, redPrefab, whitePrefab;
     public Sprite colorIcon, grayIcon;
-
+    
     public Dictionary<ItemType, int> buildingCost;
     public Receipe[] receipes;
 }

@@ -11,7 +11,7 @@ public interface ITool
     public void activate(GameObject highlight);
     public void deactivate(GameObject highlight);
     public void hoverOverTerrain(GameObject highlight, GameObject camera, Terrain terrain);
-    public void click(GameObject highlight, GameObject camera, Terrain terrain);
+    public void click(GameObject highlight, GameObject camera, Terrain terrain, bool modifier=false);
     public void rotate(GameObject highlight, float amount);
 }
 
@@ -48,9 +48,7 @@ public class Tools : MonoBehaviour
         allTools = new Dictionary<string, ITool>();
 
         var forgeSpec = transform.Find("Forge").gameObject.GetComponent<BuildingSpec>();
-        forgeSpec.buildingCost = new Dictionary<ItemType, int>();
-        forgeSpec.buildingCost[ItemType.IronPlate] = 2;
-        forgeSpec.buildingCost[ItemType.Gear] = 1;
+        forgeSpec.buildingCost = new Dictionary<ItemType, int>() { { ItemType.IronPlate, 2 }, { ItemType.Gear, 1 } };
         forgeSpec.receipes = new Receipe[3];
         forgeSpec.receipes[0] = new Receipe(new Dictionary<ItemType, int> { { ItemType.Iron, 1 } }, new Dictionary<ItemType, int> { { ItemType.IronPlate, 1 } },
                                             5.0f);
@@ -67,8 +65,8 @@ public class Tools : MonoBehaviour
         var assemblerSpec = transform.Find("Assembler").gameObject.GetComponent<BuildingSpec>();
 
         assemblerSpec.receipes = new Receipe[1];
-        assemblerSpec.receipes[0] = new Receipe(new Dictionary<ItemType, int> { { ItemType.Gear, 1 }, { ItemType.IronPlate, 2 } },
-            new Dictionary<ItemType, int> { { ItemType.IronPlate, 1 }, { ItemType.Gear, 2 } }, 2.0f);
+        assemblerSpec.receipes[0] = new Receipe(new Dictionary<ItemType, int> { { ItemType.IronPlate, 2 } },
+            new Dictionary<ItemType, int> { { ItemType.Gear, 1 } }, 4.0f);
 
         allTools["Assembler"] = new AssemblerTool(assemblerSpec);
         
