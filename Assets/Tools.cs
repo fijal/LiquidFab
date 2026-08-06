@@ -63,6 +63,7 @@ public class Tools : MonoBehaviour
         allTools["Miner"] = new MinerTool(minerSpec);
         
         var assemblerSpec = transform.Find("Assembler").gameObject.GetComponent<BuildingSpec>();
+        assemblerSpec.buildingCost = new Dictionary<ItemType, int> { { ItemType.Gear, 1 }, { ItemType.Electronics, 1 } };
 
         assemblerSpec.receipes = new Receipe[3];
         assemblerSpec.receipes[0] = new Receipe(new Dictionary<ItemType, int> { { ItemType.IronPlate, 2 } },

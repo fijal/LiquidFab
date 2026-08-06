@@ -6,7 +6,7 @@
 * construction of buildings                     DONE
 * play around with initial setup of resources
 * miners etc.
-* add more products
+* add more products                             DONE
 * improve assembler model
 * water wheel and fence free placement
 
