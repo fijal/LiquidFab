@@ -3,7 +3,7 @@
 * enabling/disabling receipes
 * bugs around inventory being on the hand
 * drop inventory directly into the building     DONE
-* construction of buildings
+* construction of buildings                     DONE
 * play around with initial setup of resources
 * miners etc.
 * add more products

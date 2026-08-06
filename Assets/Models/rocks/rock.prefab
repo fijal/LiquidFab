@@ -156,5 +156,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17e460912fc130a41b37f71ce23cb77d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tp: 0
+  tp: 6
   terrain: {fileID: 0}

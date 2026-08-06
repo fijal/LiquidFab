@@ -20,6 +20,8 @@ public class Items : MonoBehaviour
             //Debug.Log($"checking {item.prefab}");
             Debug.Assert(item.tp != ItemType.None);
             Debug.Assert(1 << item.prefab.layer == ColliderLayers.Floaters);
+            // item.prefab.tp can be either checked or fixed
+            Debug.Assert(item.prefab.GetComponent<Floater>().tp == item.tp);
             Debug.Assert(item.prefab.GetComponent<Rigidbody>().excludeLayers == (ColliderLayers.BuildingsNoFloater | ColliderLayers.Water));
         }
     }

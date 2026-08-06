@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class BuildingFreePlacement : ITool
+public class BuildingFreePlacement :  ITool
 {
     public BuildingSpec spec;
 

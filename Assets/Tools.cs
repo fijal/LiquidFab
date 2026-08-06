@@ -64,9 +64,13 @@ public class Tools : MonoBehaviour
         
         var assemblerSpec = transform.Find("Assembler").gameObject.GetComponent<BuildingSpec>();
 
-        assemblerSpec.receipes = new Receipe[1];
+        assemblerSpec.receipes = new Receipe[3];
         assemblerSpec.receipes[0] = new Receipe(new Dictionary<ItemType, int> { { ItemType.IronPlate, 2 } },
             new Dictionary<ItemType, int> { { ItemType.Gear, 1 } }, 4.0f);
+        assemblerSpec.receipes[1] = new Receipe(new Dictionary<ItemType, int> { { ItemType.CopperPlate, 3 } },
+            new Dictionary<ItemType, int> { { ItemType.Wire, 2 } }, 3.0f);
+        assemblerSpec.receipes[2] = new Receipe(new Dictionary<ItemType, int> { { ItemType.Wire, 1 }, { ItemType.IronPlate, 2 } },
+            new Dictionary<ItemType, int> { { ItemType.Electronics, 1 } }, 5.0f); ;
 
         allTools["Assembler"] = new AssemblerTool(assemblerSpec);
         
