@@ -9,7 +9,7 @@ Shader "Unlit/arrow"
     }
     SubShader
     {
-        Tags { "Queue" = "Overlay+1" "RenderType"="Transparent" }
+        Tags { "Queue" = "Transparent" "RenderType"="Transparent" }
         LOD 100
 
         Pass

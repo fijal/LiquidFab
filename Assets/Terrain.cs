@@ -36,7 +36,8 @@ public class Terrain : MonoBehaviour
     public Items items;
 
     List<GameObject> logs;
-    
+    bool firstUpdate = true;
+
     public Simulation s;
     [HideInInspector] public Water water;
 
@@ -485,8 +486,21 @@ public class Terrain : MonoBehaviour
         Destroy(building);
     }
 
+    void createInitialBuildings()
+    {
+        var assemblerSpec = (controls.tools.allTools["Assembler"] as BuildingFreePlacement).spec;
+        var forgeSpec = (controls.tools.allTools["Forge"] as BuildingFreePlacement).spec;
+        spawnBuilding(assemblerSpec.prefab, new Vector3(95 * SCALE, 1f, 110 * SCALE), Quaternion.Euler(0, 0, 0), assemblerSpec);
+        spawnBuilding(forgeSpec.prefab, new Vector3(90 * SCALE, 1f, 110 * SCALE), Quaternion.Euler(0, 0, 0), forgeSpec);
+    }
+
     public void Update()
     {
+        if (firstUpdate)
+        {
+            createInitialBuildings();
+            firstUpdate = false;
+        }
         if (lastUpdate <= 0 && !s_runner.Running)
         {
             if (gameToLoad != "")
