@@ -665,7 +665,7 @@ public class Terrain : MonoBehaviour
 #if UNITY_EDITOR
     private void LateUpdate()
     {
-        foreach (var t in FindObjectsOfType<Transform>())
+        foreach (var t in FindObjectsByType<Transform>(FindObjectsSortMode.None))
         {
             if (t.position.sqrMagnitude > 20000f*20000f)
             {

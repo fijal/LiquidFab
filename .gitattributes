@@ -1,0 +1,2 @@
+# list of text files which Unity saves with LF endings instead of CRLF
+ProjectSettings/Packages/com.unity.testtools.codecoverage/Settings.json text eol=lf
