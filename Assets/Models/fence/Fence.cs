@@ -46,7 +46,6 @@ public class FenceTool : ITool
         {
             foreach (var go in greenChain)
             {
-                Debug.Log(go);
                 terrain.spawnBuilding(spec.prefab, go.transform.position, go.transform.rotation, spec);
             }
             deactivate(highlight);
