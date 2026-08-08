@@ -48,6 +48,8 @@ public class Building : MonoBehaviour
 
     public void populateFromSpec(BuildingSpec spec)
     {
+        if (spec.receipes == null)
+            return;
         receipes = spec.receipes;
         receipesEnabled = new bool[receipes.Length];
         inventory = new Dictionary<ItemType, int>();

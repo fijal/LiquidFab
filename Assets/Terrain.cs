@@ -474,6 +474,11 @@ public class Terrain : MonoBehaviour
         }
     }
 
+    public void followHover(GameObject highlight, Vector3 hitPoint)
+    {
+        highlight.transform.position = hitPoint;
+    }
+
     public void removeFloater(GameObject floater)
     {
         floaters.Remove(floater);

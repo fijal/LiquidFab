@@ -80,7 +80,7 @@ public class Tools : MonoBehaviour
         allTools["WaterWheel"] = new WaterWheelTool(waterWheelSpec, ww.GetComponent<WaterWheelSpec>());
         
         var fenceSpec = transform.Find("Fence").gameObject.GetComponent<BuildingSpec>();
-        allTools["Fence"] = new FenceBehaviour(fenceSpec);
+        allTools["Fence"] = new FenceTool(fenceSpec, transform.Find("Fence").gameObject.GetComponent<FenceSpec>());
 
         var dismantleSpec = transform.Find("Dismantle").gameObject.GetComponent<Dismantle>();
         allTools["Dismantle"] = new DismantleTool(dismantleSpec);

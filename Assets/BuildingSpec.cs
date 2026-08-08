@@ -44,11 +44,6 @@ public class BuildingFreePlacement :  ITool
         this.spec = spec;
     }
 
-    public void followHover(GameObject highlight, Vector3 hitPoint)
-    {
-        highlight.transform.position = hitPoint;
-    }
-
     public void rotate(GameObject highlight, float amount)
     {
         highlight.transform.rotation *= Quaternion.Euler(0, amount, 0);
@@ -100,7 +95,7 @@ public class BuildingFreePlacement :  ITool
         if (Physics.Raycast(ray, out hit, 200, ColliderLayers.Water))
         {
             Debug.Assert(hit.transform.gameObject.GetComponent<Water>() != null);
-            followHover(highlight, hit.point);
+            terrain.followHover(highlight, hit.point);
             if (isLegalPlacement(highlight, terrain, hit.point))
             {
                 highlight.transform.Find("green").gameObject.SetActive(true);
@@ -112,7 +107,6 @@ public class BuildingFreePlacement :  ITool
                 highlight.transform.Find("red").gameObject.SetActive(true);
             }
             highlight.SetActive(true);
-            return;
         }
         else
         {
