@@ -1,6 +1,6 @@
 * write a bunch of asserts for items            DONE
 * write a bunch of asserts for buildings
-* enabling/disabling receipes
+* enabling/disabling receipes                   DONE
 * bugs around inventory being on the hand
 * drop inventory directly into the building     DONE
 * construction of buildings                     DONE
