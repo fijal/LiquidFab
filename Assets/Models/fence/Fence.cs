@@ -47,6 +47,7 @@ public class FenceTool : ITool
             foreach (var go in greenChain)
             {
                 terrain.spawnBuilding(spec.prefab, go.transform.position, go.transform.rotation, spec);
+                terrain.markWall(go.transform.position.x / Terrain.SCALE, go.transform.position.z / Terrain.SCALE); // XXX add also removing walls in Dismantle
             }
             deactivate(highlight);
             activate(highlight);

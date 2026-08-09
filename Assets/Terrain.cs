@@ -43,6 +43,7 @@ public class Terrain : MonoBehaviour
 
     [HideInInspector] public float[] terrainHeight;
     [HideInInspector] public float[] terrainKind;
+    [HideInInspector] public float[] walls;
     [HideInInspector] public string gameToSave = "";
     [HideInInspector] public string gameToLoad = "";
 
@@ -220,6 +221,7 @@ public class Terrain : MonoBehaviour
         var terrainDataBytes = terrainData.bytes;
         terrainHeight = new float[TERRAIN_SIZE * TERRAIN_SIZE];
         terrainKind = new float[TERRAIN_SIZE * TERRAIN_SIZE];
+        walls = new float[TERRAIN_SIZE * TERRAIN_SIZE];
         var index = 0;
         for (int y = 0; y < TERRAIN_SIZE; y++)
             for (int x = 0; x < TERRAIN_SIZE; x++)
@@ -499,6 +501,15 @@ public class Terrain : MonoBehaviour
         spawnBuilding(forgeSpec.prefab, new Vector3(90 * SCALE, 1f, 110 * SCALE), Quaternion.Euler(0, 0, 0), forgeSpec);
     }
 
+    public void markWall(float x, float y)
+    {
+        walls[(int)x + (int)y * TERRAIN_SIZE] = 1;
+        walls[(int)(x + 1) + (int)y * TERRAIN_SIZE] = 1;
+        walls[(int)x + (int)(y + 1) * TERRAIN_SIZE] = 1;
+        walls[(int)(x + 1) + (int)(y + 1) * TERRAIN_SIZE] = 1;
+
+    }
+
     public void Update()
     {
         if (firstUpdate)
@@ -527,6 +538,7 @@ public class Terrain : MonoBehaviour
             s.water.CopyFrom(water.waterLevel);
             s.waterFlowX.CopyFrom(water.waterFlowX);
             s.waterFlowY.CopyFrom(water.waterFlowY);
+            s.walls.CopyFrom(walls);
             s_runner.Start(this, ref s, () =>
             {
                 s.waterFlowX.CopyTo(water.waterFlowX);

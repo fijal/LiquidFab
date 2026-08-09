@@ -23,6 +23,7 @@ public struct Simulation : IJob
     public NativeArray<float> subLevel;
 
     public NativeArray<float> water;
+    public NativeArray<float> walls; // where we force the flow to be zero
     
     public float viscosity;
     public float maxAngle;
@@ -51,6 +52,7 @@ public struct Simulation : IJob
         this.water = new NativeArray<float>(sizeX * sizeY, Allocator.Persistent);
         this.terrain = new NativeArray<float>(sizeX * sizeY, Allocator.Persistent);
         subLevel = new NativeArray<float>(sizeX * sizeY, Allocator.Persistent);
+        walls = new NativeArray<float>(sizeX * sizeY, Allocator.Persistent);
 
         viscosity = 0;
         maxAngle = 0;
@@ -80,6 +82,8 @@ public struct Simulation : IJob
             subFlowY.Dispose();
         if (subLevel != null)
             subLevel.Dispose();
+        if (walls != null)
+            walls.Dispose();
     }
 
     public void Execute()
@@ -129,6 +133,11 @@ public struct Simulation : IJob
         for (int y = 0; y < sizeY; y++)
             for (int x = 1; x < sizeX; x++)
             {
+                if (walls[x + y * sizeX] > 0)
+                {
+                    flowX[x + y * (sizeX + 1)] = 0;
+                    continue;
+                }
                 float v;
                 if (simulationType == SimulationType.Water)
                     v = (source[x - 1 + y * sizeX] + terrain[x - 1 + y * sizeX]) - (source[x + y * sizeX] + terrain[x + y * sizeX]);
@@ -157,6 +166,11 @@ public struct Simulation : IJob
         for (int y = 1; y < sizeY; y++)
             for (int x = 0; x < sizeX; x++)
             {
+                if (walls[x + y * sizeX] > 0)
+                {
+                    flowY[x + y * sizeX] = 0;
+                    continue;
+                }
                 float v;
                 if (simulationType == SimulationType.Water)
                     v = (source[x + (y - 1) * sizeX] + terrain[x + (y - 1) * sizeX]) - (source[x + y * sizeX] + terrain[x + y * sizeX]);
