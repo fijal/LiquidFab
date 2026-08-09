@@ -489,6 +489,8 @@ public class Terrain : MonoBehaviour
 
     public void removeBuilding(GameObject building)
     {
+        if (building.GetComponent<Building>() != null && building.GetComponent<Building>().kind == BuildingKind.fence)
+            removeWall(building.transform.position.x / SCALE, building.transform.position.z / SCALE);
         buildings.Remove(building);
         Destroy(building);
     }
@@ -507,7 +509,14 @@ public class Terrain : MonoBehaviour
         walls[(int)(x + 1) + (int)y * TERRAIN_SIZE] = 1;
         walls[(int)x + (int)(y + 1) * TERRAIN_SIZE] = 1;
         walls[(int)(x + 1) + (int)(y + 1) * TERRAIN_SIZE] = 1;
+    }
 
+    void removeWall(float x, float y)
+    {
+        walls[(int)x + (int)y * TERRAIN_SIZE] = 0;
+        walls[(int)(x + 1) + (int)y * TERRAIN_SIZE] = 0;
+        walls[(int)x + (int)(y + 1) * TERRAIN_SIZE] = 0;
+        walls[(int)(x + 1) + (int)(y + 1) * TERRAIN_SIZE] = 0;
     }
 
     public void Update()
