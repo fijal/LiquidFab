@@ -589,6 +589,7 @@ MonoBehaviour:
   water: {fileID: 0}
   terrainHeight: []
   terrainKind: []
+  walls: []
   gameToSave: 
   gameToLoad: 
 --- !u!4 &200605879
@@ -1027,8 +1028,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e917392f35467b4abefa6ec717d50af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  prefab: {fileID: 2233067849199950599, guid: 89209eb5fc96a914382fa44f7be8f06f, type: 3}
-  greenPrefab: {fileID: 2233067849199950599, guid: 622b63163e8d0894dad1e14580ac8a2e, type: 3}
+  prefab: {fileID: 5544856870812797489, guid: 819f8f48162a0b34ab0b72a8d7925066, type: 3}
+  greenPrefab: {fileID: 5544856870812797489, guid: febee782db4fc404383cf190a08bd495, type: 3}
   redPrefab: {fileID: 6069345571127595571, guid: 22848c9d7291f014f949aed7b0f05e2d, type: 3}
   whitePrefab: {fileID: 0}
   colorIcon: {fileID: 21300000, guid: 71845e6de96232f47bd719a16c487685, type: 3}

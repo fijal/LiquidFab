@@ -463,7 +463,8 @@ public class Terrain : MonoBehaviour
         foreach (var f in buildings)
         {
             var cur = f.transform.position;
-            f.transform.position = new Vector3(cur.x, heightWaterFloat(cur.x / SCALE, cur.z / SCALE), cur.z);
+            if (BuildingHelper.getKind(f) != BuildingKind.fence)
+                f.transform.position = new Vector3(cur.x, heightWaterFloat(cur.x / SCALE, cur.z / SCALE), cur.z);
         }
     }
 
