@@ -36,7 +36,7 @@ public class FenceTool : ITool
     public void activate(GameObject highlight)
     {
         var green = Object.Instantiate<GameObject>(fenceSpec.fencePoleGreen, highlight.transform);
-        green.transform.localPosition = new Vector3(0, -1, 0);
+        //green.transform.localPosition = new Vector3(0, -1, 0);
         green.name = "green";
         greenChain.Clear();
     }
@@ -87,7 +87,7 @@ public class FenceTool : ITool
                         for (int i = 0; i < magn - greenChain.Count; i++)
                         {
                             var go = Object.Instantiate<GameObject>(spec.greenPrefab, highlight.transform);
-                            go.transform.localPosition = new Vector3(greenChain.Count * Terrain.SCALE, -1, 0);
+                            go.transform.localPosition = new Vector3(greenChain.Count * Terrain.SCALE, 0, 0);
                             greenChain.Add(go);
                         }
                     } else if (magn < greenChain.Count)
@@ -108,7 +108,7 @@ public class FenceTool : ITool
             }
             else
             {
-                terrain.followHover(highlight, hit.point);
+                terrain.followHover(highlight, hit.point, true);
             }
         }
         else

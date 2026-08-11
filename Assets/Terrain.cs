@@ -477,9 +477,15 @@ public class Terrain : MonoBehaviour
         }
     }
 
-    public void followHover(GameObject highlight, Vector3 hitPoint)
+    public void followHover(GameObject highlight, Vector3 hitPoint, bool followTerrain = false)
     {
-        highlight.transform.position = hitPoint;
+        if (!followTerrain)
+            highlight.transform.position = hitPoint;
+        else
+        {
+            var h = heightFloat(hitPoint.x / SCALE, hitPoint.z / SCALE);
+            highlight.transform.position = new Vector3(hitPoint.x, h, hitPoint.z);
+        }
     }
 
     public void removeFloater(GameObject floater)
