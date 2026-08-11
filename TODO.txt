@@ -10,6 +10,20 @@
 * improve assembler model
 * water wheel and fence free placement
 
+For demo:
+
+* inventory should disappear when changing tools
+* reintroduce clicking UI for tool change
+* splash screen
+* F1 for help
+* help text with tools
+* play with the parameters
+* wall clashes
+* construction dismantling/auto production
+* constructing walls or disable construction alltogether
+* reverse water wheel
+* play with parameters of water wheels
+
 Later:
 
 * f1 for help

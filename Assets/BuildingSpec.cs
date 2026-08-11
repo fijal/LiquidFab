@@ -216,7 +216,7 @@ public class BuildingGridPlacement : ITool
             {
                 var go = greenChain[i];
                 go.transform.position = new Vector3(x * Terrain.SCALE, terrain.heightWater(i, startY), y * Terrain.SCALE);
-                go.transform.rotation = Quaternion.Euler(0, chainAngle, 0);
+                go.transform.rotation = Quaternion.Euler(0, (chainAngle + 180) % 360, 0);
                 x += (int)(Mathf.Sin(Mathf.Deg2Rad * chainAngle));
                 y += (int)(Mathf.Cos(Mathf.Deg2Rad * chainAngle));
             }
