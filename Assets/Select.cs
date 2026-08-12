@@ -22,6 +22,12 @@ public class SelectTool : ITool
         inventory = new List<ItemType>();
     }
 
+    public void deactivate(GameObject highlight)
+    {
+        for (int i = 0; i < inventory.Count; ++i)
+            removeInventoryItem();
+    }
+
     void addInventoryItem(Item itemSpec, int pos)
     {
         var go = Object.Instantiate<GameObject>(spec.iconPrefab, spec.handInventory.transform);
@@ -96,10 +102,6 @@ public class SelectTool : ITool
             
         }
 
-    }
-
-    public void deactivate(GameObject highlight)
-    {
     }
 
     public Sprite getColorIcon()

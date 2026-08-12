@@ -27,7 +27,7 @@ public class Controls : MonoBehaviour
     public GameObject detailsPanel;
     public Tools tools;
     public GameObject toolbarItemPrefab;
-    public GameObject buildingDetails, tooltipPrefab;
+    public GameObject buildingDetails, tooltipPrefab, intro;
     public Sprite frameActive, frameNotActive;
     
     public GameObject saveloadInfoPrefab;
@@ -287,6 +287,8 @@ public class Controls : MonoBehaviour
     {
         if (currentToolbarItem != null)
             currentToolbarItem.GetComponent<ToolbarItem>().deactivate(highlight, frameNotActive);
+        else
+            currentTool.deactivate(highlight);
         currentToolbarItem = obj;
         var item = currentToolbarItem.GetComponent<ToolbarItem>();
         item.activate(highlight, frameActive);
@@ -311,6 +313,12 @@ public class Controls : MonoBehaviour
     {
         Destroy(saveloadInfo);
         saveloadInfo = null;
+    }
+
+    public void closeIntro()
+    {
+        intro.SetActive(false);
+        inUI = false;
     }
 
     void Update()
@@ -392,6 +400,11 @@ public class Controls : MonoBehaviour
                 SaveGame();
             if (Input.GetKeyDown(KeyCode.F4))
                 LoadGame();
+            if (Input.GetKeyDown(KeyCode.F1))
+            {
+                intro.SetActive(true);
+                inUI = true;
+            }
         }
         else
         {
