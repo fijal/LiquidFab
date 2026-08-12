@@ -22,6 +22,11 @@ public class BuildingFreePlacement :  ITool
         return spec.redPrefab;
     }
 
+    public string getHelperText()
+    {
+        return spec.helperText;
+    }
+
     public void activate(GameObject highlight)
     {
         var green = Object.Instantiate<GameObject>(spec.greenPrefab, highlight.transform);
@@ -135,6 +140,11 @@ public class BuildingGridPlacement : ITool
     public GameObject getRedGhost()
     {
         return spec.redPrefab;
+    }
+
+    public string getHelperText()
+    {
+        return spec.helperText;
     }
 
     public virtual int GetMaxChainLength()
@@ -275,7 +285,8 @@ public class BuildingSpec : MonoBehaviour
     public GameObject prefab;
     public GameObject greenPrefab, redPrefab, whitePrefab;
     public Sprite colorIcon, grayIcon;
+    public string helperText;
     
     public Dictionary<ItemType, int> buildingCost;
-    public Receipe[] receipes;
+    [HideInInspector] public Receipe[] receipes;
 }

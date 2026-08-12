@@ -38,9 +38,6 @@ public class Controls : MonoBehaviour
     GameObject currentToolbarItem;
     ITool currentTool;
     
-    Vector3 lastMousePos;
-    float timer = 10.0f;
-    float delay = 0.3f;
     bool inUI = false;
 
     public const int SAVEGAME_VERSION = 6;
@@ -129,119 +126,7 @@ public class Controls : MonoBehaviour
 
     void RaycastToTerrain()
     {
-        /*if (currentToolbarItem == null)
-        {
-            var ray2 = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit2;
-
-            if (Physics.Raycast(ray2, out hit2, 200, ColliderLayers.Water))
-            {
-                var ix = hit2.point.x / Terrain.SCALE;
-                var iy = hit2.point.z / Terrain.SCALE;
-            }
-            return;
-        }*/
         currentTool.click(highlight, camera, terrain, Input.GetKey(KeyCode.LeftShift));
-        //    currentTool.clickTerrain(highlight, terrain, hit.point);
-        
-        // XXX rework this part or more likely the whole function XXX
-        /*if (isClick)
-        {
-            List<RaycastResult> res = new List<RaycastResult>();
-            var ped = new PointerEventData(eventSystem);
-            ped.position = Input.mousePosition;
-            UIPanel.GetComponent<GraphicRaycaster>().Raycast(ped, res);
-            if (res.Count > 0)
-            {
-                activateToolbarItem(res[0].gameObject);
-                return;
-            }
-        }
-
-        var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-
-        if (Physics.Raycast(ray, out hit, 200, 1 << 3)) {
-            if (hit.transform.gameObject.GetComponent<Terrain>() == null && !isClick)
-                return;
-
-            var tree = hit.transform.gameObject.GetComponent<Tree>();
-            if (tree)
-            {
-                if (toolSelected == ToolSelected.Select)
-                    terrain.interactWithTerrain(tree.x, tree.y);
-                return;
-            }
-            var baseG = hit.transform.gameObject.GetComponent<Base>();
-            if (baseG)
-            {
-                if (toolSelected == ToolSelected.Select)
-                    baseG.detailsPanel.SetActive(true);
-                return;
-            }
-            var wp = hit.transform.gameObject.GetComponent<waterPump>();
-            if (wp)
-            {
-                if (toolSelected == ToolSelected.Select)
-                    wp.interact(this);
-                else if (toolSelected == ToolSelected.PickedObject)
-                {
-                    wp.feedFuel();
-                    setNullCursor();
-                    return;
-                }
-                return;
-            }
-
-            var x = (hit.triangleIndex / 2) % (Terrain.TERRAIN_SIZE - 1);
-            var y = (hit.triangleIndex / 2) / (Terrain.TERRAIN_SIZE - 1);
-
-            if (isClick)
-            {
-                if (toolSelected == ToolSelected.PickedObject)
-                {
-                    setNullCursor();
-                    terrain.spawnLog(x, y);
-                }*/
-                /*else if (toolSelected == ToolSelected.Miner && currentToolbarItem.GetComponent<ToolbarItem>().isLegalPlacement(highlight, terrain, hit.point))
-                    terrain.spawnMiner(hit.point, highlight.transform.rotation);
-                else if (toolSelected == ToolSelected.Assembler && currentToolbarItem.GetComponent<ToolbarItem>().isLegalPlacement(highlight, terrain, hit.point))
-                    terrain.spawnAssembler(hit.point, highlight.transform.rotation);
-                else if (toolSelected == ToolSelected.Select)
-                    terrain.interactWithTerrain(x, y);*/
-                //terrain.showTerrainInfo(camera, x, y);
-                //else if (toolSelected == ToolSelected.Forge || toolSelected == ToolSelected.WaterWheel || toolSelected == ToolSelected.Fence)
-                //    currentToolbarItem.GetComponent<ToolbarItem>().spec.behaviour.clickTerrain(highlight, terrain, hit.point);
-                /*else if (toolSelected == ToolSelected.Water)
-                {
-                    var success = hit.transform.gameObject.GetComponent<Terrain>().spawnWaterPump(x, y);
-                    if (success == null)
-                        showTooltip("Too close to another pump");
-                }
-            }
-            else
-            {
-                if (toolSelected == ToolSelected.Terrain)
-                    hit.transform.gameObject.GetComponent<Terrain>().terrainMod(x, y, mod, val);
-                //else if (toolSelected == ToolSelected.Water)
-                //    hit.transform.Find("Water").GetComponent<Water>().modifyWaterSource(x, y, mod, val * Water.WATER_SOURCE_AMOUNT);
-                else if (toolSelected == ToolSelected.Log)
-                    hit.transform.gameObject.GetComponent<Terrain>().spawnTree(x, y);
-                else if (toolSelected == ToolSelected.Grass || toolSelected == ToolSelected.Sand || toolSelected == ToolSelected.Iron)
-                {
-                    int kind = 0;
-                    if (mod)
-                        kind = 0;
-                    else if (toolSelected == ToolSelected.Grass)
-                        kind = 1;
-                    else if (toolSelected == ToolSelected.Sand)
-                        kind = 2;
-                    else if (toolSelected == ToolSelected.Iron)
-                        kind = 3;
-                    hit.transform.gameObject.GetComponent<Terrain>().changeTerrainKind(x, y, kind);
-                }
-            }
-        }*/
     }
 
     public void showBuildingMenu(GameObject building)
@@ -277,13 +162,13 @@ public class Controls : MonoBehaviour
         tooltip.transform.Find("Text").GetComponent<TMP_Text>().text = text;
     }
 
-    void activateToolbarItem(int index)
+    public void activateToolbarItem(int index)
     {
         if (index < UIElements.Length)
             activateToolbarItem(UIElements[index]);
     }
 
-    void activateToolbarItem(GameObject obj)
+    public void activateToolbarItem(GameObject obj)
     {
         if (currentToolbarItem != null)
             currentToolbarItem.GetComponent<ToolbarItem>().deactivate(highlight, frameNotActive);
@@ -323,13 +208,6 @@ public class Controls : MonoBehaviour
 
     void Update()
     {
-        delay -= Time.deltaTime;
-        if (timer > 0)
-        {
-            timer -= Time.deltaTime;
-            if (timer <= 0 && helperUI.GetComponent<Text>().text.StartsWith("WSAD"))
-                helperUI.GetComponent<Text>().text = "";
-        }
         if (saveloadInfo != null)
             return;
 

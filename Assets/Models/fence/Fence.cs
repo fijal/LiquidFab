@@ -33,6 +33,11 @@ public class FenceTool : ITool
         return spec.redPrefab;
     }
 
+    public string getHelperText()
+    {
+        return spec.helperText;
+    }
+
     public void activate(GameObject highlight)
     {
         var green = Object.Instantiate<GameObject>(fenceSpec.fencePoleGreen, highlight.transform);

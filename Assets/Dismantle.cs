@@ -12,6 +12,11 @@ public class DismantleTool : ITool
         this.spec = spec;
     }
 
+    public string getHelperText()
+    {
+        return "Dismantle building";
+    }
+
     public GameObject getRedGhost()
     {
         throw new System.NotImplementedException();

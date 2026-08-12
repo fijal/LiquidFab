@@ -7,6 +7,7 @@ public interface ITool
 {
     public Sprite getGrayIcon();
     public Sprite getColorIcon();
+    public string getHelperText();
     public GameObject getRedGhost();
     public void activate(GameObject highlight);
     public void deactivate(GameObject highlight);
