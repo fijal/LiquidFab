@@ -121,11 +121,34 @@ public class Controls : MonoBehaviour
 
     void RaycastToTerrainHover()
     {
+        List<RaycastResult> res = new List<RaycastResult>();
+        var ped = new PointerEventData(eventSystem);
+        ped.position = Input.mousePosition;
+        UIPanel.GetComponent<GraphicRaycaster>().Raycast(ped, res);
+        if (res.Count > 0)
+        {
+            var helperText = res[0].gameObject.GetComponent<ToolbarItem>().tool.getHelperText();
+            helperUI.GetComponent<TMP_Text>().text = helperText;
+            highlight.SetActive(false);
+            Debug.Assert(res.Count == 1);
+            return;
+        }
+        highlight.SetActive(true);
+        terrain.controls.helperUI.GetComponent<TMP_Text>().text = ""; // otherwise current tool help
         currentTool.hoverOverTerrain(highlight, camera, terrain);
     }
 
     void RaycastToTerrain()
     {
+        List<RaycastResult> res = new List<RaycastResult>();
+        var ped = new PointerEventData(eventSystem);
+        ped.position = Input.mousePosition;
+        UIPanel.GetComponent<GraphicRaycaster>().Raycast(ped, res);
+        if (res.Count > 0)
+        {
+            terrain.controls.activateToolbarItem(res[0].gameObject);
+            return;
+        }
         currentTool.click(highlight, camera, terrain, Input.GetKey(KeyCode.LeftShift));
     }
 

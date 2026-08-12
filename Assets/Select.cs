@@ -50,15 +50,6 @@ public class SelectTool : ITool
 
     public void click(GameObject highlight, GameObject camera, Terrain terrain, bool modifier=false)
     {
-        List<RaycastResult> res = new List<RaycastResult>();
-        var ped = new PointerEventData(terrain.controls.eventSystem);
-        ped.position = Input.mousePosition;
-        terrain.controls.UIPanel.GetComponent<GraphicRaycaster>().Raycast(ped, res);
-        if (res.Count > 0)
-        {
-            terrain.controls.activateToolbarItem(res[0].gameObject);
-            return;
-        }
 
         var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
@@ -138,19 +129,6 @@ public class SelectTool : ITool
 
     public void hoverOverTerrain(GameObject highlight, GameObject camera, Terrain terrain)
     {
-        List<RaycastResult> res = new List<RaycastResult>();
-        var ped = new PointerEventData(terrain.controls.eventSystem);
-        ped.position = Input.mousePosition;
-        terrain.controls.UIPanel.GetComponent<GraphicRaycaster>().Raycast(ped, res);
-        if (res.Count > 0)
-        {
-            var helperText = res[0].gameObject.GetComponent<ToolbarItem>().tool.getHelperText();
-            terrain.controls.helperUI.GetComponent<TMP_Text>().text = helperText;
-            Debug.Assert(res.Count == 1);
-            return;
-        }
-        terrain.controls.helperUI.GetComponent<TMP_Text>().text = ""; // otherwise current tool help
-
         var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
