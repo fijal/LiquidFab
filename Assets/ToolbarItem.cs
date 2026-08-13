@@ -14,7 +14,7 @@ public class ToolbarItem : MonoBehaviour
 
     public void activate(GameObject highlight, Sprite frameActive)
     {
-        GetComponent<Image>().sprite = tool.getColorIcon();
+        GetComponent<Image>().sprite = tool.getSpec().colorIcon;
         transform.Find("Frame").GetComponent<Image>().sprite = frameActive;
         tool.activate(highlight);
     }
@@ -22,13 +22,13 @@ public class ToolbarItem : MonoBehaviour
     public void setUp(ITool tool, int pos)
     {
         this.tool = tool;
-        GetComponent<Image>().sprite = tool.getGrayIcon();
+        GetComponent<Image>().sprite = tool.getSpec().grayIcon;
         updateLocation(pos);
     }
 
     public void deactivate(GameObject highlight, Sprite frameNotActive)
     {
-        GetComponent<Image>().sprite = tool.getGrayIcon();
+        GetComponent<Image>().sprite = tool.getSpec().grayIcon;
         transform.Find("Frame").GetComponent<Image>().sprite = frameNotActive;
         tool.deactivate(highlight);
     }

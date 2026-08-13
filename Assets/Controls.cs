@@ -18,7 +18,7 @@ public class Controls : MonoBehaviour
     const float MOUSE_ROTATE_SPEED = 1f;
     const float HEIGHT_SCROLL_SPEED = 5f;
 
-    string[] defaultToolSet = { "Dismantle", "Fence", "WaterWheel", "Forge", "Assembler"/*, "Miner", "WaterPump"*/};
+    string[] defaultToolSet = { "Dismantle", "Fence", "WaterWheel", "Forge", "Assembler", "Miner", "WaterPump"};
 
     GameObject[] UIElements;
     public EventSystem eventSystem;
@@ -40,7 +40,7 @@ public class Controls : MonoBehaviour
     
     bool inUI = false;
 
-    public const int SAVEGAME_VERSION = 6;
+    public const int SAVEGAME_VERSION = 7;
 
     void Start()
     {
@@ -134,7 +134,8 @@ public class Controls : MonoBehaviour
             return;
         }
         highlight.SetActive(true);
-        terrain.controls.helperUI.GetComponent<TMP_Text>().text = ""; // otherwise current tool help
+        helperUI.GetComponent<TMP_Text>().text = "";
+        // XXX be clever about this "Q to cancel current tool, F1 for help"; // otherwise current tool help
         currentTool.hoverOverTerrain(highlight, camera, terrain);
     }
 
@@ -157,7 +158,7 @@ public class Controls : MonoBehaviour
         buildingDetails.SetActive(true);
         inUI = true;
 
-        var sprite = tools.buildingMapping[BuildingHelper.getKind(building)].getColorIcon();
+        var sprite = tools.buildingMapping[BuildingHelper.getKind(building)].getSpec().colorIcon;
         var dets = buildingDetails.GetComponent<BuildingDetails>();
         dets.icon.sprite = sprite;
         if (building.GetComponent<Building>() != null)

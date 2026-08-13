@@ -1,19 +1,19 @@
 * write a bunch of asserts for items            DONE
 * write a bunch of asserts for buildings
 * enabling/disabling receipes                   DONE
-* bugs around inventory being on the hand
+* bugs around inventory being on the hand       DONE
 * drop inventory directly into the building     DONE
 * construction of buildings                     DONE
-* play around with initial setup of resources
+* play around with initial setup of resources   DONE
 * miners etc.
 * add more products                             DONE
 * improve assembler model
-* water wheel and fence free placement
+* water wheel and fence free placement          HALF DONE
 
 For demo:
 
-* inventory should disappear when changing tools
-* reintroduce clicking UI for tool change
+* inventory should disappear when changing tools          DONE
+* reintroduce clicking UI for tool change                 DONE
 * splash screen
 * F1 for help
 * help text with tools

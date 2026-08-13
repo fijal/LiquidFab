@@ -18,7 +18,6 @@ public class Terrain : MonoBehaviour
     public List<int> terrainUpdatesX, terrainUpdatesY;
     public List<float> terrainUpdatesVal;
     Dictionary<int, GameObject> trees;
-    Dictionary<int, GameObject> waterPumps;
     HashSet<GameObject> sources;
     HashSet<GameObject> buildings;
     HashSet<GameObject> floaters;
@@ -226,15 +225,15 @@ public class Terrain : MonoBehaviour
         for (int y = 0; y < TERRAIN_SIZE; y++)
             for (int x = 0; x < TERRAIN_SIZE; x++)
             {
-                terrainHeight[x + y * TERRAIN_SIZE] = 0;
-                //terrainHeight[x + y * TERRAIN_SIZE] = (
-                //    (float)((terrainDataBytes[index + 1] << 8) | terrainDataBytes[index]) / (1 << 16) * HEIGHT_SCALE * SCALE);
+                //terrainHeight[x + y * TERRAIN_SIZE] = 0;
+                terrainHeight[x + y * TERRAIN_SIZE] = (
+                    (float)((terrainDataBytes[index + 1] << 8) | terrainDataBytes[index]) / (1 << 16) * HEIGHT_SCALE * SCALE);
                 index += 2;
             }
 
-        spawnHill(64, 64);
-        spawnHill(192, 64);
-        spawnHill(192, 192);
+        //spawnHill(64, 64);
+        //spawnHill(192, 64);
+        //spawnHill(192, 192);
 
         terrainUpdatesX = new List<int>();
         terrainUpdatesY = new List<int>();
@@ -252,15 +251,14 @@ public class Terrain : MonoBehaviour
         //populateTrees();
         createTerrainKindTexture();
 
-        waterPumps = new Dictionary<int, GameObject>();
         sources = new HashSet<GameObject>();
-        addMineralSource(100, 100);
-        addMineralSource(104, 120);
-        addMineralSource(120, 115);
-        addMineralSource(100, 200);
+        addMineralSource(58.30429f, 29.32351f);
+        addMineralSource(111.672f, 40.14171f);
+        addMineralSource(34.15832f, 42.1265f);
+        //addMineralSource();
 
-        var baseObject = transform.Find("base").gameObject;
-        buildings.Add(baseObject);
+        //var baseObject = transform.Find("base").gameObject;
+        //buildings.Add(baseObject);
 
         s = new Simulation(TERRAIN_SIZE, TERRAIN_SIZE);
     }
@@ -432,7 +430,7 @@ public class Terrain : MonoBehaviour
             if (water.waterLevel[entry.Key] > 0.15f)
             {
                 Destroy(entry.Value);
-                logs.Add(spawnLog(x, y));
+                //logs.Add(spawnLog(x, y));
                 treesToRemove.Add(entry.Key);
             }
             else
@@ -530,7 +528,8 @@ public class Terrain : MonoBehaviour
     {
         if (firstUpdate)
         {
-            createInitialBuildings();
+            //createInitialBuildings();
+            load("savegame.sav");
             firstUpdate = false;
         }
         if (lastUpdate <= 0 && !s_runner.Running)
@@ -575,7 +574,6 @@ public class Terrain : MonoBehaviour
 
     public void save(string filename)
     {
-        return; // broken and not working
         var builder = new FlatBufferBuilder(1024);
         
         LiquidFab.Savegame.Savegame.StartTreesVector(builder, trees.Count);
@@ -586,16 +584,22 @@ public class Terrain : MonoBehaviour
         }
         VectorOffset treeTable = builder.EndVector();
 
-        LiquidFab.Savegame.Savegame.StartWaterPumpsVector(builder, waterPumps.Count);
-        foreach (var entry in waterPumps)
+        LiquidFab.Savegame.Savegame.StartFloatersVector(builder, floaters.Count);
+        foreach (var floater in floaters)
         {
-            var wp = entry.Value.GetComponent<waterPump>();
-            var xy = entry.Key;
-            var x = xy % TERRAIN_SIZE;
-            var y = xy / TERRAIN_SIZE;
-            //LiquidFab.Savegame.WaterPump.CreateWaterPump(builder, x, y, wp.fuelLevel, wp.logs);
+            LiquidFab.Savegame.Floater.CreateFloater(builder, floater.transform.position.x, floater.transform.position.y, floater.transform.position.z,
+                (int)(floater.GetComponent<Floater>().tp));
         }
-        VectorOffset waterPumpTable = builder.EndVector();
+        VectorOffset floatersTable = builder.EndVector();
+
+        LiquidFab.Savegame.Savegame.StartBuildingsVector(builder, buildings.Count);
+        foreach (var building in buildings)
+        {
+            var ang = building.transform.rotation.eulerAngles;
+            LiquidFab.Savegame.Building.CreateBuilding(builder, building.transform.position.x, building.transform.position.y, building.transform.position.z,
+                                                       ang.x, ang.y, ang.z, (int)(BuildingHelper.getKind(building)));
+        }
+        VectorOffset buildingsTable = builder.EndVector();
 
         VectorOffset terrainLevelTable = LiquidFab.Savegame.Savegame.CreateTerrainLevelVector(builder, terrainHeight);
         VectorOffset terrainKindTable = LiquidFab.Savegame.Savegame.CreateTerrainKindVector(builder, terrainKind);
@@ -616,7 +620,8 @@ public class Terrain : MonoBehaviour
         LiquidFab.Savegame.Savegame.StartSavegame(builder);
         LiquidFab.Savegame.Savegame.AddVersion(builder, Controls.SAVEGAME_VERSION);
         LiquidFab.Savegame.Savegame.AddTrees(builder, treeTable);
-        LiquidFab.Savegame.Savegame.AddWaterPumps(builder, waterPumpTable);
+        LiquidFab.Savegame.Savegame.AddFloaters(builder, floatersTable);
+        LiquidFab.Savegame.Savegame.AddBuildings(builder, buildingsTable);
         LiquidFab.Savegame.Savegame.AddTerrainLevel(builder, terrainLevelTable);
         LiquidFab.Savegame.Savegame.AddTerrainKind(builder, terrainKindTable);
         LiquidFab.Savegame.Savegame.AddWaterLevel(builder, waterLevelTable);
@@ -638,14 +643,16 @@ public class Terrain : MonoBehaviour
             Destroy(entry.Value);
         }
         trees.Clear();
-        foreach (var entry in waterPumps)
-            Destroy(entry.Value);
-        waterPumps.Clear();
+        foreach (var entry in floaters)
+            Destroy(entry);
+        floaters.Clear();
+        foreach (var building in buildings)
+            Destroy(building);
+        buildings.Clear();
     }
 
     public bool load(string savefile)
     {
-        return false; // XXX broken and not working XXX
         byte[] bytes = File.ReadAllBytes(savefile);
         var save = LiquidFab.Savegame.Savegame.GetRootAsSavegame(new ByteBuffer(bytes));
         if (save.Version != Controls.SAVEGAME_VERSION)
@@ -661,15 +668,20 @@ public class Terrain : MonoBehaviour
             var t = save.Trees(i).Value;
             spawnTree(t.X, t.Y, t.Age, t.Kind);
         }
-        var wpLen = save.WaterPumpsLength;
-        for (int i = 0; i < wpLen; i++)
+        var fLen = save.FloatersLength;
+        for (int i = 0; i < fLen; i++)
         {
-            var wp = save.WaterPumps(i).Value;
-            /*var p = spawnWaterPump(wp.X, wp.Y);
-            p.fuelLevel = wp.FuelLevel;
-            p.logs = wp.Logs;
-            p.maybeConsumeLog();*/
+            var f = save.Floaters(i).Value;
+            spawnFloater(new Vector3(f.X, f.Y, f.Z), (ItemType)f.Kind);
         }
+        var blen = save.BuildingsLength;
+        for (int i = 0; i < blen; i++)
+        {
+            var b = save.Buildings(i).Value;
+            var spec = controls.tools.buildingMapping[(BuildingKind)b.Kind].getSpec();
+            spawnBuilding(spec.prefab, new Vector3(b.X, b.Y, b.Z), Quaternion.Euler(b.Anga, b.Angb, b.Angc), spec);
+        }
+
         var buf = new float[TERRAIN_SIZE * TERRAIN_SIZE];
         for (int i = 0; i < TERRAIN_SIZE * TERRAIN_SIZE; ++i)
         {

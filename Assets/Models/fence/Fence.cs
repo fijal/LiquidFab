@@ -18,19 +18,9 @@ public class FenceTool : ITool
         greenChain = new List<GameObject>();
     }
 
-    public Sprite getGrayIcon()
+    public BuildingSpec getSpec()
     {
-        return spec.grayIcon;
-    }
-
-    public Sprite getColorIcon()
-    {
-        return spec.colorIcon;
-    }
-
-    public GameObject getRedGhost()
-    {
-        return spec.redPrefab;
+        return spec;
     }
 
     public string getHelperText()

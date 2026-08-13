@@ -5,11 +5,15 @@ using UnityEngine;
 public class DismantleTool : ITool
 {
     Dismantle spec;
+    BuildingSpec buildingSpec;
     GameObject currentObject, currentGhost;
 
     public DismantleTool(Dismantle spec)
     {
         this.spec = spec;
+        buildingSpec = new BuildingSpec();
+        buildingSpec.grayIcon = spec.dismantleGray;
+        buildingSpec.colorIcon = spec.dismantleColor;
     }
 
     public string getHelperText()
@@ -17,9 +21,9 @@ public class DismantleTool : ITool
         return "Dismantle building";
     }
 
-    public GameObject getRedGhost()
+    public BuildingSpec getSpec()
     {
-        throw new System.NotImplementedException();
+        return buildingSpec;
     }
 
     public void activate(GameObject highlight)
@@ -100,7 +104,7 @@ public class DismantleTool : ITool
             }
             currentObject = hit.transform.gameObject;
             recursivelyDisableMeshRendering(currentObject);
-            var red = terrain.controls.tools.buildingMapping[BuildingHelper.getKind(currentObject)].getRedGhost();
+            var red = terrain.controls.tools.buildingMapping[BuildingHelper.getKind(currentObject)].getSpec().redPrefab;
             currentGhost = Object.Instantiate<GameObject>(red, currentObject.transform);
         } else if (currentObject != null)
         {

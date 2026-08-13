@@ -5,10 +5,11 @@ using UnityEngine;
 
 public interface ITool
 {
-    public Sprite getGrayIcon();
+    public BuildingSpec getSpec();
+    /*public Sprite getGrayIcon();
     public Sprite getColorIcon();
+    public GameObject getRedGhost();*/
     public string getHelperText();
-    public GameObject getRedGhost();
     public void activate(GameObject highlight);
     public void deactivate(GameObject highlight);
     public void hoverOverTerrain(GameObject highlight, GameObject camera, Terrain terrain);

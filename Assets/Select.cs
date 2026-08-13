@@ -104,25 +104,17 @@ public class SelectTool : ITool
                 terrain.spawnFloater(loc, tp);
                 removeInventoryItem();
             }
-        } else
+        }
+        else if (Physics.Raycast(ray, out hit, ColliderLayers.Depth, ColliderLayers.Water | ColliderLayers.Terrain))
         {
-            //Debug.Log("clicked nothing");
-            
+            Debug.Log($"{hit.point.x / Terrain.SCALE} {hit.point.z / Terrain.SCALE}");
+
+
         }
 
     }
 
-    public Sprite getColorIcon()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public Sprite getGrayIcon()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public GameObject getRedGhost()
+    public BuildingSpec getSpec()
     {
         throw new System.NotImplementedException();
     }

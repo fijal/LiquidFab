@@ -19,8 +19,9 @@ public class MineralSource : MonoBehaviour
             timer = INTERVAL;
             var r = Random.Range(0f, 1f);
             var cur = transform.position;
-            cur = new Vector3(cur.x + Random.Range(-1.5f, 1.5f), terrain.heightFloat(cur.x / Terrain.SCALE, cur.z / Terrain.SCALE),
-                              cur.z + Random.Range(-1.5f, 1.5f));
+            var x = cur.x + Random.Range(-1.5f, 1.5f);
+            var z = cur.z + Random.Range(-1.5f, 1.5f);
+            cur = new Vector3(x, terrain.heightFloat(x / Terrain.SCALE, z / Terrain.SCALE) + 0.2f, z);
             if (r < 0.1f)
             {
                 terrain.spawnFloater(cur, ItemType.Iron);

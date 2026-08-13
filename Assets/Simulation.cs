@@ -99,7 +99,7 @@ public struct Simulation : IJob
         // then modify water
         friction = 0.05f;
         viscosity = 0.0f;
-        BOUNDARY_FLOW = 0; //  -1;
+        BOUNDARY_FLOW = -1;
         maxAngle = 0f;
         subExecute(SimulationType.Water, this.water, waterFlowX, waterFlowY);
         friction = 0.5f;

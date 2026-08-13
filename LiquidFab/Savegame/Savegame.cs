@@ -9,78 +9,6 @@ using global::System;
 using global::System.Collections.Generic;
 using global::Google.FlatBuffers;
 
-public struct Tree : IFlatbufferObject
-{
-  private Struct __p;
-  public ByteBuffer ByteBuffer { get { return __p.bb; } }
-  public void __init(int _i, ByteBuffer _bb) { __p = new Struct(_i, _bb); }
-  public Tree __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
-
-  public int X { get { return __p.bb.GetInt(__p.bb_pos + 0); } }
-  public int Y { get { return __p.bb.GetInt(__p.bb_pos + 4); } }
-  public int Kind { get { return __p.bb.GetInt(__p.bb_pos + 8); } }
-  public float Age { get { return __p.bb.GetFloat(__p.bb_pos + 12); } }
-
-  public static Offset<LiquidFab.Savegame.Tree> CreateTree(FlatBufferBuilder builder, int X, int Y, int Kind, float Age) {
-    builder.Prep(4, 16);
-    builder.PutFloat(Age);
-    builder.PutInt(Kind);
-    builder.PutInt(Y);
-    builder.PutInt(X);
-    return new Offset<LiquidFab.Savegame.Tree>(builder.Offset);
-  }
-}
-
-public struct Building : IFlatbufferObject
-{
-  private Struct __p;
-  public ByteBuffer ByteBuffer { get { return __p.bb; } }
-  public void __init(int _i, ByteBuffer _bb) { __p = new Struct(_i, _bb); }
-  public Building __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
-
-  public float X { get { return __p.bb.GetFloat(__p.bb_pos + 0); } }
-  public float Y { get { return __p.bb.GetFloat(__p.bb_pos + 4); } }
-  public float Z { get { return __p.bb.GetFloat(__p.bb_pos + 8); } }
-  public float Anga { get { return __p.bb.GetFloat(__p.bb_pos + 12); } }
-  public float Angb { get { return __p.bb.GetFloat(__p.bb_pos + 16); } }
-  public float Angc { get { return __p.bb.GetFloat(__p.bb_pos + 20); } }
-  public int Kind { get { return __p.bb.GetInt(__p.bb_pos + 24); } }
-
-  public static Offset<LiquidFab.Savegame.Building> CreateBuilding(FlatBufferBuilder builder, float X, float Y, float Z, float Anga, float Angb, float Angc, int Kind) {
-    builder.Prep(4, 28);
-    builder.PutInt(Kind);
-    builder.PutFloat(Angc);
-    builder.PutFloat(Angb);
-    builder.PutFloat(Anga);
-    builder.PutFloat(Z);
-    builder.PutFloat(Y);
-    builder.PutFloat(X);
-    return new Offset<LiquidFab.Savegame.Building>(builder.Offset);
-  }
-}
-
-public struct Floater : IFlatbufferObject
-{
-  private Struct __p;
-  public ByteBuffer ByteBuffer { get { return __p.bb; } }
-  public void __init(int _i, ByteBuffer _bb) { __p = new Struct(_i, _bb); }
-  public Floater __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
-
-  public float X { get { return __p.bb.GetFloat(__p.bb_pos + 0); } }
-  public float Y { get { return __p.bb.GetFloat(__p.bb_pos + 4); } }
-  public float Z { get { return __p.bb.GetFloat(__p.bb_pos + 8); } }
-  public int Kind { get { return __p.bb.GetInt(__p.bb_pos + 12); } }
-
-  public static Offset<LiquidFab.Savegame.Floater> CreateFloater(FlatBufferBuilder builder, float X, float Y, float Z, int Kind) {
-    builder.Prep(4, 16);
-    builder.PutInt(Kind);
-    builder.PutFloat(Z);
-    builder.PutFloat(Y);
-    builder.PutFloat(X);
-    return new Offset<LiquidFab.Savegame.Floater>(builder.Offset);
-  }
-}
-
 public struct Savegame : IFlatbufferObject
 {
   private Table __p;
@@ -94,9 +22,9 @@ public struct Savegame : IFlatbufferObject
   public int Version { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetInt(o + __p.bb_pos) : (int)0; } }
   public LiquidFab.Savegame.Tree? Trees(int j) { int o = __p.__offset(6); return o != 0 ? (LiquidFab.Savegame.Tree?)(new LiquidFab.Savegame.Tree()).__assign(__p.__vector(o) + j * 16, __p.bb) : null; }
   public int TreesLength { get { int o = __p.__offset(6); return o != 0 ? __p.__vector_len(o) : 0; } }
-  public LiquidFab.Savegame.Floater? Floaters(int j) { int o = __p.__offset(8); return o != 0 ? (LiquidFab.Savegame.Floater?)(new LiquidFab.Savegame.Floater()).__assign(__p.__vector(o) + j * 16, __p.bb) : null; }
+  public LiquidFab.Savegame.Floater? Floaters(int j) { int o = __p.__offset(8); return o != 0 ? (LiquidFab.Savegame.Floater?)(new LiquidFab.Savegame.Floater()).__assign(__p.__vector(o) + j * 12, __p.bb) : null; }
   public int FloatersLength { get { int o = __p.__offset(8); return o != 0 ? __p.__vector_len(o) : 0; } }
-  public LiquidFab.Savegame.Building? Buildings(int j) { int o = __p.__offset(10); return o != 0 ? (LiquidFab.Savegame.Building?)(new LiquidFab.Savegame.Building()).__assign(__p.__vector(o) + j * 28, __p.bb) : null; }
+  public LiquidFab.Savegame.Building? Buildings(int j) { int o = __p.__offset(10); return o != 0 ? (LiquidFab.Savegame.Building?)(new LiquidFab.Savegame.Building()).__assign(__p.__vector(o) + j * 12, __p.bb) : null; }
   public int BuildingsLength { get { int o = __p.__offset(10); return o != 0 ? __p.__vector_len(o) : 0; } }
   public float TerrainLevel(int j) { int o = __p.__offset(12); return o != 0 ? __p.bb.GetFloat(__p.__vector(o) + j * 4) : (float)0; }
   public int TerrainLevelLength { get { int o = __p.__offset(12); return o != 0 ? __p.__vector_len(o) : 0; } }
@@ -197,9 +125,9 @@ public struct Savegame : IFlatbufferObject
   public static void AddTrees(FlatBufferBuilder builder, VectorOffset treesOffset) { builder.AddOffset(1, treesOffset.Value, 0); }
   public static void StartTreesVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(16, numElems, 4); }
   public static void AddFloaters(FlatBufferBuilder builder, VectorOffset floatersOffset) { builder.AddOffset(2, floatersOffset.Value, 0); }
-  public static void StartFloatersVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(16, numElems, 4); }
+  public static void StartFloatersVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(12, numElems, 4); }
   public static void AddBuildings(FlatBufferBuilder builder, VectorOffset buildingsOffset) { builder.AddOffset(3, buildingsOffset.Value, 0); }
-  public static void StartBuildingsVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(28, numElems, 4); }
+  public static void StartBuildingsVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(12, numElems, 4); }
   public static void AddTerrainLevel(FlatBufferBuilder builder, VectorOffset terrainLevelOffset) { builder.AddOffset(4, terrainLevelOffset.Value, 0); }
   public static VectorOffset CreateTerrainLevelVector(FlatBufferBuilder builder, float[] data) { builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddFloat(data[i]); return builder.EndVector(); }
   public static VectorOffset CreateTerrainLevelVectorBlock(FlatBufferBuilder builder, float[] data) { builder.StartVector(4, data.Length, 4); builder.Add(data); return builder.EndVector(); }
@@ -262,8 +190,8 @@ static public class SavegameVerify
     return verifier.VerifyTableStart(tablePos)
       && verifier.VerifyField(tablePos, 4 /*Version*/, 4 /*int*/, 4, false)
       && verifier.VerifyVectorOfData(tablePos, 6 /*Trees*/, 16 /*LiquidFab.Savegame.Tree*/, false)
-      && verifier.VerifyVectorOfData(tablePos, 8 /*Floaters*/, 16 /*LiquidFab.Savegame.Floater*/, false)
-      && verifier.VerifyVectorOfData(tablePos, 10 /*Buildings*/, 28 /*LiquidFab.Savegame.Building*/, false)
+      && verifier.VerifyVectorOfData(tablePos, 8 /*Floaters*/, 12 /*LiquidFab.Savegame.Floater*/, false)
+      && verifier.VerifyVectorOfData(tablePos, 10 /*Buildings*/, 12 /*LiquidFab.Savegame.Building*/, false)
       && verifier.VerifyVectorOfData(tablePos, 12 /*TerrainLevel*/, 4 /*float*/, false)
       && verifier.VerifyVectorOfData(tablePos, 14 /*TerrainKind*/, 4 /*float*/, false)
       && verifier.VerifyVectorOfData(tablePos, 16 /*WaterLevel*/, 4 /*float*/, false)

@@ -21,8 +21,8 @@ public class Water : MonoBehaviour
         waterFlowX = new float[(Terrain.TERRAIN_SIZE + 1) * Terrain.TERRAIN_SIZE];
         waterFlowY = new float[(Terrain.TERRAIN_SIZE + 1) * Terrain.TERRAIN_SIZE];
 
-        for (int i = 0; i < Terrain.TERRAIN_SIZE * Terrain.TERRAIN_SIZE; i++)
-            waterLevel[i] = 1.0f;
+        //for (int i = 0; i < Terrain.TERRAIN_SIZE * Terrain.TERRAIN_SIZE; i++)
+        //    waterLevel[i] = 1.0f;
         
         terrain = transform.parent.GetComponent<Terrain>();
         GetComponent<MeshCollider>().sharedMesh = terrain.createMesh(true);

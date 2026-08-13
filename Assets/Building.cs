@@ -116,14 +116,14 @@ public class Building : MonoBehaviour
         for (int i = 0; i < c.Length; ++i)
         {
             var tp = c[i].GetComponent<Floater>().tp;
-            Debug.Log($"position {transform.position}");
+            /*Debug.Log($"position {transform.position}");
             Debug.Log($"pickup point {pickupPoint.transform.position}");
             Debug.Log($"spawn point {spawnPoint.transform.position}");
             Debug.Log($"floater {c[i].transform.position}");
-            Debug.Log(tp);
+            Debug.Log(tp);*/
             if (inventory.ContainsKey(tp) && inventory[tp] < MAX_INGREDIENTS)
             {
-                Destroy(c[i].gameObject);
+                terrain.removeFloater(c[i].gameObject);
                 inventory[tp] += 1;
                 if (ui != null)
                     ui.notifyInventoryChange(inventory);

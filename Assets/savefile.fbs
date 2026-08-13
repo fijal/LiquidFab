@@ -7,17 +7,28 @@ struct Tree {
     age:float;
 }
 
-struct WaterPump {
-	x:int;
-	y:int;
-	fuel_level: float;
-	logs: int;
+struct Building {
+	x:float;
+	y:float;
+	z:float;
+	anga:float;
+	angb:float;
+	angc:float;
+	kind:int;
+}
+
+struct Floater {
+	x:float;
+	y:float;
+	z:float;
+	kind:int;
 }
 
 table Savegame {
     version: int;
     trees: [Tree];
-	water_pumps: [WaterPump];
+	floaters: [Floater];
+	buildings: [Building];
 	terrain_level: [float];
 	terrain_kind: [float];
 	water_level: [float];
