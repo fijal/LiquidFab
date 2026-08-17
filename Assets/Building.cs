@@ -109,8 +109,39 @@ public class Building : MonoBehaviour
         inventory[tp] += 1;
     }
 
+    void checkForIngredientsForge()
+    {
+        var c = Physics.OverlapSphere(transform.position, 1.2f, ColliderLayers.Floaters);
+        for (int i = 0; i < c.Length; ++i)
+        {
+            var diff = c[i].transform.position - transform.position;
+            var forward = spawnPoint.transform.position - transform.position;
+            if (Vector3.Dot(diff, forward) < 0)
+            {
+                var tp = c[i].GetComponent<Floater>().tp;
+                /*Debug.Log($"position {transform.position}");
+                Debug.Log($"pickup point {pickupPoint.transform.position}");
+                Debug.Log($"spawn point {spawnPoint.transform.position}");
+                Debug.Log($"floater {c[i].transform.position}");
+                Debug.Log(tp);*/
+                if (inventory.ContainsKey(tp) && inventory[tp] < MAX_INGREDIENTS)
+                {
+                    terrain.removeFloater(c[i].gameObject);
+                    inventory[tp] += 1;
+                    if (ui != null)
+                        ui.notifyInventoryChange(inventory);
+                }
+            }
+        }
+    }
+
     void checkForIngredients()
     {
+        if (kind == BuildingKind.forge)
+        {
+            checkForIngredientsForge();
+            return;
+        }
         var c = Physics.OverlapBox(pickupPoint.transform.position, new Vector3(0.3f, 0.3f, 0.3f), pickupPoint.transform.rotation,
                                            ColliderLayers.Floaters);
         for (int i = 0; i < c.Length; ++i)

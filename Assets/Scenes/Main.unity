@@ -3790,8 +3790,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e917392f35467b4abefa6ec717d50af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  prefab: {fileID: 204789440125068108, guid: 60397e3623af9a0408c9b492dc7cf67e, type: 3}
-  greenPrefab: {fileID: 204789440125068108, guid: 54c8ad369ad92ea4595adc664449bf45, type: 3}
+  prefab: {fileID: 4001184758653479926, guid: d9348ac4072c74e4f8ed84e4da69e1a6, type: 3}
+  greenPrefab: {fileID: 4001184758653479926, guid: 95bfd1b704c9178458c38873d979be96, type: 3}
   redPrefab: {fileID: 204789440125068108, guid: 8849d52aeb27bd44eae689d6d7de61af, type: 3}
   whitePrefab: {fileID: 204789440125068108, guid: b3a0a786b7f4e5740b3454e5efff99da, type: 3}
   colorIcon: {fileID: 21300000, guid: e489ba2588d5df6439a49a471fe768a8, type: 3}
