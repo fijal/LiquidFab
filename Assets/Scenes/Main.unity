@@ -576,6 +576,7 @@ MonoBehaviour:
   smokePrefab: {fileID: 2962304638282216219, guid: a28f463f0418d36429b86a53c1bac031, type: 3}
   ironPlatePrefab: {fileID: 898974361182709275, guid: f06735ab829bb0541b4edb1bccffa690, type: 3}
   waterWheelPrefab: {fileID: 8964695145561224292, guid: c0e592d76b9a5124c9c3cf4db6f04057, type: 3}
+  doodadPrefab: {fileID: 3983906657240232055, guid: 620c83e0555e2fe4d8cefb4cf097b8b6, type: 3}
   sourcePrefab: {fileID: 2487817452039795085, guid: 3734d2661646c16409f84627203077de, type: 3}
   doodad: {fileID: 5471750415368775541, guid: 989249dfe7329714d9168c92d963d043, type: 3}
   treePrefabs:
@@ -607,6 +608,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1625717973}
+  - {fileID: 1677195899}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &200605880
@@ -3559,6 +3561,37 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!1 &1677195898
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1677195899}
+  m_Layer: 3
+  m_Name: doodads
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1677195899
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1677195898}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 200605879}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1679194103
 GameObject:
   m_ObjectHideFlags: 0
@@ -3861,7 +3894,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 4001184758653479926, guid: d9348ac4072c74e4f8ed84e4da69e1a6, type: 3}
   greenPrefab: {fileID: 4001184758653479926, guid: 95bfd1b704c9178458c38873d979be96, type: 3}
-  redPrefab: {fileID: 204789440125068108, guid: 8849d52aeb27bd44eae689d6d7de61af, type: 3}
+  redPrefab: {fileID: 4001184758653479926, guid: f890df1daa875254dadc2be48e8c034c, type: 3}
   whitePrefab: {fileID: 204789440125068108, guid: b3a0a786b7f4e5740b3454e5efff99da, type: 3}
   colorIcon: {fileID: 21300000, guid: e489ba2588d5df6439a49a471fe768a8, type: 3}
   grayIcon: {fileID: 21300000, guid: 9d63c247344ef224d9092969b1f4edc3, type: 3}

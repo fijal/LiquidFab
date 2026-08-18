@@ -26,7 +26,7 @@ public class Terrain : MonoBehaviour
 
     public TextAsset terrainData;
     // XXX this should go away at some point XXX
-    public GameObject logPrefab, waterPumpPrefab, smokePrefab, ironPlatePrefab, waterWheelPrefab;
+    public GameObject logPrefab, waterPumpPrefab, smokePrefab, ironPlatePrefab, waterWheelPrefab, doodadPrefab;
     public GameObject sourcePrefab;
     public GameObject doodad;
     public GameObject[] treePrefabs;
@@ -584,12 +584,14 @@ public class Terrain : MonoBehaviour
 
     public void markWall(int x, int y)
     {
+        var doodad = Instantiate(doodadPrefab, transform.Find("doodads"));
+        doodad.transform.position = new Vector3(x * SCALE, heightWater(x, y), y * SCALE);
         walls[x + y * TERRAIN_SIZE] = 1;
     }
 
     public void removeWall(int x, int y)
     {
-        walls[x + y * TERRAIN_SIZE] = 0;
+        //walls[x + y * TERRAIN_SIZE] = 0;
     }
 
     public void Update()

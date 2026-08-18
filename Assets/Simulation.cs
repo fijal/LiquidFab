@@ -133,7 +133,7 @@ public struct Simulation : IJob
         for (int y = 0; y < sizeY; y++)
             for (int x = 1; x < sizeX; x++)
             {
-                if (walls[x + y * sizeX] > 0)
+                if (walls[x + y * sizeX] > 0 && simulationType == SimulationType.Water)
                 {
                     flowX[x + y * (sizeX + 1)] = 0;
                     continue;
@@ -166,7 +166,7 @@ public struct Simulation : IJob
         for (int y = 1; y < sizeY; y++)
             for (int x = 0; x < sizeX; x++)
             {
-                if (walls[x + y * sizeX] > 0)
+                if (walls[x + y * sizeX] > 0 && simulationType == SimulationType.Water)
                 {
                     flowY[x + y * sizeX] = 0;
                     continue;

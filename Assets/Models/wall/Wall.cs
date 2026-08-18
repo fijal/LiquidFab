@@ -108,8 +108,11 @@ public class WallTool : ITool
                 var c = Physics.OverlapSphere(hit.point, 0.4f, ColliderLayers.AllBuildings);
                 if (c.Length > 0)
                 {
-                    var snapPoint = BuildingHelper.findClosestSnapPoint(hit.point, c[0].GetComponent<Building>().snapPoints);
-                    terrain.followHover(highlight, snapPoint);
+                    if (c[0].GetComponent<Building>().snapPoints.Length > 0)
+                    {
+                        var snapPoint = BuildingHelper.findClosestSnapPoint(hit.point, c[0].GetComponent<Building>().snapPoints);
+                        terrain.followHover(highlight, snapPoint);
+                    }
                     //Debug.Log("hit something");
                 }
                 else
