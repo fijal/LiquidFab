@@ -30,6 +30,23 @@ public class BuildingHelper
             return go.GetComponent<Building>().kind;
         return go.GetComponent<Construction>().kind;
     }
+
+    public static Vector3 findClosestSnapPoint(Vector3 pos, GameObject[] snapPoints)
+    {
+        var closest = snapPoints[0];
+        var distance = (closest.transform.position - pos).magnitude;
+        for (int i = 1; i < snapPoints.Length; i++)
+        {
+            var p = snapPoints[i];
+            var d = (p.transform.position - pos).magnitude;
+            if (d < distance)
+            {
+                distance = d;
+                closest = p;
+            }
+        }
+        return closest.transform.position;
+    }
 }
 
 public class Building : MonoBehaviour
@@ -44,6 +61,7 @@ public class Building : MonoBehaviour
     float buildTimer = 0;
     int currentReceipe = -1;
     [HideInInspector] public BuildingDetails ui;
+    public GameObject[] snapPoints;
 
     const int MAX_INGREDIENTS = 10;
 

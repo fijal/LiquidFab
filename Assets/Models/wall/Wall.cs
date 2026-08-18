@@ -105,7 +105,17 @@ public class WallTool : ITool
             {
                 //var col = greenGhost.GetComponent<CapsuleCollider>();
                 //col.Rayc
-                terrain.followHover(highlight, hit.point);
+                var c = Physics.OverlapSphere(hit.point, 0.4f, ColliderLayers.AllBuildings);
+                if (c.Length > 0)
+                {
+                    var snapPoint = BuildingHelper.findClosestSnapPoint(hit.point, c[0].GetComponent<Building>().snapPoints);
+                    terrain.followHover(highlight, snapPoint);
+                    //Debug.Log("hit something");
+                }
+                else
+                {
+                    terrain.followHover(highlight, hit.point);
+                }
             }
         }
         else
