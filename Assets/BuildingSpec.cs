@@ -53,10 +53,10 @@ public class BuildingFreePlacement :  ITool
         {
             if (isLegalPlacement(highlight, terrain, hit.point))
             {
-                if (modifier)
+                //if (modifier)
                     placeBuilding(highlight, terrain, hit.point);
-                else
-                    placeConstruction(highlight, terrain, hit.point);
+                //else
+                //    placeConstruction(highlight, terrain, hit.point);
             }
         }
     }
