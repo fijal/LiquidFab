@@ -494,8 +494,9 @@ public class Terrain : MonoBehaviour
 
     public void removeBuilding(GameObject building)
     {
-        if (building.GetComponent<Building>() != null && building.GetComponent<Building>().kind == BuildingKind.fence)
-            removeWall(building.transform.position.x / SCALE, building.transform.position.z / SCALE);
+        //if (building.GetComponent<Building>() != null && building.GetComponent<Building>().kind == BuildingKind.fence)
+        //    removeWall(building.transform.position.x / SCALE, building.transform.position.z / SCALE);
+        // XXX remove the wall properly
         buildings.Remove(building);
         Destroy(building);
     }
@@ -508,12 +509,9 @@ public class Terrain : MonoBehaviour
         spawnBuilding(forgeSpec.prefab, new Vector3(90 * SCALE, 1f, 110 * SCALE), Quaternion.Euler(0, 0, 0), forgeSpec);
     }
 
-    public void markWall(float x, float y)
+    public void markWall(int x, int y)
     {
-        walls[(int)x + (int)y * TERRAIN_SIZE] = 1;
-        walls[(int)(x + 1) + (int)y * TERRAIN_SIZE] = 1;
-        walls[(int)x + (int)(y + 1) * TERRAIN_SIZE] = 1;
-        walls[(int)(x + 1) + (int)(y + 1) * TERRAIN_SIZE] = 1;
+        walls[x + y * TERRAIN_SIZE] = 1;
     }
 
     void removeWall(float x, float y)
