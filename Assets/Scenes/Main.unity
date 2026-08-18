@@ -1233,7 +1233,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d72a4251ac3807e47b39f7c2842b2fab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fencePole: {fileID: 0}
+  fencePole: {fileID: 3983906657240232055, guid: 620c83e0555e2fe4d8cefb4cf097b8b6, type: 3}
   fencePoleGreen: {fileID: 4138857165189969924, guid: 5a2787e94c6fc8740b15063a89492849, type: 3}
   fencePoleWhite: {fileID: 0}
   fencePoleRed: {fileID: 4138857165189969924, guid: 5a2787e94c6fc8740b15063a89492849, type: 3}

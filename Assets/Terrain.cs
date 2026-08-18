@@ -492,11 +492,84 @@ public class Terrain : MonoBehaviour
         Destroy(floater);
     }
 
+    public void drawWallLine(Vector3 start, Vector3 end, bool remove = false)
+    {
+        var vec = new Vector3(end.x, 0, end.z) - new Vector3(start.x, 0, start.z);
+        if (vec == Vector3.zero)
+            return;
+        if (Mathf.Abs(vec.x) > Mathf.Abs(vec.z))
+        {
+            int startX, endX;
+            float startY, stepY;
+            if (start.x > end.x)
+            {
+                startX = (int)(end.x / Terrain.SCALE);
+                endX = (int)(start.x / Terrain.SCALE);// + 1;
+                stepY = (start.z - end.z) / (start.x - end.x);
+                startY = end.z / Terrain.SCALE - stepY * (end.x / Terrain.SCALE - startX);
+            }
+            else
+            {
+                startX = (int)(start.x / Terrain.SCALE);
+                endX = (int)(end.x / Terrain.SCALE);// + 1;
+                stepY = (end.z - start.z) / (end.x - start.x);
+                startY = start.z / Terrain.SCALE - stepY * (start.x / Terrain.SCALE - startX);
+            }
+            //fixChainLength(storage, endX - startX + 1, prefab);
+            int i = 0;
+            float y = startY;
+            for (int x = startX; x <= endX; x++)
+            {
+                //storage[i].transform.position = new Vector3(x * Terrain.SCALE, terrain.heightWater(x, (int)y), ((int)y) * Terrain.SCALE);
+                if (remove)
+                    removeWall(x, (int)(y));
+                else
+                    markWall(x, (int)y);
+                i++;
+                y += stepY;
+            }
+        }
+        else
+        {
+            int startY, endY;
+            float startX, stepX;
+            if (start.z > end.z)
+            {
+                startY = (int)(end.z / Terrain.SCALE);
+                endY = (int)(start.z / Terrain.SCALE);
+                stepX = (start.x - end.x) / (start.z - end.z);
+                startX = end.x / Terrain.SCALE - stepX * (end.z / Terrain.SCALE - startY);
+            }
+            else
+            {
+                startY = (int)(start.z / Terrain.SCALE);
+                endY = (int)(end.z / Terrain.SCALE);
+                stepX = (end.x - start.x) / (end.z - start.z);
+                startX = start.x / Terrain.SCALE - stepX * (start.z / Terrain.SCALE - startY);
+            }
+            //fixChainLength(storage, endY - startY + 1, prefab);
+            int i = 0;
+            float x = startX;
+            for (int y = startY; y <= endY; y++)
+            {
+                if (remove)
+                    removeWall((int)x, y);
+                else
+                    markWall((int)x, y);
+                //storage[i].transform.position = new Vector3(((int)x) * Terrain.SCALE, terrain.heightWater((int)x, (int)y), ((int)y) * Terrain.SCALE);
+                i++;
+                x += stepX;
+            }
+        }
+    }
+
     public void removeBuilding(GameObject building)
     {
-        //if (building.GetComponent<Building>() != null && building.GetComponent<Building>().kind == BuildingKind.fence)
-        //    removeWall(building.transform.position.x / SCALE, building.transform.position.z / SCALE);
-        // XXX remove the wall properly
+        if (building.GetComponent<Building>() != null && building.GetComponent<Building>().kind == BuildingKind.wall)
+        {
+            var end = building.transform.position + building.transform.rotation * new Vector3(building.transform.localScale.x, 0, 0);
+            drawWallLine(building.transform.position, end, true);
+        }
         buildings.Remove(building);
         Destroy(building);
     }
@@ -514,12 +587,9 @@ public class Terrain : MonoBehaviour
         walls[x + y * TERRAIN_SIZE] = 1;
     }
 
-    void removeWall(float x, float y)
+    public void removeWall(int x, int y)
     {
-        walls[(int)x + (int)y * TERRAIN_SIZE] = 0;
-        walls[(int)(x + 1) + (int)y * TERRAIN_SIZE] = 0;
-        walls[(int)x + (int)(y + 1) * TERRAIN_SIZE] = 0;
-        walls[(int)(x + 1) + (int)(y + 1) * TERRAIN_SIZE] = 0;
+        walls[x + y * TERRAIN_SIZE] = 0;
     }
 
     public void Update()
