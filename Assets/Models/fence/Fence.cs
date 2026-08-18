@@ -117,11 +117,6 @@ public class FenceTool : ITool
     public void rotate(GameObject highlight, float amount)
     {
     }
-
-    /*public override void spawnObject(Terrain terrain, Vector3 pos, Quaternion rot)
-    {
-        terrain.spawnBuilding(spec.prefab, pos, rot);
-    }*/
 }
 
 public class Fence : MonoBehaviour

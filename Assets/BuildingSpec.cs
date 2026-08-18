@@ -73,7 +73,6 @@ public class BuildingFreePlacement :  ITool
 
     public virtual bool isLegalPlacement(GameObject highlight, Terrain terrain, Vector3 point)
     {
-        return true; // XXX
         if (terrain.water.waterLevelFloat(point.x / Terrain.SCALE, point.z / Terrain.SCALE) < 0.1f)
             return false;
         var col = Physics.OverlapBox(point, spec.greenPrefab.GetComponent<BoxCollider>().size, highlight.transform.rotation,
@@ -109,6 +108,7 @@ public class BuildingFreePlacement :  ITool
             highlight.SetActive(false);
         }
     }
+
 }
 
 public class BuildingGridPlacement : ITool

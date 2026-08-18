@@ -84,6 +84,9 @@ public class Tools : MonoBehaviour
         var fenceSpec = transform.Find("Fence").gameObject.GetComponent<BuildingSpec>();
         allTools["Fence"] = new FenceTool(fenceSpec, transform.Find("Fence").gameObject.GetComponent<FenceSpec>());
 
+        var wallSpec = transform.Find("Wall").gameObject.GetComponent<BuildingSpec>();
+        allTools["Wall"] = new WallTool(wallSpec, transform.Find("Wall").gameObject.GetComponent<FenceSpec>());
+
         var dismantleSpec = transform.Find("Dismantle").gameObject.GetComponent<Dismantle>();
         allTools["Dismantle"] = new DismantleTool(dismantleSpec);
 
@@ -98,6 +101,7 @@ public class Tools : MonoBehaviour
         buildingMapping[BuildingKind.forge] = allTools["Forge"];
         buildingMapping[BuildingKind.miner] = allTools["Miner"];
         buildingMapping[BuildingKind.fence] = allTools["Fence"];
+        buildingMapping[BuildingKind.wall] = allTools["Wall"];
         buildingMapping[BuildingKind.waterPump] = allTools["WaterPump"];
     }
 }

@@ -18,7 +18,8 @@ public enum BuildingKind
     waterWheel = 4,
     fence = 5,
     waterPump = 6,
-    mainBase = 7
+    mainBase = 7,
+    wall = 8
 }
 
 public class BuildingHelper
@@ -37,7 +38,7 @@ public class Building : MonoBehaviour
     public GameObject spawnPoint, pickupPoint;
     public BuildingKind kind;
     public Receipe[] receipes;
-    public bool[] receipesEnabled;
+    [HideInInspector] public bool[] receipesEnabled;
     public Dictionary<ItemType, int> inventory;
     [HideInInspector] public ProductionState state = ProductionState.idle;
     float buildTimer = 0;

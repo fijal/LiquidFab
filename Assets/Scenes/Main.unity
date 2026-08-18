@@ -520,6 +520,7 @@ Transform:
   - {fileID: 827165165}
   - {fileID: 403469717}
   - {fileID: 477081954}
+  - {fileID: 451796567}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &181815195
@@ -1106,8 +1107,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fencePole: {fileID: 0}
-  fencePoleGreen: {fileID: 967714181975554016, guid: e350cd4854f7d4e4da75cfcd4b069eb6, type: 3}
-  fencePoleWhite: {fileID: 967714181975554016, guid: 37d06b34baf960845a5c56c46de85e32, type: 3}
+  fencePoleGreen: {fileID: 4138857165189969924, guid: 5a2787e94c6fc8740b15063a89492849, type: 3}
+  fencePoleWhite: {fileID: 4138857165189969924, guid: 5a2787e94c6fc8740b15063a89492849, type: 3}
   fencePoleRed: {fileID: 0}
 --- !u!1 &441154184
 GameObject:
@@ -1187,6 +1188,74 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 441154184}
   m_CullTransparentMesh: 1
+--- !u!1 &451796566
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 451796567}
+  - component: {fileID: 451796569}
+  - component: {fileID: 451796568}
+  m_Layer: 0
+  m_Name: Wall
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &451796567
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 451796566}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 181815194}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &451796568
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 451796566}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d72a4251ac3807e47b39f7c2842b2fab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fencePole: {fileID: 0}
+  fencePoleGreen: {fileID: 4138857165189969924, guid: 5a2787e94c6fc8740b15063a89492849, type: 3}
+  fencePoleWhite: {fileID: 0}
+  fencePoleRed: {fileID: 4138857165189969924, guid: 5a2787e94c6fc8740b15063a89492849, type: 3}
+--- !u!114 &451796569
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 451796566}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e917392f35467b4abefa6ec717d50af, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 2241980855496632329, guid: 39c00e2ba6616b64d911735e773ae6bf, type: 3}
+  greenPrefab: {fileID: 2241980855496632329, guid: e2c0de3889fda1343baaa64e8e55d581, type: 3}
+  redPrefab: {fileID: 2241980855496632329, guid: cd4ad3a68263ab645ad53019152ddcd8, type: 3}
+  whitePrefab: {fileID: 0}
+  colorIcon: {fileID: 21300000, guid: 71845e6de96232f47bd719a16c487685, type: 3}
+  grayIcon: {fileID: 21300000, guid: 71845e6de96232f47bd719a16c487685, type: 3}
+  helperText: 
 --- !u!1 &477081953
 GameObject:
   m_ObjectHideFlags: 0
