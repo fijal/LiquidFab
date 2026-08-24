@@ -34,8 +34,7 @@ public class Terrain : MonoBehaviour
     public Controls controls;
     public Items items;
 
-    List<GameObject> logs;
-    bool firstUpdate = true;
+    bool firstUpdate = false;
 
     public Simulation s;
     [HideInInspector] public Water water;
@@ -239,7 +238,6 @@ public class Terrain : MonoBehaviour
         terrainUpdatesY = new List<int>();
         terrainUpdatesVal = new List<float>();
 
-        logs = new List<GameObject>();
         
         water = transform.Find("Water").GetComponent<Water>();
         Mesh mesh = createMesh();
@@ -252,9 +250,9 @@ public class Terrain : MonoBehaviour
         createTerrainKindTexture();
 
         sources = new HashSet<GameObject>();
-        addMineralSource(58.30429f, 29.32351f);
-        addMineralSource(111.672f, 40.14171f);
-        addMineralSource(34.15832f, 42.1265f);
+        //addMineralSource(58.30429f, 29.32351f);
+        //addMineralSource(111.672f, 40.14171f);
+        //addMineralSource(34.15832f, 42.1265f);
         //addMineralSource();
 
         //var baseObject = transform.Find("base").gameObject;
@@ -449,7 +447,23 @@ public class Terrain : MonoBehaviour
             {
                 var x = (int)(f.transform.position.x / SCALE);
                 var y = (int)(f.transform.position.z / SCALE);
-                water.waterLevel[x + y * TERRAIN_SIZE] += 1.0f;
+                water.waterLevel[x + y * TERRAIN_SIZE] += 0.3f;
+            } else if (BuildingHelper.getKind(f) == BuildingKind.pumpWithPipe)
+            {
+                var startX = (int)(f.transform.position.x / SCALE);
+                var startY = (int)(f.transform.position.z / SCALE);
+                var x = (int)(f.GetComponent<PumpWithPipe>().outX / Terrain.SCALE);
+                var y = (int)(f.GetComponent<PumpWithPipe>().outY / Terrain.SCALE);
+                var curLevel = water.waterLevel[startX + startY * TERRAIN_SIZE];
+                if (curLevel > 0.05f)
+                {
+                    water.waterLevel[startX + startY * TERRAIN_SIZE] -= 0.05f;
+                    water.waterLevel[x + y * TERRAIN_SIZE] += 0.05f;
+                } else
+                {
+                    water.waterLevel[x + y * TERRAIN_SIZE] = curLevel;
+                    water.waterLevel[startX + startY * TERRAIN_SIZE] = 0;
+                }
             }
         }
         updateBuildings();

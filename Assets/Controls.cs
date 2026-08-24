@@ -18,7 +18,7 @@ public class Controls : MonoBehaviour
     const float MOUSE_ROTATE_SPEED = 1f;
     const float HEIGHT_SCROLL_SPEED = 5f;
 
-    string[] defaultToolSet = { "Dismantle", "Wall", "WaterWheel", "Forge", "Assembler", "Miner", "WaterPump"};
+    string[] defaultToolSet = { "Dismantle", "Wall", "WaterWheel", "Forge", "Assembler", "Miner", "WaterPump", "PumpWithPipe"};
 
     GameObject[] UIElements;
     public EventSystem eventSystem;

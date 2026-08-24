@@ -93,6 +93,9 @@ public class Tools : MonoBehaviour
         var waterPumpSpec = transform.Find("WaterPump").gameObject.GetComponent<BuildingSpec>();
         allTools["WaterPump"] = new WaterPumpTool(waterPumpSpec);
 
+        var pumpWithPipeSpec = transform.Find("PumpWithPipe").gameObject.GetComponent<BuildingSpec>();
+        allTools["PumpWithPipe"] = new PumpWithPipeTool(pumpWithPipeSpec, transform.Find("PumpWithPipe").gameObject.GetComponent<PumpWithPipeSpec>());
+
         allTools["Select"] = new SelectTool(transform.Find("Select").gameObject.GetComponent<Select>());
 
         buildingMapping = new Dictionary<BuildingKind, ITool>();
@@ -103,5 +106,6 @@ public class Tools : MonoBehaviour
         buildingMapping[BuildingKind.fence] = allTools["Fence"];
         buildingMapping[BuildingKind.wall] = allTools["Wall"];
         buildingMapping[BuildingKind.waterPump] = allTools["WaterPump"];
+        buildingMapping[BuildingKind.pumpWithPipe] = allTools["PumpWithPipe"];
     }
 }

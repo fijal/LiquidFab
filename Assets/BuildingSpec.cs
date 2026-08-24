@@ -88,7 +88,7 @@ public class BuildingFreePlacement :  ITool
         var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, 200, ColliderLayers.Water))
+        if (Physics.Raycast(ray, out hit, ColliderLayers.Depth, ColliderLayers.Water))
         {
             Debug.Assert(hit.transform.gameObject.GetComponent<Water>() != null);
             terrain.followHover(highlight, hit.point);

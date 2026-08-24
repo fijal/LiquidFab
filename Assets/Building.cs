@@ -19,7 +19,8 @@ public enum BuildingKind
     fence = 5,
     waterPump = 6,
     mainBase = 7,
-    wall = 8
+    wall = 8,
+    pumpWithPipe = 9,
 }
 
 public class BuildingHelper

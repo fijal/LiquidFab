@@ -520,6 +520,7 @@ Transform:
   - {fileID: 827165165}
   - {fileID: 403469717}
   - {fileID: 477081954}
+  - {fileID: 792381325}
   - {fileID: 451796567}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1308,7 +1309,7 @@ MonoBehaviour:
   whitePrefab: {fileID: 0}
   colorIcon: {fileID: 21300000, guid: 850734b6876fe144cbd31e6732122074, type: 3}
   grayIcon: {fileID: 21300000, guid: 850734b6876fe144cbd31e6732122074, type: 3}
-  helperText: 
+  helperText: Pump
 --- !u!1 &492150967
 GameObject:
   m_ObjectHideFlags: 0
@@ -1877,6 +1878,73 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &792381324
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 792381325}
+  - component: {fileID: 792381327}
+  - component: {fileID: 792381326}
+  m_Layer: 0
+  m_Name: PumpWithPipe
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &792381325
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 792381324}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 181815194}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &792381326
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 792381324}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e9390b6b3f91fd4cbcebb89e136018a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pipeSegment: {fileID: 919132149155446097, guid: 0089c599b786d29498cf7565bc3cdf1b, type: 3}
+  pipeSegmentGreen: {fileID: 2742786911525791540, guid: 50c7330b7ed589b4e90059c16cf16f46, type: 3}
+  pipeSegmentRed: {fileID: 0}
+--- !u!114 &792381327
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 792381324}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e917392f35467b4abefa6ec717d50af, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 394459174120429782, guid: b1d533c09fada4948aad5615c633a9e5, type: 3}
+  greenPrefab: {fileID: 3027851121116065823, guid: a0a5a9f7a469b7f45be46ce9e1e537b3, type: 3}
+  redPrefab: {fileID: 6894959070816017002, guid: 4381ebf8891384f4eb07c4f9935c0a14, type: 3}
+  whitePrefab: {fileID: 0}
+  colorIcon: {fileID: 21300000, guid: 850734b6876fe144cbd31e6732122074, type: 3}
+  grayIcon: {fileID: 21300000, guid: 850734b6876fe144cbd31e6732122074, type: 3}
+  helperText: 
 --- !u!1 &803171544
 GameObject:
   m_ObjectHideFlags: 0
@@ -3052,7 +3120,7 @@ MonoBehaviour:
   whitePrefab: {fileID: 0}
   colorIcon: {fileID: 21300000, guid: 28f225c9d9cefb049b3509502e03d716, type: 3}
   grayIcon: {fileID: 21300000, guid: 6315459d1ac57ed48b984f5dc86a7975, type: 3}
-  helperText: 
+  helperText: Miner
 --- !u!1 &1432532390
 GameObject:
   m_ObjectHideFlags: 0
