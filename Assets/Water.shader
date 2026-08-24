@@ -2,8 +2,8 @@ Shader "Unlit/Water"
 {
     Properties
     {
-        _Color ("Color Deep", Color) = (0.14902481, 0.33537576, 0.8616352, 1)
-        _ColorShallow ("Color Shallow", Color) = (1, 1, 1, 1)
+        _Color ("Color Deep", Color) = (0.14902481, 0.33537576, 0.8616352, 1) // 1440B9
+        _ColorShallow ("Color Shallow", Color) = (1, 1, 1, 1)                 // 604C94
     }
     SubShader
     {
