@@ -4,6 +4,7 @@ Shader "Unlit/Water"
     {
         _Color ("Color Deep", Color) = (0.14902481, 0.33537576, 0.8616352, 1) // 1440B9
         _ColorShallow ("Color Shallow", Color) = (1, 1, 1, 1)                 // 604C94
+        _ColorMud ("Color Mud", Color) = (1, 1, 1, 1)
     }
     SubShader
     {
@@ -28,7 +29,8 @@ Shader "Unlit/Water"
             {
                 float4 vertex : POSITION;
                 float3 normal : NORMAL;
-                float3 uv3 : TEXCOORD0;     // .xz: water flow;  .y: water depth
+                float4 uv3 : TEXCOORD0;     // .xz: water flow;  .y: water depth w: color percentage
+                float3 color : COLOR0;
             };
 
             struct v2f
@@ -36,11 +38,13 @@ Shader "Unlit/Water"
                 UNITY_FOG_COORDS(1)
                 float4 vertex : SV_POSITION;
                 float4 misc : TEXCOORD0;
-                float2 src_vertex_xz : TEXCOORD2;
+                float3 src_vertex_xz : TEXCOORD2; // z is used for color percentage
+                float3 color : TEXCOORD3;
             };
             #define m_flow         misc.xy
             #define m_waterdepth   misc.z
             #define m_light        misc.w
+            #define src_color_perc src_vertex_xz.z
 
             v2f vert (appdata v)
             {
@@ -56,20 +60,22 @@ Shader "Unlit/Water"
                 o.m_flow = flow * 0.75;
                 o.m_waterdepth = v.uv3.y;
                 o.m_light = dot(normal, light);
-                o.src_vertex_xz = v.vertex.xz;
+                o.color = v.color;
+                o.src_vertex_xz.xy = v.vertex.xz;
+                o.src_vertex_xz.z = v.uv3.w;
                 UNITY_TRANSFER_FOG(o,o.vertex);
                 return o;
             }
 
-            float3 _Color, _ColorShallow;
+            float3 _Color, _ColorShallow, _ColorMud;
 
             fixed4 frag (v2f i) : SV_Target
             {
                 float4 col;
-                col.rgb = lerp(_ColorShallow, _Color, saturate(i.m_waterdepth));
+                col.rgb = lerp(_Color, i.color, saturate(i.src_vertex_xz.z));
                 col.rgb *= saturate(i.m_light);
 
-                float2 pos = i.src_vertex_xz;
+                float2 pos = i.src_vertex_xz.xy;
                 float2 flow = i.m_flow;
 
                 float2 dot_pos = floor(pos) + 0.5;

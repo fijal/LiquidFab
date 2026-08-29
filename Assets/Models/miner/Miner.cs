@@ -20,6 +20,18 @@ public class Miner : MonoBehaviour
         smoke = transform.Find("Smoke").gameObject.GetComponent<ParticleSystem>();
     }
 
+    private void FixedUpdate()
+    {
+        var terrain = GetComponent<Building>().terrain;
+        if (terrain.water.waterLevelFloat(transform.position.x / Terrain.SCALE, transform.position.z / Terrain.SCALE) > 0.1f)
+        {
+            int x = (int)(transform.position.x / Terrain.SCALE);
+            int y = (int)(transform.position.z / Terrain.SCALE);
+            terrain.water.mud[x + y * Terrain.TERRAIN_SIZE] = 0.5f;
+            //Debug.Log("emitting mud");
+        }
+    }
+
     void Update()
     {
         var state = GetComponent<Building>().state;
