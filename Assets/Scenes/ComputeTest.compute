@@ -7,10 +7,19 @@ RWTexture2D<float4> Result;
 Texture2D<float4> Input;
 float4 _Time;
 
-float random_value(uint id)
+uint seed;
+void wang_hash()
 {
-    uint seed = id * 1664525u + 1013904223u;
-    return float(seed & 0x00FFFFFFu) / float(0x01000000u);
+    seed = (seed ^ 61) ^ (seed >> 16);
+    seed *= 9;
+    seed = seed ^ (seed >> 4);
+    seed *= 0x27d4eb2d;
+    seed = seed ^ (seed >> 15);
+}
+float random_value()
+{
+    wang_hash();
+    return seed * (1.0 / 0xffffffff);
 }
 
 bool yellow_pixel(Texture2D<float4> tex, float2 pos)
@@ -35,10 +44,12 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     float4 green = float4(0, 1, 0, 1);
     float4 red = float4(1, 0, 0, 1);
     float4 yellow = float4(1, 1, 0, 1);
-    uint rand_seed = uint(10000 * _Time.x) ^ uint(id.x * 1000.0) ^ (uint(id.y * 1000.0) << 16);
+
+    seed = uint(frac(_Time.x) * 0x7ffffff) + id.x + (id.y << 16);
+
     if (id.x == 0)
     {
-        if (random_value(rand_seed) < 0.03)
+        if (random_value() < 0.03)
             Result[id.xy] = float4(0, 1, 0, 1);
         else
             Result[id.xy] = float4(0, 0, 0, 1);
@@ -46,7 +57,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     }
     else if (id.y == 0)
     {
-        if (random_value(rand_seed) < 0.03)
+        if (random_value() < 0.03)
             Result[id.xy] = float4(1, 0, 0, 1);
         else
             Result[id.xy] = float4(0, 0, 0, 1);        
