@@ -4,7 +4,7 @@
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
 RWTexture2D<float4> Result;
-RWTexture2D<float4> Input;
+Texture2D<float4> Input;
 float4 _Time;
 
 float random_value(uint id)
@@ -13,7 +13,7 @@ float random_value(uint id)
     return float(seed & 0x00FFFFFFu) / float(0x01000000u);
 }
 
-bool yellow_pixel(RWTexture2D<float4> tex, float2 pos)
+bool yellow_pixel(Texture2D<float4> tex, float2 pos)
 {
     if (pos.x > 2047 || pos.y > 2047)
         return false;
@@ -22,7 +22,7 @@ bool yellow_pixel(RWTexture2D<float4> tex, float2 pos)
     return false;
 }
 
-float yellow_color(RWTexture2D<float4> tex, float2 pos)
+float yellow_color(Texture2D<float4> tex, float2 pos)
 {
     if (!yellow_pixel(tex, pos))
         return 0;
