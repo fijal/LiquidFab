@@ -7,19 +7,16 @@ RWTexture2D<float4> Result;
 Texture2D<float4> Input;
 float4 _Time;
 
-uint seed;
-void wang_hash()
+uint rng_state;
+uint rand_pcg()
 {
-    seed = (seed ^ 61) ^ (seed >> 16);
-    seed *= 9;
-    seed = seed ^ (seed >> 4);
-    seed *= 0x27d4eb2d;
-    seed = seed ^ (seed >> 15);
+    rng_state = rng_state * 747796405u + 2891336453u;
+    uint word = ((rng_state >> ((rng_state >> 28u) + 4u)) ^ rng_state) * 277803737u;
+    return (word >> 22u) ^ word;
 }
 float random_value()
 {
-    wang_hash();
-    return seed * (1.0 / 0xffffffff);
+    return rand_pcg() * (1.0 / 0xffffffff);
 }
 
 bool yellow_pixel(Texture2D<float4> tex, float2 pos)
@@ -45,7 +42,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     float4 red = float4(1, 0, 0, 1);
     float4 yellow = float4(1, 1, 0, 1);
 
-    seed = uint(frac(_Time.x) * 0x7ffffff) + id.x + (id.y << 16);
+    rng_state = uint(frac(_Time.x) * 0x7ffffff) + id.x + (id.y << 16);
 
     if (id.x == 0)
     {
