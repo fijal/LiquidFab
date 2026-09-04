@@ -15,9 +15,18 @@ float random_value(uint id)
 
 bool yellow_pixel(RWTexture2D<float4> tex, float2 pos)
 {
+    if (pos.x > 2047 || pos.y > 2047)
+        return false;
     if (tex[pos].r == tex[pos].g && tex[pos].g != 0)
         return true;
     return false;
+}
+
+float yellow_color(RWTexture2D<float4> tex, float2 pos)
+{
+    if (!yellow_pixel(tex, pos))
+        return 0;
+    return tex[pos].r;
 }
 
 [numthreads(8,8,1)]
@@ -45,15 +54,12 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     }
     float4 col_left = Input[id.xy - uint2(1, 0)];
     float4 col_bottom = Input[id.xy - uint2(0, 1)];
-    if (yellow_pixel(Input, id.xy - uint2(1, 0)) || yellow_pixel(Input, id.xy - uint2(0, 1)))
+    if (yellow_pixel(Input, id.xy - uint2(1, 0)) || yellow_pixel(Input, id.xy - uint2(0, 1)) || 
+        yellow_pixel(Input, id.xy + uint2(1, 0)) || yellow_pixel(Input, id.xy + uint2(0, 1)))
     {
         float v;
-        if (yellow_pixel(Input, id.xy - uint2(1, 0)) && yellow_pixel(Input, id.xy - uint2(0, 1)))
-            v = max(col_left.r, col_bottom.r);
-        else if (yellow_pixel(Input, id.xy - uint2(1, 0)))
-            v = col_left.r;
-        else
-            v = col_bottom.r;
+        v = max(max(yellow_color(Input, id.xy - uint2(1, 0)), yellow_color(Input, id.xy - uint2(0, 1))),
+                max(yellow_color(Input, id.xy + uint2(1, 0)), yellow_color(Input, id.xy + uint2(0, 1))));
         Result[id.xy] = float4(v - 0.01, v - 0.01, 0, 1);
         return;
     }
