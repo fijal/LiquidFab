@@ -37,7 +37,7 @@ public class Painter : MonoBehaviour
     void FixedUpdate()
     {
         var c = new Color32(0x14, 0x40, 0xB9, 255);
-        for (int x = 0; x < WIDTH; x++)
+        /*for (int x = 0; x < WIDTH; x++)
             for (int y = 0; y < HEIGHT; y++)
             {
                 pixels[x + y * WIDTH] = c;
@@ -46,6 +46,6 @@ public class Painter : MonoBehaviour
                 //pixels[x + y * Screen.width].g = 0x40;
                 //pixels[x + y * Screen.width].b = 0xB9;
             }
-        tex.Apply();
+        tex.Apply();*/
     }
 }

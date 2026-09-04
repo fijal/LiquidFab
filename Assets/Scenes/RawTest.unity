@@ -490,6 +490,7 @@ GameObject:
   - component: {fileID: 2123123480}
   - component: {fileID: 2123123479}
   - component: {fileID: 2123123481}
+  - component: {fileID: 2123123482}
   m_Layer: 5
   m_Name: RawImage
   m_TagString: Untagged
@@ -536,7 +537,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 0}
+  m_Texture: {fileID: 8400000, guid: ec8a09d927d044e41ad8a611918c390a, type: 2}
   m_UVRect:
     serializedVersion: 2
     x: 0
@@ -564,6 +565,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tex: {fileID: 0}
+--- !u!114 &2123123482
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2123123477}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f5a2cb1baee31741a29283b5fd2f55c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  shader: {fileID: 7200000, guid: aa9be81bd9b9a8b4593eb1bdb9eb3cbb, type: 3}
+  tex: {fileID: 0}
+  tex2: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
