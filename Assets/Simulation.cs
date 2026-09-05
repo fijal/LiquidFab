@@ -24,6 +24,7 @@ public struct Simulation : IJob
 
     public NativeArray<float> water;
     public NativeArray<float> walls; // where we force the flow to be zero
+    public NativeArray<float> mud;
     
     public float viscosity;
     public float maxAngle;
@@ -53,7 +54,8 @@ public struct Simulation : IJob
         this.terrain = new NativeArray<float>(sizeX * sizeY, Allocator.Persistent);
         subLevel = new NativeArray<float>(sizeX * sizeY, Allocator.Persistent);
         walls = new NativeArray<float>(sizeX * sizeY, Allocator.Persistent);
-
+        mud = new NativeArray<float>(sizeX * sizeY, Allocator.Persistent);
+        
         viscosity = 0;
         maxAngle = 0;
         friction = 0.05f; // 0 - 1
@@ -84,6 +86,8 @@ public struct Simulation : IJob
             subLevel.Dispose();
         if (walls != null)
             walls.Dispose();
+        if (mud != null)
+            mud.Dispose();
     }
 
     public void Execute()
@@ -133,7 +137,7 @@ public struct Simulation : IJob
         for (int y = 0; y < sizeY; y++)
             for (int x = 1; x < sizeX; x++)
             {
-                if (walls[x + y * sizeX] > 0)
+                if (walls[x + y * sizeX] > 0 && simulationType == SimulationType.Water)
                 {
                     flowX[x + y * (sizeX + 1)] = 0;
                     continue;
@@ -166,7 +170,7 @@ public struct Simulation : IJob
         for (int y = 1; y < sizeY; y++)
             for (int x = 0; x < sizeX; x++)
             {
-                if (walls[x + y * sizeX] > 0)
+                if (walls[x + y * sizeX] > 0 && simulationType == SimulationType.Water)
                 {
                     flowY[x + y * sizeX] = 0;
                     continue;
@@ -275,6 +279,26 @@ public struct Simulation : IJob
                 // XXX </tmp>
 
                 CheckFinite(seepage);
+                if (simulationType == SimulationType.Water && x > 0 && y > 0 && x < sizeX - 1 && y < sizeY - 1) // XXX boundaries
+                {
+                    var c = source[x + y * sizeX];
+                    var f = flowX[x + y * (sizeX + 1)];
+                    if (f > 0)
+                        mud[x + y * sizeX] = (f * mud[x - 1 + y * sizeX] + c * mud[x + y * sizeX]) / (f + c);
+                    c += f;
+                    f = flowY[x + y * sizeX];
+                    if (f > 0)
+                        mud[x + y * sizeX] = (f * mud[x + (y - 1) * sizeX] + c * mud[x + y * sizeX]) / (f + c);
+                    c += f;
+                    f = flowX[x + 1 + y * (sizeX + 1)];
+                    if (f < 0)
+                        mud[x + y * sizeX] = (-f * mud[x + 1 + y * sizeX] + c * mud[x + y * sizeX]) / (-f + c);
+                    c += f;
+                    f = flowY[x + (y + 1) * sizeX];
+                    if (f < 0)
+                        mud[x + y * sizeX] = (-f * mud[x + (y + 1) * sizeX] + c * mud[x + y * sizeX]) / (-f + c);
+                }
+                //flowX[x + y * (sizeX ]
                 var cur = (flowX[x + y * (sizeX + 1)] + flowY[x + y * sizeX] - flowX[x + 1 + y * (sizeX + 1)]
                     - flowY[x + (y + 1) * sizeX]);
                 CheckFinite(cur);

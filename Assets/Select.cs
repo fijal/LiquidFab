@@ -107,7 +107,9 @@ public class SelectTool : ITool
         }
         else if (Physics.Raycast(ray, out hit, ColliderLayers.Depth, ColliderLayers.Water | ColliderLayers.Terrain))
         {
-            Debug.Log($"{hit.point.x / Terrain.SCALE} {hit.point.z / Terrain.SCALE}");
+            int x = (int)(hit.point.x / Terrain.SCALE);
+            int y = (int)(hit.point.z / Terrain.SCALE);
+            Debug.Log($"{hit.point.x / Terrain.SCALE} {hit.point.z / Terrain.SCALE} flow: {terrain.water.flowX(x, y)} {terrain.water.flowY(x, y)}");
 
 
         }

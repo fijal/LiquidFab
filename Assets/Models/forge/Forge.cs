@@ -29,8 +29,11 @@ public class Forge : MonoBehaviour
         if (state == ProductionState.producing)
         {
             pos += Time.fixedDeltaTime;
-            var c = movingPart.transform.localPosition;
-            movingPart.transform.localPosition = new Vector3(c.x, 0.05f * (Mathf.Sin(pos / 1f) + 1.2f), c.z);
+            if (movingPart != null)
+            {
+                var c = movingPart.transform.localPosition;
+                movingPart.transform.localPosition = new Vector3(c.x, 0.05f * (Mathf.Sin(pos / 1f) + 1.2f), c.z);
+            }
         } else if (state == ProductionState.starting)
         {
             smoke.Play();

@@ -6,10 +6,11 @@ using UnityEngine;
 
 public class Water : MonoBehaviour
 {
-    public float[] waterLevel, waterFlowX, waterFlowY;
+    public float[] waterLevel, waterFlowX, waterFlowY, mud;
     
     const int WATER_SIZE_X = Terrain.TERRAIN_SIZE, WATER_SIZE_Y = Terrain.TERRAIN_SIZE;
     Terrain terrain;
+    Color[] colors;
 
     void Start()
     {
@@ -20,10 +21,19 @@ public class Water : MonoBehaviour
         waterLevel = new float[Terrain.TERRAIN_SIZE * Terrain.TERRAIN_SIZE];
         waterFlowX = new float[(Terrain.TERRAIN_SIZE + 1) * Terrain.TERRAIN_SIZE];
         waterFlowY = new float[(Terrain.TERRAIN_SIZE + 1) * Terrain.TERRAIN_SIZE];
+        mud = new float[Terrain.TERRAIN_SIZE * Terrain.TERRAIN_SIZE];
 
-        //for (int i = 0; i < Terrain.TERRAIN_SIZE * Terrain.TERRAIN_SIZE; i++)
-        //    waterLevel[i] = 1.0f;
-        
+        colors = new Color[Terrain.TERRAIN_SIZE * Terrain.TERRAIN_SIZE];
+
+        //Debug.Log(new Color(0x84 / 0xff, 0x51 / 0xff, 0x10 / 0xff));
+        for (int x = 0; x < Terrain.TERRAIN_SIZE; x++)
+            for (int y = 0; y < Terrain.TERRAIN_SIZE; y++)
+            {
+                colors[x + y * Terrain.TERRAIN_SIZE] = new Color((float)0x84 / 0xff, (float)0x51 / 0xff, (float)0x10 / 0xff);
+            }
+                //for (int i = 0; i < Terrain.TERRAIN_SIZE * Terrain.TERRAIN_SIZE; i++)
+                //    waterLevel[i] = 1.0f;
+
         terrain = transform.parent.GetComponent<Terrain>();
         GetComponent<MeshCollider>().sharedMesh = terrain.createMesh(true);
     }
@@ -180,12 +190,12 @@ public class Water : MonoBehaviour
             }
     }
 
-    public void updateWaterTexture(NativeArray<float> new_water_level)
+    public void updateWaterTexture(NativeArray<float> new_water_level, NativeArray<float> mud)
     {
         const float MIN_WATER = 0.001f;
 
         var vertices = new Vector3[WATER_SIZE_X * WATER_SIZE_Y];
-        var uvs = new Vector3[WATER_SIZE_X * WATER_SIZE_Y];
+        var uvs = new Vector4[WATER_SIZE_X * WATER_SIZE_Y];
         var tris = new List<int>();
 
         var flowX = waterFlowX;
@@ -205,7 +215,8 @@ public class Water : MonoBehaviour
                 float h_old = waterLevel[x + y * WATER_SIZE_X];
                 float h_new = new_water_level[x + y * WATER_SIZE_X];
                 float h = (h_old + h_new) * 0.5f;
-                uvs[c] = new Vector3(fx, h, fy);
+                var z = mud[x + y * WATER_SIZE_X];
+                uvs[c] = new Vector4(fx, h, fy, z);
                 bool any_water = h_old >= MIN_WATER || h_new >= MIN_WATER;
                 corners[x + y * WATER_SIZE_X] = any_water;
                 if (!any_water)
@@ -260,6 +271,8 @@ public class Water : MonoBehaviour
         mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
         mesh.vertices = vertices;
         mesh.SetUVs(0, uvs);
+        
+        mesh.SetColors(colors);
         mesh.SetTriangles(tris, 0);
         mesh.RecalculateBounds();
         mesh.RecalculateNormals();

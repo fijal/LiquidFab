@@ -53,10 +53,10 @@ public class BuildingFreePlacement :  ITool
         {
             if (isLegalPlacement(highlight, terrain, hit.point))
             {
-                if (modifier)
+                //if (modifier)
                     placeBuilding(highlight, terrain, hit.point);
-                else
-                    placeConstruction(highlight, terrain, hit.point);
+                //else
+                //    placeConstruction(highlight, terrain, hit.point);
             }
         }
     }
@@ -73,6 +73,7 @@ public class BuildingFreePlacement :  ITool
 
     public virtual bool isLegalPlacement(GameObject highlight, Terrain terrain, Vector3 point)
     {
+        return true;
         if (terrain.water.waterLevelFloat(point.x / Terrain.SCALE, point.z / Terrain.SCALE) < 0.1f)
             return false;
         var col = Physics.OverlapBox(point, spec.greenPrefab.GetComponent<BoxCollider>().size, highlight.transform.rotation,
@@ -87,7 +88,7 @@ public class BuildingFreePlacement :  ITool
         var ray = camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, 200, ColliderLayers.Water))
+        if (Physics.Raycast(ray, out hit, ColliderLayers.Depth, ColliderLayers.Water))
         {
             Debug.Assert(hit.transform.gameObject.GetComponent<Water>() != null);
             terrain.followHover(highlight, hit.point);
@@ -108,6 +109,7 @@ public class BuildingFreePlacement :  ITool
             highlight.SetActive(false);
         }
     }
+
 }
 
 public class BuildingGridPlacement : ITool

@@ -18,7 +18,9 @@ public enum BuildingKind
     waterWheel = 4,
     fence = 5,
     waterPump = 6,
-    mainBase = 7
+    mainBase = 7,
+    wall = 8,
+    pumpWithPipe = 9,
 }
 
 public class BuildingHelper
@@ -29,6 +31,23 @@ public class BuildingHelper
             return go.GetComponent<Building>().kind;
         return go.GetComponent<Construction>().kind;
     }
+
+    public static Vector3 findClosestSnapPoint(Vector3 pos, GameObject[] snapPoints)
+    {
+        var closest = snapPoints[0];
+        var distance = (closest.transform.position - pos).magnitude;
+        for (int i = 1; i < snapPoints.Length; i++)
+        {
+            var p = snapPoints[i];
+            var d = (p.transform.position - pos).magnitude;
+            if (d < distance)
+            {
+                distance = d;
+                closest = p;
+            }
+        }
+        return closest.transform.position;
+    }
 }
 
 public class Building : MonoBehaviour
@@ -37,12 +56,13 @@ public class Building : MonoBehaviour
     public GameObject spawnPoint, pickupPoint;
     public BuildingKind kind;
     public Receipe[] receipes;
-    public bool[] receipesEnabled;
+    [HideInInspector] public bool[] receipesEnabled;
     public Dictionary<ItemType, int> inventory;
     [HideInInspector] public ProductionState state = ProductionState.idle;
     float buildTimer = 0;
     int currentReceipe = -1;
     [HideInInspector] public BuildingDetails ui;
+    public GameObject[] snapPoints;
 
     const int MAX_INGREDIENTS = 10;
 
@@ -109,8 +129,39 @@ public class Building : MonoBehaviour
         inventory[tp] += 1;
     }
 
+    void checkForIngredientsForge()
+    {
+        var c = Physics.OverlapSphere(transform.position, 1.2f, ColliderLayers.Floaters);
+        for (int i = 0; i < c.Length; ++i)
+        {
+            var diff = c[i].transform.position - transform.position;
+            var forward = spawnPoint.transform.position - transform.position;
+            if (Vector3.Dot(diff, forward) < 0)
+            {
+                var tp = c[i].GetComponent<Floater>().tp;
+                /*Debug.Log($"position {transform.position}");
+                Debug.Log($"pickup point {pickupPoint.transform.position}");
+                Debug.Log($"spawn point {spawnPoint.transform.position}");
+                Debug.Log($"floater {c[i].transform.position}");
+                Debug.Log(tp);*/
+                if (inventory.ContainsKey(tp) && inventory[tp] < MAX_INGREDIENTS)
+                {
+                    terrain.removeFloater(c[i].gameObject);
+                    inventory[tp] += 1;
+                    if (ui != null)
+                        ui.notifyInventoryChange(inventory);
+                }
+            }
+        }
+    }
+
     void checkForIngredients()
     {
+        if (kind == BuildingKind.forge)
+        {
+            checkForIngredientsForge();
+            return;
+        }
         var c = Physics.OverlapBox(pickupPoint.transform.position, new Vector3(0.3f, 0.3f, 0.3f), pickupPoint.transform.rotation,
                                            ColliderLayers.Floaters);
         for (int i = 0; i < c.Length; ++i)

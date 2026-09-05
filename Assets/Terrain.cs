@@ -26,7 +26,7 @@ public class Terrain : MonoBehaviour
 
     public TextAsset terrainData;
     // XXX this should go away at some point XXX
-    public GameObject logPrefab, waterPumpPrefab, smokePrefab, ironPlatePrefab, waterWheelPrefab;
+    public GameObject logPrefab, waterPumpPrefab, smokePrefab, ironPlatePrefab, waterWheelPrefab, doodadPrefab;
     public GameObject sourcePrefab;
     public GameObject doodad;
     public GameObject[] treePrefabs;
@@ -34,8 +34,7 @@ public class Terrain : MonoBehaviour
     public Controls controls;
     public Items items;
 
-    List<GameObject> logs;
-    bool firstUpdate = true;
+    bool firstUpdate = false;
 
     public Simulation s;
     [HideInInspector] public Water water;
@@ -239,7 +238,6 @@ public class Terrain : MonoBehaviour
         terrainUpdatesY = new List<int>();
         terrainUpdatesVal = new List<float>();
 
-        logs = new List<GameObject>();
         
         water = transform.Find("Water").GetComponent<Water>();
         Mesh mesh = createMesh();
@@ -252,9 +250,9 @@ public class Terrain : MonoBehaviour
         createTerrainKindTexture();
 
         sources = new HashSet<GameObject>();
-        addMineralSource(58.30429f, 29.32351f);
-        addMineralSource(111.672f, 40.14171f);
-        addMineralSource(34.15832f, 42.1265f);
+        //addMineralSource(58.30429f, 29.32351f);
+        //addMineralSource(111.672f, 40.14171f);
+        //addMineralSource(34.15832f, 42.1265f);
         //addMineralSource();
 
         //var baseObject = transform.Find("base").gameObject;
@@ -449,7 +447,23 @@ public class Terrain : MonoBehaviour
             {
                 var x = (int)(f.transform.position.x / SCALE);
                 var y = (int)(f.transform.position.z / SCALE);
-                water.waterLevel[x + y * TERRAIN_SIZE] += 1.0f;
+                water.waterLevel[x + y * TERRAIN_SIZE] += 0.3f;
+            } else if (BuildingHelper.getKind(f) == BuildingKind.pumpWithPipe)
+            {
+                var startX = (int)(f.transform.position.x / SCALE);
+                var startY = (int)(f.transform.position.z / SCALE);
+                var x = (int)(f.GetComponent<PumpWithPipe>().outX / Terrain.SCALE);
+                var y = (int)(f.GetComponent<PumpWithPipe>().outY / Terrain.SCALE);
+                var curLevel = water.waterLevel[startX + startY * TERRAIN_SIZE];
+                if (curLevel > 0.05f)
+                {
+                    water.waterLevel[startX + startY * TERRAIN_SIZE] -= 0.05f;
+                    water.waterLevel[x + y * TERRAIN_SIZE] += 0.05f;
+                } else
+                {
+                    water.waterLevel[x + y * TERRAIN_SIZE] = curLevel;
+                    water.waterLevel[startX + startY * TERRAIN_SIZE] = 0;
+                }
             }
         }
         updateBuildings();
@@ -492,10 +506,84 @@ public class Terrain : MonoBehaviour
         Destroy(floater);
     }
 
+    public void drawWallLine(Vector3 start, Vector3 end, bool remove = false)
+    {
+        var vec = new Vector3(end.x, 0, end.z) - new Vector3(start.x, 0, start.z);
+        if (vec == Vector3.zero)
+            return;
+        if (Mathf.Abs(vec.x) > Mathf.Abs(vec.z))
+        {
+            int startX, endX;
+            float startY, stepY;
+            if (start.x > end.x)
+            {
+                startX = (int)(end.x / Terrain.SCALE);
+                endX = (int)(start.x / Terrain.SCALE);// + 1;
+                stepY = (start.z - end.z) / (start.x - end.x);
+                startY = end.z / Terrain.SCALE - stepY * (end.x / Terrain.SCALE - startX);
+            }
+            else
+            {
+                startX = (int)(start.x / Terrain.SCALE);
+                endX = (int)(end.x / Terrain.SCALE);// + 1;
+                stepY = (end.z - start.z) / (end.x - start.x);
+                startY = start.z / Terrain.SCALE - stepY * (start.x / Terrain.SCALE - startX);
+            }
+            //fixChainLength(storage, endX - startX + 1, prefab);
+            int i = 0;
+            float y = startY;
+            for (int x = startX; x <= endX; x++)
+            {
+                //storage[i].transform.position = new Vector3(x * Terrain.SCALE, terrain.heightWater(x, (int)y), ((int)y) * Terrain.SCALE);
+                if (remove)
+                    removeWall(x, (int)(y));
+                else
+                    markWall(x, (int)y);
+                i++;
+                y += stepY;
+            }
+        }
+        else
+        {
+            int startY, endY;
+            float startX, stepX;
+            if (start.z > end.z)
+            {
+                startY = (int)(end.z / Terrain.SCALE);
+                endY = (int)(start.z / Terrain.SCALE);
+                stepX = (start.x - end.x) / (start.z - end.z);
+                startX = end.x / Terrain.SCALE - stepX * (end.z / Terrain.SCALE - startY);
+            }
+            else
+            {
+                startY = (int)(start.z / Terrain.SCALE);
+                endY = (int)(end.z / Terrain.SCALE);
+                stepX = (end.x - start.x) / (end.z - start.z);
+                startX = start.x / Terrain.SCALE - stepX * (start.z / Terrain.SCALE - startY);
+            }
+            //fixChainLength(storage, endY - startY + 1, prefab);
+            int i = 0;
+            float x = startX;
+            for (int y = startY; y <= endY; y++)
+            {
+                if (remove)
+                    removeWall((int)x, y);
+                else
+                    markWall((int)x, y);
+                //storage[i].transform.position = new Vector3(((int)x) * Terrain.SCALE, terrain.heightWater((int)x, (int)y), ((int)y) * Terrain.SCALE);
+                i++;
+                x += stepX;
+            }
+        }
+    }
+
     public void removeBuilding(GameObject building)
     {
-        if (building.GetComponent<Building>() != null && building.GetComponent<Building>().kind == BuildingKind.fence)
-            removeWall(building.transform.position.x / SCALE, building.transform.position.z / SCALE);
+        if (building.GetComponent<Building>() != null && building.GetComponent<Building>().kind == BuildingKind.wall)
+        {
+            var end = building.transform.position + building.transform.rotation * new Vector3(building.transform.localScale.x, 0, 0);
+            drawWallLine(building.transform.position, end, true);
+        }
         buildings.Remove(building);
         Destroy(building);
     }
@@ -508,20 +596,16 @@ public class Terrain : MonoBehaviour
         spawnBuilding(forgeSpec.prefab, new Vector3(90 * SCALE, 1f, 110 * SCALE), Quaternion.Euler(0, 0, 0), forgeSpec);
     }
 
-    public void markWall(float x, float y)
+    public void markWall(int x, int y)
     {
-        walls[(int)x + (int)y * TERRAIN_SIZE] = 1;
-        walls[(int)(x + 1) + (int)y * TERRAIN_SIZE] = 1;
-        walls[(int)x + (int)(y + 1) * TERRAIN_SIZE] = 1;
-        walls[(int)(x + 1) + (int)(y + 1) * TERRAIN_SIZE] = 1;
+        var doodad = Instantiate(doodadPrefab, transform.Find("doodads"));
+        doodad.transform.position = new Vector3(x * SCALE, heightWater(x, y), y * SCALE);
+        walls[x + y * TERRAIN_SIZE] = 1;
     }
 
-    void removeWall(float x, float y)
+    public void removeWall(int x, int y)
     {
-        walls[(int)x + (int)y * TERRAIN_SIZE] = 0;
-        walls[(int)(x + 1) + (int)y * TERRAIN_SIZE] = 0;
-        walls[(int)x + (int)(y + 1) * TERRAIN_SIZE] = 0;
-        walls[(int)(x + 1) + (int)(y + 1) * TERRAIN_SIZE] = 0;
+        //walls[x + y * TERRAIN_SIZE] = 0;
     }
 
     public void Update()
@@ -554,6 +638,7 @@ public class Terrain : MonoBehaviour
             s.waterFlowX.CopyFrom(water.waterFlowX);
             s.waterFlowY.CopyFrom(water.waterFlowY);
             s.walls.CopyFrom(walls);
+            s.mud.CopyFrom(water.mud);
             s_runner.Start(this, ref s, () =>
             {
                 s.waterFlowX.CopyTo(water.waterFlowX);
@@ -561,8 +646,9 @@ public class Terrain : MonoBehaviour
                 s.terrain.CopyTo(terrainHeight);
                 var d = infoDialog.GetComponent<Dialog>();
                 subLevel = s.subLevel[d.x + d.y * TERRAIN_SIZE];
-                water.updateWaterTexture(s.water);
+                water.updateWaterTexture(s.water, s.mud);
                 s.water.CopyTo(water.waterLevel);
+                s.mud.CopyTo(water.mud);
             });
             lastUpdate = 0.1f;
         }
