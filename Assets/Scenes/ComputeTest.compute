@@ -57,22 +57,23 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     float4 yellow = float4(1, 1, 0, 1);
 
     rng_state = uint(frac(_Time.x) * 0x7ffffff) + id.x + (id.y << 16);
-    
-    if (all(id.xy == Cursor.xy))
-    {
-        particlesOut[id.x + id.y * 2048] = 200;
-    }
+
+    int new_value = 0;
+    float4 new_color = float4(0, 0, 0, 1);
     
     int p = particlesIn[id.x + id.y * 2048];
     if (p > 0)
     {
-        particlesOut[id.x + id.y * 2048] = p - 1;
-        Result[id.xy] = yellow;
-        return;
+        new_value = p - 1;
+        new_color = yellow;
     }
-    
-    Result[id.xy] = float4(0, 0, 0, 1);
-    
+    if (all(id.xy == Cursor.xy))
+    {
+        new_value = 200;
+    }
+
+    particlesOut[id.x + id.y * 2048] = new_value;
+    Result[id.xy] = new_color;
     return;
     
     /*float4 col_left = Input[id.xy - uint2(1, 0)];
