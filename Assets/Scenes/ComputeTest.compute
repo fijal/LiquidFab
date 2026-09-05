@@ -38,15 +38,15 @@ float yellow_color(Texture2D<float4> tex, float2 pos)
     return tex[pos].r;
 }
 
-float diffuse(float cur, Texture2D<float4> inp, float2 pos)
+float diffuse(int cur, StructuredBuffer<int> p, int x, int y)
 {
-    if (pos.x < 0 || pos.y < 0 || pos.x > 2047 || pos.y > 2047)
+    if (x < 0 || y < 0 || x > 2047 || y > 2047)
         return 0;
-    float v = yellow_color(inp, pos);
+    //float v = yellow_color(inp, pos);
     //if (v < cur)
     //    return 0;
+    float v = p[x + y * 2048];
     return (v - cur) * 0.1;
-
 }
 
 [numthreads(8,8,1)]
@@ -55,6 +55,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     float4 green = float4(0, 1, 0, 1);
     float4 red = float4(1, 0, 0, 1);
     float4 yellow = float4(1, 1, 0, 1);
+    int total = 20000;
 
     rng_state = uint(frac(_Time.x) * 0x7ffffff) + id.x + (id.y << 16);
 
@@ -62,14 +63,16 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     float4 new_color = float4(0, 0, 0, 1);
     
     int p = particlesIn[id.x + id.y * 2048];
+    p += diffuse(p, particlesIn, (int) id.x - 1, (int) id.y) + diffuse(p, particlesIn, (int) id.x, (int) id.y - 1) +
+         diffuse(p, particlesIn, (int) id.x + 1, (int) id.y) + diffuse(p, particlesIn, (int) id.x - 1, (int) id.y + 1);
     if (p > 0)
     {
         new_value = p - 1;
-        new_color = yellow;
+        new_color = float4((float) p / total, (float) p / total, 0, 1);
     }
     if (all(id.xy == Cursor.xy))
     {
-        new_value = 200;
+        new_value = total;
     }
 
     particlesOut[id.x + id.y * 2048] = new_value;
