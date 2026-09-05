@@ -6,6 +6,7 @@
 RWTexture2D<float4> Result;
 Texture2D<float4> Input;
 float4 _Time;
+uint4 Cursor;
 
 uint rng_state;
 uint rand_pcg()
@@ -57,17 +58,24 @@ void CSMain (uint3 id : SV_DispatchThreadID)
         if (random_value() < 0.03)
             Result[id.xy] = float4(1, 0, 0, 1);
         else
-            Result[id.xy] = float4(0, 0, 0, 1);        
+            Result[id.xy] = float4(0, 0, 0, 1);
+        return;
+    }
+    if (all(id.xy == Cursor.xy))
+    {
+        Result[id.xy] = yellow;
         return;
     }
     float4 col_left = Input[id.xy - uint2(1, 0)];
     float4 col_bottom = Input[id.xy - uint2(0, 1)];
-    if (yellow_pixel(Input, id.xy - uint2(1, 0)) || yellow_pixel(Input, id.xy - uint2(0, 1)) || 
-        yellow_pixel(Input, id.xy + uint2(1, 0)) || yellow_pixel(Input, id.xy + uint2(0, 1)))
+    if (yellow_pixel(Input, id.xy - uint2(1, 0)) || yellow_pixel(Input, id.xy - uint2(0, 1)) ||
+        yellow_pixel(Input, id.xy + uint2(1, 0)) || yellow_pixel(Input, id.xy + uint2(0, 1)))//  ||
+        //yellow_pixel(Input, id.xy))
     {
         float v;
-        v = max(max(yellow_color(Input, id.xy - uint2(1, 0)), yellow_color(Input, id.xy - uint2(0, 1))),
-                max(yellow_color(Input, id.xy + uint2(1, 0)), yellow_color(Input, id.xy + uint2(0, 1))));
+        v = max(0,//yellow_color(Input, id.xy),
+                max(max(yellow_color(Input, id.xy - uint2(1, 0)), yellow_color(Input, id.xy - uint2(0, 1))),
+                max(yellow_color(Input, id.xy + uint2(1, 0)), yellow_color(Input, id.xy + uint2(0, 1)))));
         Result[id.xy] = float4(v - 0.01, v - 0.01, 0, 1);
         return;
     }

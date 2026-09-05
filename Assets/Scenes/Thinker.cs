@@ -24,11 +24,20 @@ public class Thinker : MonoBehaviour
     void Update()
     {
         RenderTexture b;
+        float scalex = (float)Screen.width / 2048;
+        float scaley = (float)Screen.height / 2048;
 
         b = tex2;
         tex2 = tex;
         tex = b;
         shader.SetVector("_Time", Shader.GetGlobalVector("_Time"));
+        if (Input.GetMouseButton(0))
+        {
+            shader.SetInts("Cursor", new int[] { (int)(Input.mousePosition.x / scalex), (int)(Input.mousePosition.y / scaley), 0, 0 });
+        } else
+        {
+            shader.SetInts("Cursor", new int[] { 2048, 2048, 0, 0 });
+        }
         shader.SetTexture(0, _ResultID, tex);
         shader.SetTexture(0, _InputID, tex2);
         shader.Dispatch(0, 2048 / 8, 2048 / 8, 1);
