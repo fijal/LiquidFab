@@ -17,7 +17,7 @@ public class Thinker : MonoBehaviour
         //tex = new RenderTexture(2000, 2000, 24);
         //tex.enableRandomWrite = true;
         tex = GetComponent<RawImage>().mainTexture as RenderTexture;
-        //tex2 = new RenderTexture(tex);
+        tex2 = new RenderTexture(tex);
         //shader.SetBuffer(0, _ResultID, tex);
         //Debug.Log()
         //Debug.Log(shader.FindKernel("CSMain"));
@@ -40,9 +40,9 @@ public class Thinker : MonoBehaviour
         float scalex = (float)Screen.width / 2048;
         float scaley = (float)Screen.height / 2048;
 
-        //b = tex2;
-        //tex2 = tex;
-        //tex = b;
+        b = tex2;
+        tex2 = tex;
+        tex = b;
         bb = part2;
         part2 = part;
         part = bb;
@@ -55,7 +55,7 @@ public class Thinker : MonoBehaviour
             shader.SetInts("Cursor", new int[] { 2048, 2048, 0, 0 });
         }
         shader.SetTexture(0, _ResultID, tex);
-        //shader.SetTexture(0, _InputID, tex2);
+        shader.SetTexture(0, _InputID, tex2);
         shader.SetBuffer(0, "particlesIn", part);
         shader.SetBuffer(0, "particlesOut", part2);
         shader.Dispatch(0, 2048 / 8, 2048 / 8, 1);

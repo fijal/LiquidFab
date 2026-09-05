@@ -4,7 +4,7 @@
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
 RWTexture2D<float4> Result;
-//Texture2D<float4> Input;
+Texture2D<float4> Input;
 StructuredBuffer<int> particlesIn;
 RWStructuredBuffer<int> particlesOut;
 float4 _Time;
@@ -62,13 +62,43 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     int new_value = 0;
     float4 new_color = float4(0, 0, 0, 1);
     
+    float4 col_left = Input[id.xy - uint2(1, 0)];
+    float4 col_bottom = Input[id.xy - uint2(0, 1)];
+    
     int p = particlesIn[id.x + id.y * 2048];
     p += diffuse(p, particlesIn, (int) id.x - 1, (int) id.y) + diffuse(p, particlesIn, (int) id.x, (int) id.y - 1) +
          diffuse(p, particlesIn, (int) id.x + 1, (int) id.y) + diffuse(p, particlesIn, (int) id.x, (int) id.y + 1);
     if (p > 0)
     {
         new_value = p - 1;
+        if (p < 1000)
+            new_value = 0;
         new_color = float4(saturate(10 * (float) p / total), saturate(10 * (float) p / total), 0, 1);
+    }
+    else
+    {
+        if (all(col_left == green) && all(col_bottom == red))
+        {
+            new_value = 10 * total;
+            new_color = yellow;
+        }
+        else if (all(col_left == green))
+        {
+            new_color = green;
+        }
+        else if (all(col_bottom == red))
+        {
+            new_color = red;
+        }
+        
+    }
+    if (id.y == 0 && random_value() < 0.03)
+    {
+        new_color = red;
+    }
+    else if (id.x == 0 && random_value() < 0.03)
+    {
+        new_color = green;
     }
     if (all(id.xy == Cursor.xy))
     {
@@ -78,8 +108,8 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     particlesOut[id.x + id.y * 2048] = new_value;
     Result[id.xy] = new_color;
     return;
-    
-    /*float4 col_left = Input[id.xy - uint2(1, 0)];
+    /*
+    float4 col_left = Input[id.xy - uint2(1, 0)];
     float4 col_bottom = Input[id.xy - uint2(0, 1)];
     if (all(col_left == green) && all(col_bottom == red))
     {
