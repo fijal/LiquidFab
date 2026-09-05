@@ -4,7 +4,9 @@
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
 RWTexture2D<float4> Result;
-Texture2D<float4> Input;
+//Texture2D<float4> Input;
+StructuredBuffer<int> particlesIn;
+RWStructuredBuffer<int> particlesOut;
 float4 _Time;
 uint4 Cursor;
 
@@ -36,6 +38,17 @@ float yellow_color(Texture2D<float4> tex, float2 pos)
     return tex[pos].r;
 }
 
+float diffuse(float cur, Texture2D<float4> inp, float2 pos)
+{
+    if (pos.x < 0 || pos.y < 0 || pos.x > 2047 || pos.y > 2047)
+        return 0;
+    float v = yellow_color(inp, pos);
+    //if (v < cur)
+    //    return 0;
+    return (v - cur) * 0.1;
+
+}
+
 [numthreads(8,8,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
@@ -44,7 +57,45 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     float4 yellow = float4(1, 1, 0, 1);
 
     rng_state = uint(frac(_Time.x) * 0x7ffffff) + id.x + (id.y << 16);
-
+    
+    if (all(id.xy == Cursor.xy))
+    {
+        particlesOut[id.x + id.y * 2048] = 200;
+    }
+    
+    int p = particlesIn[id.x + id.y * 2048];
+    if (p > 0)
+    {
+        particlesOut[id.x + id.y * 2048] = p - 1;
+        Result[id.xy] = yellow;
+        return;
+    }
+    
+    Result[id.xy] = float4(0, 0, 0, 1);
+    
+    return;
+    
+    /*float4 col_left = Input[id.xy - uint2(1, 0)];
+    float4 col_bottom = Input[id.xy - uint2(0, 1)];
+    if (all(col_left == green) && all(col_bottom == red))
+    {
+        Result[id.xy] = yellow;
+    }
+    else if (all(col_left == green))
+    {
+        Result[id.xy] = green;
+    }
+    else if (all(col_bottom == red))
+    {
+        Result[id.xy] = red;
+    }
+    else
+    {
+        Result[id.xy] = float4(0, 0, 0, 1);
+    }
+    
+    return;
+    
     if (id.x == 0)
     {
         if (random_value() < 0.03)
@@ -66,35 +117,25 @@ void CSMain (uint3 id : SV_DispatchThreadID)
         Result[id.xy] = yellow;
         return;
     }
-    float4 col_left = Input[id.xy - uint2(1, 0)];
-    float4 col_bottom = Input[id.xy - uint2(0, 1)];
+
     if (yellow_pixel(Input, id.xy - uint2(1, 0)) || yellow_pixel(Input, id.xy - uint2(0, 1)) ||
-        yellow_pixel(Input, id.xy + uint2(1, 0)) || yellow_pixel(Input, id.xy + uint2(0, 1)))//  ||
-        //yellow_pixel(Input, id.xy))
+        yellow_pixel(Input, id.xy + uint2(1, 0)) || yellow_pixel(Input, id.xy + uint2(0, 1))  ||
+        yellow_pixel(Input, id.xy))
     {
         float v;
-        v = max(0,//yellow_color(Input, id.xy),
-                max(max(yellow_color(Input, id.xy - uint2(1, 0)), yellow_color(Input, id.xy - uint2(0, 1))),
-                max(yellow_color(Input, id.xy + uint2(1, 0)), yellow_color(Input, id.xy + uint2(0, 1)))));
-        Result[id.xy] = float4(v - 0.01, v - 0.01, 0, 1);
+        float cur = yellow_color(Input, id.xy);
+        v = max(0, yellow_color(Input, id.xy) - 0.001);
+        v += diffuse(cur, Input, id.xy - uint2(1, 0));
+        v += diffuse(cur, Input, id.xy + uint2(1, 0));
+        v += diffuse(cur, Input, id.xy - uint2(0, 1));
+        v += diffuse(cur, Input, id.xy + uint2(0, 1));
+        
+        //        max(max(yellow_color(Input, id.xy - uint2(1, 0)), yellow_color(Input, id.xy - uint2(0, 1))),
+        //        max(yellow_color(Input, id.xy + uint2(1, 0)), yellow_color(Input, id.xy + uint2(0, 1)))));
+        Result[id.xy] = float4(v, v, 0, 1);
         return;
-    }
-    if (all(col_left == green) && all(col_bottom == red))
-    {
-        Result[id.xy] = yellow;
-    }
-    else if (all(col_left == green))
-    {
-        Result[id.xy] = green;
-    }
-    else if (all(col_bottom == red))
-    {
-        Result[id.xy] = red;
-    }
-    else
-    {
-        Result[id.xy] = float4(0, 0, 0, 1);
-    }
+    }*/
+
 
 // Result[id.xy] = Input[id.xy];
     // float4(0, (float) id.x / 2048, (float) id.y / 2048, 0);
