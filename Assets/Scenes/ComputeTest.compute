@@ -55,7 +55,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     float4 green = float4(0, 1, 0, 1);
     float4 red = float4(1, 0, 0, 1);
     float4 yellow = float4(1, 1, 0, 1);
-    int total = 20000;
+    int total = 2000000;
 
     rng_state = uint(frac(_Time.x) * 0x7ffffff) + id.x + (id.y << 16);
 
@@ -64,11 +64,11 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     
     int p = particlesIn[id.x + id.y * 2048];
     p += diffuse(p, particlesIn, (int) id.x - 1, (int) id.y) + diffuse(p, particlesIn, (int) id.x, (int) id.y - 1) +
-         diffuse(p, particlesIn, (int) id.x + 1, (int) id.y) + diffuse(p, particlesIn, (int) id.x - 1, (int) id.y + 1);
+         diffuse(p, particlesIn, (int) id.x + 1, (int) id.y) + diffuse(p, particlesIn, (int) id.x, (int) id.y + 1);
     if (p > 0)
     {
         new_value = p - 1;
-        new_color = float4((float) p / total, (float) p / total, 0, 1);
+        new_color = float4(saturate(10 * (float) p / total), saturate(10 * (float) p / total), 0, 1);
     }
     if (all(id.xy == Cursor.xy))
     {
