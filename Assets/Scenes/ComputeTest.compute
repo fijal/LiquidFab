@@ -92,11 +92,11 @@ void CSMain (uint3 id : SV_DispatchThreadID)
         }
         
     }
-    if (id.y == 0 && random_value() < 0.03)
+    if (id.y == 0 && random_value() < 0.003)
     {
         new_color = red;
     }
-    else if (id.x == 0 && random_value() < 0.03)
+    else if (id.x == 0 && random_value() < 0.003)
     {
         new_color = green;
     }

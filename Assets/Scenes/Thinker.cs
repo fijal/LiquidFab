@@ -60,5 +60,7 @@ public class Thinker : MonoBehaviour
         shader.SetBuffer(0, "particlesOut", part2);
         shader.Dispatch(0, 2048 / 8, 2048 / 8, 1);
         GetComponent<RawImage>().material.SetTexture("_MainTex", tex);
+        if (Input.GetKeyDown(KeyCode.Escape))
+            Application.Quit();
     }
 }
