@@ -577,7 +577,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f5a2cb1baee31741a29283b5fd2f55c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shader: {fileID: 7200000, guid: aa9be81bd9b9a8b4593eb1bdb9eb3cbb, type: 3}
+  shader: {fileID: 7200000, guid: 3e72be3ee134b3e41bb87a4ce3757324, type: 3}
+  clear: {fileID: 7200000, guid: 0d7f96d187528c8438eba8b0624915d3, type: 3}
   tex: {fileID: 0}
   tex2: {fileID: 0}
 --- !u!1660057539 &9223372036854775807

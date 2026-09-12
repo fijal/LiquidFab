@@ -1,0 +1,97 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+
+RWTexture2D<float4> Result;
+Texture2D<float4> Input;
+StructuredBuffer<float4> particlesIn; // x, y position z, w heading
+RWStructuredBuffer<float4> particlesOut;
+
+float4 _Time;
+uint4 Cursor;
+
+#define PI 3.1415
+
+uint rng_state;
+uint rand_pcg()
+{
+    rng_state = rng_state * 747796405u + 2891336453u;
+    uint word = ((rng_state >> ((rng_state >> 28u) + 4u)) ^ rng_state) * 277803737u;
+    return (word >> 22u) ^ word;
+}
+float random_value()
+{
+    return rand_pcg() * (1.0 / 0xffffffff);
+}
+
+float2 sampleGaussBoxMuller(float2 u, float mean, float standardDeviation)
+{
+    // Prevent log(0)
+    float u1 = max(u.x, 1e-7);
+    float r = standardDeviation * sqrt(-2.0 * log(u1));
+    float theta = 6.28318530718 * u.y; // 2 * PI
+    
+    float gaussValue0 = r * cos(theta) + mean;
+    float gaussValue1 = r * sin(theta) + mean;
+    
+    return float2(gaussValue0, gaussValue1);
+}
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    rng_state = uint(frac(_Time.x) * 0x7ffffff) + id.x + (id.y << 16);
+
+    float4 new_color = float4(0, 0, 0, 1);
+    float4 cur = Input[id.xy];
+    if (all(id.xy == Cursor.xy))
+    {
+        for (int i = 0; i < 5; i++)
+        {
+            float ang = random_value() * 2 * PI;
+            float dx = sin(ang) * 3;
+            float dy = cos(ang) * 3;
+            int newPos = (int) (int((float) id.x + dx) + int((float) id.y + dy) * 2048);
+            Result[uint2((float) id.x + dx, (float) id.y + dy)] = float4(1, 1, 1, 1);
+            particlesOut[newPos] = float4(id.x + dx, id.y + dy, (float) dx, (float) dy);
+        }
+    }
+    else if (all(Input[id.xy] == float4(1, 1, 1, 1)))
+    {
+        float newX = particlesIn[id.x + id.y * 2048].x + particlesIn[id.x + id.y * 2048].z;
+        float newY = particlesIn[id.x + id.y * 2048].y + particlesIn[id.x + id.y * 2048].w;
+        if (newX >= 0 && newX < 2048 && newY >= 0 && newY < 2048)
+        {
+            int newPos = (int) newX + ((int) newY) * 2048;
+            float curX = particlesIn[id.x + id.y * 2048].z;
+            float curY = particlesIn[id.x + id.y * 2048].w;
+            if (random_value() < 0.1)
+            {
+                float ang = atan2(curX, curY);
+                float smallAng = (random_value() - 0.5) * PI / 10;
+                curX = sin(ang + smallAng) * 3;
+                curY = cos(ang + smallAng) * 3;
+            }
+            particlesOut[newPos] = float4(newX, newY, curX, curY);
+            Result[uint2(newX, newY)] = float4(1, 1, 1, 1);
+        }
+        Result[id.xy] = float4(1, 1, 0, 1);
+        //new_color = float4(0, 0, 0, 1);
+    }
+    else if (cur.r == cur.g && cur.b == 0 && cur.r > 0)
+    {
+        if (cur.r < 0.02)
+            Result[id.xy] = float4(1, 0, 0, 1);
+        else
+            Result[id.xy] = float4(cur.r - 0.01, cur.g - 0.01, 0, 1);
+    } else if (cur.r > 0 && cur.g == 0 && cur.b == 0)
+    {
+        Result[id.xy] = float4(cur.r - 0.01, 0, 0, 1);
+    }
+    //{
+    
+    //if (all(Result[id.xy))
+    //if (!all(Input[id.xy] == float4(1, 1, 1, 1)) && !all(Result[id.xy] == float4(1, 1, 1, 1)))
+    //    Result[id.xy] = new_color;
+    //}
+}
