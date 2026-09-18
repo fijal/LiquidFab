@@ -1,7 +1,5 @@
 #pragma kernel CSMain
 
-#define nKinds 4
-
 struct Particle
 {
     float2 position;
@@ -12,9 +10,10 @@ struct Particle
 RWStructuredBuffer<Particle> Particles;
 StructuredBuffer<float> attraction; // nColors x nColors
 int textureSize;
+int nColors;
 
 #define MINDIST 5
-#define MAXDIST 200
+#define MAXDIST 150
 #define PEAKDIST 20
 
 float2 calculateForce(float difX, float difY, float factor, float sDist, Particle p1, Particle p2)
@@ -58,7 +57,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     float difX = wrappedDiff(p1.position.x, p2.position.x);
     float difY = wrappedDiff(p1.position.y, p2.position.y);
     float dist = difX * difX + difY * difY;
-    float v = attraction[p1.kind * 4 + p2.kind];
+    float v = attraction[p1.kind * nColors + p2.kind];
     float2 force = calculateForce(difX, difY, v, dist, p1, p2);
     Particles[id.x].speed += force;
 }

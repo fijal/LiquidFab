@@ -12,6 +12,7 @@ RWTexture2D<float4> Result;
 StructuredBuffer<float4> colors;
 float4 _Time;
 int textureSize;
+int nColors;
 
 uint rng_state;
 uint rand_pcg()
@@ -50,7 +51,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     if (Particles[id.x].position.y >= textureSize)
         Particles[id.x].position.y -= textureSize;
     Particles[id.x].speed *= 0.99;
-    /*if (((_Time.y % 60 > 30 && part.position.x < 1024) || (_Time.y % 60 <= 30 && part.position.x > 1024))  && random_value() < 0.001)
+    /*if (((_Time.y % 60 > 30 && part.position.x < textureSize / 2) || (_Time.y % 60 <= 30 && part.position.x > textureSize / 2))  && random_value() < 0.001)
     {
         Particles[id.x].speed.x += (random_value() - 0.5)  * 5;
         Particles[id.x].speed.y += (random_value() - 0.5)  * 5;
