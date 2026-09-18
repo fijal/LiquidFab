@@ -10,23 +10,15 @@ struct Particle
 };
 
 RWStructuredBuffer<Particle> Particles;
-StructuredBuffer<float> attraction; // 4x4
+StructuredBuffer<float> attraction; // nColors x nColors
+int textureSize;
 
-float sqrDistance(Particle p1, Particle p2)
-{
-    float difX = p1.position.x - p2.position.x;
-    float difY = p1.position.y - p2.position.y;
-    return difX * difX + difY * difY;
-}
-
-#define MINDIST 20
+#define MINDIST 5
 #define MAXDIST 200
-#define PEAKDIST 40
+#define PEAKDIST 20
 
-float2 calculateForce(float factor, float sDist, Particle p1, Particle p2)
+float2 calculateForce(float difX, float difY, float factor, float sDist, Particle p1, Particle p2)
 {
-    float difX = p1.position.x - p2.position.x;
-    float difY = p1.position.y - p2.position.y;
     float dist = sqrt(sDist);
     float force = 0;
     if (dist < MINDIST)
@@ -41,7 +33,19 @@ float2 calculateForce(float factor, float sDist, Particle p1, Particle p2)
     {
         force = factor * 0.02 * (PEAKDIST - MINDIST) - 0.001 * (dist - PEAKDIST);
     }
-    return float2(0.01 * force * difX / dist, 0.01 * force * difY / dist);
+    return float2(0.002 * force * difX / dist, 0.002 * force * difY / dist);
+}
+
+float wrappedDiff(float p1, float p2)
+{
+    float r = p1 - p2;
+    float c1 = p1 - p2 + 2048;
+    float c2 = p1 - p2 - 2048;
+    if (abs(c1) < abs(r))
+        r = c1;
+    if (abs(c2) < abs(r))
+        r = c2;
+    return r;
 }
 
 [numthreads(8,8,1)]
@@ -49,11 +53,12 @@ void CSMain (uint3 id : SV_DispatchThreadID)
 {
     if (id.x == id.y)
         return;
-    Particle part1 = Particles[id.x];
-    Particle part2 = Particles[id.y];
-    float dist = sqrDistance(part1, part2);
-    float sDist = 1; // sqrt(dist);
-    float v = attraction[part1.kind * 4 + part2.kind];
-    float2 force = calculateForce(v, dist, part1, part2);
+    Particle p1 = Particles[id.x];
+    Particle p2 = Particles[id.y];
+    float difX = wrappedDiff(p1.position.x, p2.position.x);
+    float difY = wrappedDiff(p1.position.y, p2.position.y);
+    float dist = difX * difX + difY * difY;
+    float v = attraction[p1.kind * 4 + p2.kind];
+    float2 force = calculateForce(difX, difY, v, dist, p1, p2);
     Particles[id.x].speed += force;
 }

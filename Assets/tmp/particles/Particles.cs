@@ -8,7 +8,8 @@ public class Particles : MonoBehaviour
     Vector4[] colors;
     float[] attraction;
 
-    static int nParticles = 1024 * 10;
+    static int nParticles = 1024 * 20;
+    static int textureSize = 2048;
     ComputeBuffer partBuf, colorBuf, attrBuf;
 
     static int _ResultID = Shader.PropertyToID("Result");
@@ -16,6 +17,7 @@ public class Particles : MonoBehaviour
     static int _colorsID = Shader.PropertyToID("colors");
     static int _TimeID = Shader.PropertyToID("_Time");
     static int _attractionID = Shader.PropertyToID("attraction");
+    static int _textureSizeID = Shader.PropertyToID("textureSize");
     
     [StructLayout(LayoutKind.Sequential)]
     struct Particle
@@ -45,8 +47,8 @@ public class Particles : MonoBehaviour
         for (int i = 0; i < nParticles; i++)
         {
             particles[i].position = new Vector2(
-                Random.Range(0f, 2048f),
-                Random.Range(0f, 2048f));
+                Random.Range(0f, (float)textureSize),
+                Random.Range(0f, (float)textureSize));
             particles[i].kind = Random.Range(0, 4);
             particles[i].speed = new Vector2(Random.Range(-2f, 2f), Random.Range(-2f, 2f));
         }
@@ -59,17 +61,19 @@ public class Particles : MonoBehaviour
         colorBuf.SetData(colors);
         attrBuf.SetData(attraction);
         shader.SetBuffer(0, _ParticlesID, partBuf);
+        shader.SetInt(_textureSizeID, textureSize);
         shader.SetTexture(0, _ResultID, GetComponent<RawImage>().mainTexture);
         shader.SetBuffer(0, _colorsID, colorBuf);
         clear.SetTexture(0, _ResultID, GetComponent<RawImage>().mainTexture);
-        clear.Dispatch(0, 2048 / 8, 2048 / 8, 1);
+        clear.Dispatch(0, textureSize / 8, textureSize / 8, 1);
         simulationStep.SetBuffer(0, _ParticlesID, partBuf);
         simulationStep.SetBuffer(0, _attractionID, attrBuf);
+        simulationStep.SetInt(_textureSizeID, textureSize);
     }
 
     void Update()
     {
-        clear.Dispatch(0, 2048 / 8, 2048 / 8, 1);
+        clear.Dispatch(0, textureSize / 8, textureSize / 8, 1);
         simulationStep.Dispatch(0, nParticles / 8, nParticles / 8, 1);
         shader.SetVector(_TimeID, Shader.GetGlobalVector("_Time"));
         shader.Dispatch(0, nParticles / 32, 1, 1);
