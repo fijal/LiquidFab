@@ -3,12 +3,30 @@
 
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
-RWTexture2D<float4> Result;
+RWStructuredBuffer<int4> Field;
+StructuredBuffer<float4> particles;
+Texture2D<float4> part;
+
+void setField(int x, int y, float v)
+{
+    if (x < 0 || y < 0 || x >= 2048 || y >= 2048)
+        return;
+    InterlockedAdd(Field[x + y * 2048].x, (int) (v * 30000));
+
+}
 
 [numthreads(8,8,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
-    // TODO: insert actual code here!
+    if (all(part[id.xy] == float4(1, 1, 1, 1)))
+    {
+        for (int x = -3; x <= 3; x++)
+            for (int y = -3; y <= 3; y++)
+            {
+                float dist = 1 / sqrt((float) x * x + y * y);
+                setField(x + id.x, y + id.y, dist);
+                //InterlockedAdd(Field[id.x + id.y * 2048])
+            }
 
-    Result[id.xy] = float4(id.x & id.y, (id.x & 15)/15.0, (id.y & 15)/15.0, 0.0);
+    }
 }

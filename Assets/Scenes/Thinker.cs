@@ -29,11 +29,12 @@ public class SwappingBuffer
 
 public class Thinker : MonoBehaviour
 {
-    public ComputeShader shader;
-    public ComputeShader clear;
+    public ComputeShader shader, fieldCalc;
+    public ComputeShader clear, clearBuf;
     public RenderTexture tex, tex2;
 
     SwappingBuffer particles;
+    ComputeBuffer field;
 
     static int _ResultID = Shader.PropertyToID("Result");
     static int _InputID = Shader.PropertyToID("Input");
@@ -42,6 +43,7 @@ public class Thinker : MonoBehaviour
     void Start()
     {
         particles = new SwappingBuffer(2048);
+        field = new ComputeBuffer(2048 * 2048, 4 * 4);
         //tex = new RenderTexture(2000, 2000, 24);
         //tex.enableRandomWrite = true;
         tex = GetComponent<RawImage>().mainTexture as RenderTexture;
@@ -65,6 +67,13 @@ public class Thinker : MonoBehaviour
 
         clear.SetTexture(0, "Result", tex);
         clear.Dispatch(0, 2048 / 8, 2048 / 8, 1);
+        clearBuf.SetBuffer(0, "Result", field);
+        clearBuf.Dispatch(0, 2048 / 8, 2048 / 8, 1);
+
+        fieldCalc.SetBuffer(0, "Field", field);
+        fieldCalc.SetBuffer(0, "Particles", particles.buf2);
+        fieldCalc.SetTexture(0, "part", tex2);
+        fieldCalc.Dispatch(0, 2048 / 8, 2048 / 8, 1);
 
         shader.SetVector("_Time", Shader.GetGlobalVector("_Time"));
         if (Input.GetMouseButton(0))
@@ -78,6 +87,7 @@ public class Thinker : MonoBehaviour
         shader.SetTexture(0, _InputID, tex2);
         shader.SetBuffer(0, "particlesIn", particles.buf);
         shader.SetBuffer(0, "particlesOut", particles.buf2);
+        shader.SetBuffer(0, "field", field);
         shader.Dispatch(0, 2048 / 8, 2048 / 8, 1);
         particles.swap();
         //Debug.Log(shader)

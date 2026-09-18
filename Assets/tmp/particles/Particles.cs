@@ -1,0 +1,77 @@
+using System.Runtime.InteropServices;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class Particles : MonoBehaviour
+{
+    public ComputeShader shader, clear, simulationStep;
+    Vector4[] colors;
+    float[] attraction;
+
+    static int nParticles = 1024 * 10;
+    ComputeBuffer partBuf, colorBuf, attrBuf;
+
+    static int _ResultID = Shader.PropertyToID("Result");
+    static int _ParticlesID = Shader.PropertyToID("Particles");
+    static int _colorsID = Shader.PropertyToID("colors");
+    static int _TimeID = Shader.PropertyToID("_Time");
+    static int _attractionID = Shader.PropertyToID("attraction");
+    
+    [StructLayout(LayoutKind.Sequential)]
+    struct Particle
+    {
+        public Vector2 position;
+        public Vector2 speed;
+        public int kind;
+    }
+
+    Particle[] particles;
+
+    void Start()
+    {
+        colors = new Vector4[4] { new Vector4(1, 0, 0, 1), new Vector4(0, 1, 0, 1), new Vector4(0, 0, 1, 1), new Vector4(1, 1, 0, 1)};
+        particles = new Particle[nParticles];
+        attraction = new float[4 * 4];
+
+        for (int i = 0; i < 4 * 4; i++)
+        {
+            attraction[i] = Random.Range(-1.0f, 1.0f);
+        }
+        /*attraction[0] = 1.0f;
+        attraction[1 + 4] = 1.0f;
+        attraction[2 + 2 * 4] = 1.0f;
+        attraction[3 + 3 * 4] = 1.0f;*/
+
+        for (int i = 0; i < nParticles; i++)
+        {
+            particles[i].position = new Vector2(
+                Random.Range(0f, 2048f),
+                Random.Range(0f, 2048f));
+            particles[i].kind = Random.Range(0, 4);
+            particles[i].speed = new Vector2(Random.Range(-2f, 2f), Random.Range(-2f, 2f));
+        }
+
+        partBuf = new ComputeBuffer(nParticles, 4 * (2 + 2 + 1));
+        colorBuf = new ComputeBuffer(colors.Length, 4 * 4);
+        attrBuf = new ComputeBuffer(4 * 4, 4);
+
+        partBuf.SetData(particles);
+        colorBuf.SetData(colors);
+        attrBuf.SetData(attraction);
+        shader.SetBuffer(0, _ParticlesID, partBuf);
+        shader.SetTexture(0, _ResultID, GetComponent<RawImage>().mainTexture);
+        shader.SetBuffer(0, _colorsID, colorBuf);
+        clear.SetTexture(0, _ResultID, GetComponent<RawImage>().mainTexture);
+        clear.Dispatch(0, 2048 / 8, 2048 / 8, 1);
+        simulationStep.SetBuffer(0, _ParticlesID, partBuf);
+        simulationStep.SetBuffer(0, _attractionID, attrBuf);
+    }
+
+    void Update()
+    {
+        clear.Dispatch(0, 2048 / 8, 2048 / 8, 1);
+        simulationStep.Dispatch(0, nParticles / 8, nParticles / 8, 1);
+        shader.SetVector(_TimeID, Shader.GetGlobalVector("_Time"));
+        shader.Dispatch(0, nParticles / 32, 1, 1);
+    }
+}

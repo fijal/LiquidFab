@@ -1,0 +1,59 @@
+#pragma kernel CSMain
+
+#define nKinds 4
+
+struct Particle
+{
+    float2 position;
+    float2 speed;
+    int kind;
+};
+
+RWStructuredBuffer<Particle> Particles;
+StructuredBuffer<float> attraction; // 4x4
+
+float sqrDistance(Particle p1, Particle p2)
+{
+    float difX = p1.position.x - p2.position.x;
+    float difY = p1.position.y - p2.position.y;
+    return difX * difX + difY * difY;
+}
+
+#define MINDIST 20
+#define MAXDIST 200
+#define PEAKDIST 40
+
+float2 calculateForce(float factor, float sDist, Particle p1, Particle p2)
+{
+    float difX = p1.position.x - p2.position.x;
+    float difY = p1.position.y - p2.position.y;
+    float dist = sqrt(sDist);
+    float force = 0;
+    if (dist < MINDIST)
+    {
+        force = -0.03 * (dist - MINDIST);
+    }
+    else if (dist < PEAKDIST)
+    {
+        force = factor * 0.02 * (dist - MINDIST);
+    }
+    else if (dist < MAXDIST)
+    {
+        force = factor * 0.02 * (PEAKDIST - MINDIST) - 0.001 * (dist - PEAKDIST);
+    }
+    return float2(0.01 * force * difX / dist, 0.01 * force * difY / dist);
+}
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    if (id.x == id.y)
+        return;
+    Particle part1 = Particles[id.x];
+    Particle part2 = Particles[id.y];
+    float dist = sqrDistance(part1, part2);
+    float sDist = 1; // sqrt(dist);
+    float v = attraction[part1.kind * 4 + part2.kind];
+    float2 force = calculateForce(v, dist, part1, part2);
+    Particles[id.x].speed += force;
+}

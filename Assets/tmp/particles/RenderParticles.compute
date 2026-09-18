@@ -1,0 +1,57 @@
+#pragma kernel CSMain
+
+struct Particle
+{
+    float2 position;
+    float2 speed;
+    int kind;
+};
+
+RWStructuredBuffer<Particle> Particles;
+RWTexture2D<float4> Result;
+StructuredBuffer<float4> colors;
+float4 _Time;
+
+uint rng_state;
+uint rand_pcg()
+{
+    rng_state = rng_state * 747796405u + 2891336453u;
+    uint word = ((rng_state >> ((rng_state >> 28u) + 4u)) ^ rng_state) * 277803737u;
+    return (word >> 22u) ^ word;
+}
+float random_value()
+{
+    return rand_pcg() * (1.0 / 0xffffffff);
+}
+
+[numthreads(32,1,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    rng_state = uint(frac(_Time.x) * 0x7ffffff) + id.x + (id.y << 16);
+    
+    Particle part = Particles[id.x];
+    // TODO: insert actual code here!
+    int posX = part.position.x;
+    int posY = part.position.y;
+    for (int x = -3; x <= 3; x++)
+        for (int y = -3; y <= 3; y++)
+            if (x*x + y*y <= 3*3)
+                Result[int2(posX + x, posY + y)] = colors[part.kind];
+    
+    Particles[id.x].position.x += part.speed.x;
+    Particles[id.x].position.y += part.speed.y;
+    if (Particles[id.x].position.x < 0)
+        Particles[id.x].position.x += 2048;
+    if (Particles[id.x].position.y < 0)
+        Particles[id.x].position.y += 2048;
+    if (Particles[id.x].position.x >= 2048)
+        Particles[id.x].position.x -= 2048;
+    if (Particles[id.x].position.y >= 2048)
+        Particles[id.x].position.y -= 2048;
+    Particles[id.x].speed *= 0.995;
+    /*if (((_Time.y % 60 > 30 && part.position.x < 1024) || (_Time.y % 60 <= 30 && part.position.x > 1024))  && random_value() < 0.001)
+    {
+        Particles[id.x].speed.x += (random_value() - 0.5)  * 5;
+        Particles[id.x].speed.y += (random_value() - 0.5)  * 5;
+    }*/
+}
