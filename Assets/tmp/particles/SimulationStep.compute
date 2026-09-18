@@ -18,6 +18,12 @@ int nColors;
 
 float2 calculateForce(float difX, float difY, float factor, float sDist, Particle p1, Particle p2)
 {
+    if (sDist == 0)
+    {
+        sDist = 1;
+        difX = 1;
+        difY = 0;
+    }
     float dist = sqrt(sDist);
     float force = 0;
     if (dist < MINDIST)
