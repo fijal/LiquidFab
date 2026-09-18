@@ -82,5 +82,7 @@ public class Particles : MonoBehaviour
         simulationStep.Dispatch(0, nParticles / 8, nParticles / 8, 1);
         shader.SetVector(_TimeID, Shader.GetGlobalVector("_Time"));
         shader.Dispatch(0, nParticles / 32, 1, 1);
+        if (Input.GetKeyDown(KeyCode.Escape))
+            Application.Quit();
     }
 }
