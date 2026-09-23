@@ -4,15 +4,18 @@ struct Particle
 {
     float2 position;
     float2 speed;
+    int bond1, bond2;
     int kind;
 };
 
 RWStructuredBuffer<Particle> Particles;
 RWTexture2D<float4> Result;
 StructuredBuffer<float4> colors;
+StructuredBuffer<float> field;
 float4 _Time;
 int textureSize;
 int nColors;
+float2 spawnPoint;
 
 uint rng_state;
 uint rand_pcg()
@@ -25,6 +28,8 @@ float random_value()
 {
     return rand_pcg() * (1.0 / 0xffffffff);
 }
+
+#define FRICTION 0.01
 
 [numthreads(32,1,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
@@ -39,6 +44,12 @@ void CSMain (uint3 id : SV_DispatchThreadID)
         for (int y = -1; y <= 1; y++)
             if (x*x + y*y <= 1)
                 Result[int2(posX + x, posY + y)] = colors[part.kind];
+    if (part.bond1 != -1)
+    {
+        Particle part2 = Particles[part.bond1];
+        float2 mid = (part.position + part2.position) / 2;
+        Result[int2(mid)] = float4(0, 1, 0, 1);
+    }
     
     Particles[id.x].position.x += part.speed.x;
     Particles[id.x].position.y += part.speed.y;
@@ -49,11 +60,29 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     if (Particles[id.x].position.x >= textureSize)
         Particles[id.x].position.x -= textureSize;
     if (Particles[id.x].position.y >= textureSize)
-        Particles[id.x].position.y -= textureSize;
-    Particles[id.x].speed *= 0.98;
+        Particles[id.x].position.y -= textureSize; // wrapping
+    /*if (part.position.x < 0 || part.position.y < 0 || part.position.x >= textureSize || part.position.y >= textureSize)
+    {
+        Particles[id.x].position = spawnPoint;
+        if (random_value() < 0.5)
+        {
+            Particles[id.x].position.x -= 500;
+        }
+        if (random_value() < 0.5)
+        {
+            Particles[id.x].position.y -= 500;
+        }
+        Particles[id.x].kind = int(random_value() * nColors);
+        Particles[id.x].speed = float2(0, 0);
+
+    }*/ // despawning
+    Particles[id.x].speed *= (1 - FRICTION);
+    //Particles[id.x].speed.x += field[2 * (posX + posY * textureSize)];
+    //Particles[id.x].speed.y += field[2 * (posX + posY * textureSize) + 1];
+    
     /*if (((_Time.y % 60 > 30 && part.position.x < textureSize / 2) || (_Time.y % 60 <= 30 && part.position.x > textureSize / 2))  && random_value() < 0.001)
     {
-        Particles[id.x].speed.x += (random_value() - 0.5)  * 5;
-        Particles[id.x].speed.y += (random_value() - 0.5)  * 5;
+        Particles[id.x].speed.x += (random_value() - 0.5)  * 15;
+        Particles[id.x].speed.y += (random_value() - 0.5)  * 15;
     }*/
 }
