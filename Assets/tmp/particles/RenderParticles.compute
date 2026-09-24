@@ -57,15 +57,15 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     
     Particles[id.x].position.x += ((float) part.speed.x) / 32768;
     Particles[id.x].position.y += ((float) part.speed.y) / 32768;
-    if (Particles[id.x].position.x < 0)
+    /*if (Particles[id.x].position.x < 0)
         Particles[id.x].position.x += textureSize;
     if (Particles[id.x].position.y < 0)
         Particles[id.x].position.y += textureSize;
     if (Particles[id.x].position.x >= textureSize)
         Particles[id.x].position.x -= textureSize;
     if (Particles[id.x].position.y >= textureSize)
-        Particles[id.x].position.y -= textureSize; // wrapping
-    /*if (part.position.x < 0 || part.position.y < 0 || part.position.x >= textureSize || part.position.y >= textureSize)
+        Particles[id.x].position.y -= textureSize;*/ // wrapping
+    if (part.position.x < 0 || part.position.y < 0 || part.position.x >= textureSize || part.position.y >= textureSize)
     {
         Particles[id.x].position = spawnPoint;
         if (random_value() < 0.5)
@@ -78,11 +78,13 @@ void CSMain (uint3 id : SV_DispatchThreadID)
         }
         Particles[id.x].kind = int(random_value() * nColors);
         Particles[id.x].speed = float2(0, 0);
+        Particles[id.x].bond1 = -1;
+        Particles[id.x].bond2 = -1;
 
-    }*/ // despawning
+    } // despawning
     Particles[id.x].speed *= (1 - FRICTION);
-    //Particles[id.x].speed.x += field[2 * (posX + posY * textureSize)];
-    //Particles[id.x].speed.y += field[2 * (posX + posY * textureSize) + 1];
+    Particles[id.x].speed.x += (int) (field[2 * (posX + posY * textureSize)] * 32768);
+    Particles[id.x].speed.y += (int) (field[2 * (posX + posY * textureSize) + 1] * 32768);
     
     /*if (((_Time.y % 60 > 30 && part.position.x < textureSize / 2) || (_Time.y % 60 <= 30 && part.position.x > textureSize / 2))  && random_value() < 0.001)
     {
