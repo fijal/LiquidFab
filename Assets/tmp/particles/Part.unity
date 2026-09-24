@@ -269,6 +269,7 @@ MonoBehaviour:
   shader: {fileID: 7200000, guid: 09fdc4b365685e244a31a09247d6b828, type: 3}
   clear: {fileID: 7200000, guid: 0d7f96d187528c8438eba8b0624915d3, type: 3}
   simulationStep: {fileID: 7200000, guid: 6e1c164e23390004bb7af1d6a77033bc, type: 3}
+  counter: {fileID: 7200000, guid: c39d6c7ee24d9bc48935cb74e4bd83fa, type: 3}
   terrainData: {fileID: 4900000, guid: 489079a54da551c4d8d36636acb71de6, type: 3}
 --- !u!114 &792848028
 MonoBehaviour:

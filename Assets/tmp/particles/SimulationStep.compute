@@ -3,7 +3,7 @@
 struct Particle
 {
     float2 position;
-    float2 speed;
+    int2 speed;
     int bond1, bond2;
     int kind;
 };
@@ -14,10 +14,10 @@ int textureSize;
 int nColors;
 
 #define REACTIONDIST 10
-#define MINDIST 30
+#define MINDIST 15
 #define MAXDIST 150
-#define PEAKDIST 50
-#define PEAKFORCE 0.1
+#define PEAKDIST 25
+#define PEAKFORCE 0.05
 
 float2 calculateForce(float difX, float difY, float factor, float sDist)
 {
@@ -42,17 +42,13 @@ float2 calculateForce(float difX, float difY, float factor, float sDist)
         float factor2 = (dist - PEAKDIST) / (MAXDIST - PEAKDIST);
         force = -factor * PEAKFORCE * (1 - factor2 * factor2);
     }
-    return float2(0, 0);
-    return float2(0.002 * force * difX / dist, 0.002 * force * difY / dist);
+    return float2(0.02 * force * difX / dist, 0.02 * force * difY / dist);
 }
 
 float2 springForce(float difX, float difY, float sDist)
 {
     float dist = sqrt(sDist);
-    float force = -dist / MINDIST;
-    //if (dist > MINDIST)
-    //    force = -force;
-    //return float2(0, 0);
+    float force = (MINDIST - dist) / MINDIST;
     return float2(0.014 * force * difX / dist, 0.014 * force * difY / dist);
 }
 
@@ -78,7 +74,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     float difX = wrappedDiff(p1.position.x, p2.position.x);
     float difY = wrappedDiff(p1.position.y, p2.position.y);
     float dist = difX * difX + difY * difY;
-    float v = 0;// attraction[p1.kind * nColors + p2.kind];
+    float v = attraction[p1.kind * nColors + p2.kind];
     float2 force = float2(0, 0);
     if (p1.bond1 == id.y || p1.bond2 == id.y)
     {
@@ -86,12 +82,13 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     }
     else if (p1.kind == 0 && p2.kind == 0 && p1.bond1 == -1 && p2.bond2 == -1 && dist < REACTIONDIST * REACTIONDIST)
     {
-        //Particles[id.x].bond1 = id.y;
-        //Particles[id.y].bond2 = id.x;
+        Particles[id.x].bond1 = id.y;
+        Particles[id.y].bond2 = id.x;
     }
     else
     {
-        //force = calculateForce(difX, difY, v, dist);
+        force = calculateForce(difX, difY, v, dist);
     }
-    Particles[id.x].speed += force;
+    InterlockedAdd(Particles[id.x].speed.x, (int) (force.x * 32768));
+    InterlockedAdd(Particles[id.x].speed.y, (int) (force.y * 32768));
 }

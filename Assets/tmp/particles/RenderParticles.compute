@@ -3,7 +3,7 @@
 struct Particle
 {
     float2 position;
-    float2 speed;
+    int2 speed;
     int bond1, bond2;
     int kind;
 };
@@ -49,10 +49,14 @@ void CSMain (uint3 id : SV_DispatchThreadID)
         Particle part2 = Particles[part.bond1];
         float2 mid = (part.position + part2.position) / 2;
         Result[int2(mid)] = float4(0, 1, 0, 1);
+        mid = (part.position * 3 + part2.position) / 4;
+        Result[int2(mid)] = float4(0, 1, 0, 1);
+        mid = (part.position + part2.position * 3) / 4;
+        Result[int2(mid)] = float4(0, 1, 0, 1);
     }
     
-    Particles[id.x].position.x += part.speed.x;
-    Particles[id.x].position.y += part.speed.y;
+    Particles[id.x].position.x += ((float) part.speed.x) / 32768;
+    Particles[id.x].position.y += ((float) part.speed.y) / 32768;
     if (Particles[id.x].position.x < 0)
         Particles[id.x].position.x += textureSize;
     if (Particles[id.x].position.y < 0)

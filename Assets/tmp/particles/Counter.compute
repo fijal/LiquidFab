@@ -1,0 +1,40 @@
+#pragma kernel CSMain
+
+struct Particle
+{
+    float2 position;
+    int2 speed;
+    int bond1, bond2;
+    int kind;
+};
+
+RWStructuredBuffer<Particle> Particles;
+RWStructuredBuffer<int> Result;
+
+float wrappedDiff(float p1, float p2)
+{
+    float r = p1 - p2;
+    float c1 = p1 - p2 + 2048;
+    float c2 = p1 - p2 - 2048;
+    if (abs(c1) < abs(r))
+        r = c1;
+    if (abs(c2) < abs(r))
+        r = c2;
+    return r;
+}
+
+[numthreads(32,1,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    if (id.x == id.y)
+        return;
+    Particle part1 = Particles[id.x];
+    Particle part2 = Particles[id.y];
+    float distX = wrappedDiff(part1.position.x, part2.position.x);
+    float distY = wrappedDiff(part1.position.x, part2.position.x);
+    float dist = sqrt(distX * distX + distY * distY);
+    if (dist < 5)
+    {
+        InterlockedAdd(Result[0], 1);
+    }
+}
