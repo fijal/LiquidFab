@@ -6,6 +6,7 @@ struct Particle
     int2 speed;
     int bond1, bond2;
     int kind;
+    float mass;
 };
 
 RWStructuredBuffer<Particle> Particles;
@@ -14,10 +15,10 @@ int textureSize;
 int nColors;
 
 #define REACTIONDIST 10
-#define MINDIST 15
+#define MINDIST 10
 #define MAXDIST 150
 #define PEAKDIST 25
-#define PEAKFORCE 0.05
+#define PEAKFORCE 0.03
 
 float2 calculateForce(float difX, float difY, float factor, float sDist)
 {
@@ -49,7 +50,7 @@ float2 springForce(float difX, float difY, float sDist)
 {
     float dist = sqrt(sDist);
     float force = (MINDIST - dist) / MINDIST;
-    return float2(0.014 * force * difX / dist, 0.014 * force * difY / dist);
+    return float2(0.34 * force * difX / dist, 0.34 * force * difY / dist);
 }
 
 float wrappedDiff(float p1, float p2)
@@ -78,7 +79,18 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     float2 force = float2(0, 0);
     if (p1.bond1 == id.y || p1.bond2 == id.y)
     {
-        force = springForce(difX, difY, dist);
+        if (p1.bond1 == id.y && dist > MAXDIST * MAXDIST)
+        {
+            Particles[id.x].bond1 = -1;
+        }
+        else if (p1.bond2 == id.y && dist > MAXDIST * MAXDIST)
+        {
+            Particles[id.x].bond2 = -1;
+        }
+        else
+        {
+            force = springForce(difX, difY, dist);
+        }
     }
     else if (p1.kind == 0 && p2.kind == 0 && p1.bond1 == -1 && p2.bond2 == -1 && dist < REACTIONDIST * REACTIONDIST)
     {
@@ -89,6 +101,6 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     {
         force = calculateForce(difX, difY, v, dist);
     }
-    InterlockedAdd(Particles[id.x].speed.x, (int) (force.x * 32768));
-    InterlockedAdd(Particles[id.x].speed.y, (int) (force.y * 32768));
+    InterlockedAdd(Particles[id.x].speed.x, (int) (force.x / p1.mass * 32768));
+    InterlockedAdd(Particles[id.x].speed.y, (int) (force.y / p1.mass * 32768));
 }

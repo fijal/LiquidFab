@@ -9,7 +9,7 @@ public class Particles : MonoBehaviour
     Vector4[] colors;
     float[] attraction;
 
-    static int nParticles = 10 * 1024;
+    static int nParticles = 32 * 390; // 10 * 1024;
     static int nColors = 6;
     static int textureSize = 2048;
     ComputeBuffer partBuf, colorBuf, attrBuf, fieldBuf, counterBuf;
@@ -32,17 +32,51 @@ public class Particles : MonoBehaviour
         public int speedx, speedy;
         public int bond1, bond2;
         public int kind;
+        public float mass;
     }
 
     Particle[] particles;
+    bool tick = false;
 
     public void explode()
     {
         partBuf.GetData(particles);
         for (int i = 0; i < nParticles; i++)
         {
-            particles[i].speedx = (int)(Random.Range(-2f, 2f) * 32768);
-            particles[i].speedy = (int)(Random.Range(-2f, 2f) * 32768);
+            particles[i].speedx += (int)(Random.Range(-0.5f, 0.5f) * 32768);
+            particles[i].speedy += (int)(Random.Range(-0.5f, 0.5f) * 32768);
+        }
+        partBuf.SetData(particles);
+    }
+
+    public void interrupt()
+    {
+        float v;
+        if (tick)
+        {
+            tick = false;
+            v = 2.0f;
+        } else
+        {
+            tick = true;
+            v = 0.5f;
+        }
+        partBuf.GetData(particles);
+        for (int i = 0; i < nParticles; i++)
+        {
+            particles[i].speedx = (int)(v * particles[i].speedx);
+            particles[i].speedy = (int)(v * particles[i].speedy);
+        }
+        partBuf.SetData(particles);
+    }
+
+    public void stop()
+    {
+        partBuf.GetData(particles);
+        for (int i = 0; i < nParticles; i++)
+        {
+            particles[i].speedx = 0;// (int)(Random.Range(-1f, 1f) * 32768);
+            particles[i].speedy = 0;//  (int)(Random.Range(-1f, 1f) * 32768);
         }
         partBuf.SetData(particles);
     }
@@ -81,44 +115,69 @@ public class Particles : MonoBehaviour
     {
         LoadTerrainData();
 
-        colors = new Vector4[6] { new Vector4(1, 0, 0, 1), new Vector4(0, 1, 0, 1), new Vector4(0, 0, 1, 1), new Vector4(1, 1, 0, 1),
+        colors = new Vector4[6] { new Vector4(1, 0, 0, 1), new Vector4(0, 0.6f, 0, 1), new Vector4(0, 0, 1, 1), new Vector4(1, 1, 0, 1),
                                   new Vector4(0, 1, 1, 1), new Vector4(1, 0, 1, 1)};
         particles = new Particle[nParticles];
         attraction = new float[nColors * nColors];
 
         for (int i = 0; i < nColors * nColors; i++)
         {
-            attraction[i] =  Random.Range(-1.0f, 1.0f);
+            attraction[i] = Random.Range(-1.0f, 1.0f);
         }
-        //attraction[0 + 2 * nColors] = -1f;
-        //attraction[2 + 0 * nColors] = -1f;
+        /*attraction[0 + 0 * nColors] = 0f;
+        attraction[1 + 1 * nColors] = 0f;
+        attraction[2 + 2 * nColors] = 0f;
+        attraction[3 + 3 * nColors] = 0f;
+        attraction[4 + 4 * nColors] = 0f;
+        attraction[5 + 5 * nColors] = 0f;*/
+
+
+        /*attraction[2 + 0 * nColors] = 0.2f;
+        attraction[0 + 2 * nColors] = 0.2f;
+        attraction[0 + 0 * nColors] = -0.4f;
+        attraction[2 + 2 * nColors] = -0.1f;
+        attraction[3 + 3 * nColors] = 0.8f;
+        attraction[3 + 0 * nColors] = -0.1f;
+        attraction[0 + 3 * nColors] = -0.1f;
+        attraction[3 + 2 * nColors] = 0.05f;
+        attraction[2 + 3 * nColors] = 0.05f;
+        */
         /*attraction[0] = 1.0f;
         attraction[1 + 4] = 1.0f;
         attraction[2 + 2 * 4] = 1.0f;
         attraction[3 + 3 * 4] = 1.0f;*/
 
-        int blues = 0;
+        int blues = 0;// 210 * 32;
         for (int i = 0; i < blues; i++)
         {
-            particles[i].position = new Vector2(
-                Random.Range(800f, 1500f),//(float)textureSize),
-                Random.Range(800f, 1500f));//(float)textureSize));
-            particles[i].kind = 2;// Random.Range(0, nColors);
-            if (i != nParticles - 1)
+            if (i % 3 == 0)
+            {
+                particles[i].position = new Vector2(
+                    Random.Range(200f, 1800f),//(float)textureSize),
+                    Random.Range(200f, 1800f));// (float)textureSize); ;);
+                particles[i + 1].position = new Vector2(particles[i].position.x + Random.Range(-10f, 10f), particles[i].position.y + Random.Range(-10f, 10f));
+                particles[i + 2].position = new Vector2(particles[i].position.x + Random.Range(-10f, 10f), particles[i].position.y + Random.Range(-10f, 10f));
+
+                particles[i].kind = 0;// Random.Range(0, nColors);
                 particles[i].bond1 = i + 1;
+                particles[i].bond2 = i + 2;
+                particles[i + 1].bond2 = i;
+                particles[i + 2].bond1 = i;
+                particles[i + 1].bond1 = i + 2;
+                particles[i + 2].bond2 = i + 1;
+                particles[i].mass = 14.0f;
+                particles[i + 1].mass = 1.0f;
+                particles[i + 2].mass = 1.0f;
+            }
             else
-                particles[i].bond1 = -1;
-            if (i != 0)
-                particles[i].bond2 = i - 1;
-            else
-                particles[i].bond2 = -1;
+                particles[i].kind = 2;
             //particles[i].speed = new Vector2(Random.Range(-2f, 2f), Random.Range(-2f, 2f));
         }
-        if (blues > 1)
+        /*if (blues > 1)
         {
             particles[0].bond2 = nParticles - 1;
             particles[blues - 1].bond1 = 0;
-        }
+        }*/
 
         for (int i = blues; i < nParticles; i++)
         {
@@ -128,9 +187,10 @@ public class Particles : MonoBehaviour
             particles[i].kind = Random.Range(0, nColors);
             particles[i].bond1 = -1;
             particles[i].bond2 = -1;
+            particles[i].mass = 1;// 22f;
         }
 
-        partBuf = new ComputeBuffer(nParticles, 4 * (2 + 2 + 3));
+        partBuf = new ComputeBuffer(nParticles, 4 * (2 + 2 + 4));
         colorBuf = new ComputeBuffer(colors.Length, 4 * 4);
         attrBuf = new ComputeBuffer(nColors * nColors, 4);
         counterBuf = new ComputeBuffer(1, 4);
@@ -162,6 +222,12 @@ public class Particles : MonoBehaviour
             Application.Quit();
         if (Input.GetKeyDown(KeyCode.Space))
             explode();
+        if (Input.GetKeyDown(KeyCode.C))
+            stop();
+        if (Input.GetKeyDown(KeyCode.S))
+        {
+            interrupt();
+        }
         //var c = new int[1];
         //c[0] = 0;
         //counterBuf.SetData(c);

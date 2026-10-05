@@ -6,6 +6,7 @@ struct Particle
     int2 speed;
     int bond1, bond2;
     int kind;
+    float mass;
 };
 
 RWStructuredBuffer<Particle> Particles;
