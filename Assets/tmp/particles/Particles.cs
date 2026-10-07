@@ -5,9 +5,11 @@ using UnityEngine.UI;
 public class Particles : MonoBehaviour
 {
     public ComputeShader shader, clear, simulationStep, counter;
-    public TextAsset terrainData;
+    public TextAsset terrainData, tuneData;
+    public AudioSource audio;
     Vector4[] colors;
     float[] attraction;
+    float[] soundLevel;
 
     static int nParticles = 32 * 390; // 10 * 1024;
     static int nColors = 6;
@@ -24,6 +26,7 @@ public class Particles : MonoBehaviour
     static int _nColorsID = Shader.PropertyToID("nColors");
     static int _spawnPointID = Shader.PropertyToID("spawnPoint");
     static int _fieldID = Shader.PropertyToID("field");
+    static int _dtID = Shader.PropertyToID("dt");
     
     [StructLayout(LayoutKind.Sequential)]
     struct Particle
@@ -111,9 +114,23 @@ public class Particles : MonoBehaviour
         shader.SetBuffer(0, _fieldID, fieldBuf);
     }
 
+    void LoadTuneData()
+    {
+        int sampleNo = 13782;
+        soundLevel = new float[sampleNo];
+        var soundLevelBytes = tuneData.bytes;
+        System.Buffer.BlockCopy(soundLevelBytes, 0, soundLevel, 0, sampleNo);
+        
+        /*for (int i = 0; i < sampleNo * 4; i += 4)
+        {
+            soundLevel[i] = soundLevelBytes[i];
+        }*/
+    }
+
     void Start()
     {
         LoadTerrainData();
+        LoadTuneData();
 
         colors = new Vector4[6] { new Vector4(1, 0, 0, 1), new Vector4(0, 0.6f, 0, 1), new Vector4(0, 0, 1, 1), new Vector4(1, 1, 0, 1),
                                   new Vector4(0, 1, 1, 1), new Vector4(1, 0, 1, 1)};
@@ -216,6 +233,9 @@ public class Particles : MonoBehaviour
     {
         clear.Dispatch(0, textureSize / 8, textureSize / 8, 1);
         simulationStep.Dispatch(0, nParticles / 8, nParticles / 8, 1);
+        float dt = (soundLevel[(int)(audio.time * 43.06)] + 80) / 80;
+        Debug.Log(dt);
+        shader.SetFloat(_dtID, dt * dt * dt * 6);
         shader.SetVector(_TimeID, Shader.GetGlobalVector("_Time"));
         shader.Dispatch(0, nParticles / 32, 1, 1);
         if (Input.GetKeyDown(KeyCode.Escape))
